@@ -5,10 +5,82 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun"
         xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:ThemeManager.RequestedTheme="Light"
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <TextBlock>Hello World!</TextBlock>
+    <Grid x:Name="LayoutRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Menu Grid.ColumnSpan="2">
+            <MenuItem Header="File">
+                <MenuItem Header="New" />
+                <MenuItem Header="Open" />
+                <MenuItem Header="Save" />
+                <MenuItem Header="Save As" />
+                <Separator />
+                <MenuItem Header="Script location" />
+                <MenuItem Header="Generate" />
+                <Separator />
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="Step types">
+                <MenuItem Header="Walk" />
+                <MenuItem Header="Craft" />
+                <MenuItem Header="Tech" />
+            </MenuItem>
+            <MenuItem Header="Log level">
+                <MenuItem Header="Print message">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="False" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Print savegame">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="False" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Print tech">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="False" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Debug" />
+                <MenuItem Header="Development" />
+                <MenuItem Header="Release" />
+            </MenuItem>
+        </Menu>
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <DataGrid x:Name="Steps"
+                ItemsSource="{Binding BooksCollection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                EnableRowVirtualization="True"
+                EnableColumnVirtualization="True"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                ScrollViewer.IsDeferredScrollingEnabled="True"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Step" Binding="{Binding Step}" />
+                    <DataGridTextColumn Header="X" Binding="{Binding X}" />
+                    <DataGridTextColumn Header="Y" Binding="{Binding Y}" />
+                    <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" />
+                    <DataGridTextColumn Header="Item" Binding="{Binding Item}" />
+                    <DataGridTextColumn Header="Orientation" Binding="{Binding Orientation}" />
+                    <DataGridTextColumn Header="Modifier" Binding="{Binding Modifier}" />
+                    <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </Window>

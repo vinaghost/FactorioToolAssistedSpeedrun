@@ -1,17 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
 using CommunityToolkit.Mvvm.Input;
 using System.IO;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Text.Json;
+using FactorioToolAssistedSpeedrun.Models;
 
 namespace FactorioToolAssistedSpeedrun
 {
@@ -37,7 +32,7 @@ namespace FactorioToolAssistedSpeedrun
         }
 
         [RelayCommand]
-        private void OpenFile()
+        private async Task OpenFile()
         {
             var dialog = new OpenFileDialog();
             dialog.Filter = "All files (*.*)|*.*";
@@ -52,10 +47,37 @@ namespace FactorioToolAssistedSpeedrun
                 if (filename.EndsWith(".txt"))
                 {
                     using var file = new FileStream(filename, FileMode.Open);
+                    return;
                 }
 
-                // File selected: dialog.FileName
-                // TODO: Add file handling logic here
+                if (filename.Contains("data-raw-dump.json"))
+                {
+                    var fileContent = await File.ReadAllTextAsync(filename);
+                    var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
+                    _ = prototypeData;
+                }
+
+                if (filename.Contains("factorio.exe"))
+                {
+                    await Task.Run(() =>
+                    {
+                        using var process = new Process()
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = filename,
+                                Arguments = "--dump-data",
+                                UseShellExecute = false,
+                                CreateNoWindow = true,
+                            }
+                        };
+                        process.Start();
+                        process.WaitForExit();
+                    });
+                    string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
+                    _ = File.Exists(filePath);
+                }
             }
         }
     }

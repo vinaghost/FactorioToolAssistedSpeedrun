@@ -9,6 +9,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
+using CommunityToolkit.Mvvm.Input;
+using System.IO;
 
 namespace FactorioToolAssistedSpeedrun
 {
@@ -31,6 +34,29 @@ namespace FactorioToolAssistedSpeedrun
                 new StepModel { Step = "Craft", X = 12.3, Y = 8.8, Amount = 2, Item = "Transport Belt", Orientation = "N/A", Modifier = "", Comment = "Prepare belts" }
             };
             DataContext = this;
+        }
+
+        [RelayCommand]
+        private void OpenFile()
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "All files (*.*)|*.*";
+            if (dialog.ShowDialog() == true)
+            {
+                var filename = dialog.FileName;
+                if (string.IsNullOrEmpty(filename))
+                    return;
+
+                if (!File.Exists(filename))
+                    return;
+                if (filename.EndsWith(".txt"))
+                {
+                    using var file = new FileStream(filename, FileMode.Open);
+                }
+
+                // File selected: dialog.FileName
+                // TODO: Add file handling logic here
+            }
         }
     }
 

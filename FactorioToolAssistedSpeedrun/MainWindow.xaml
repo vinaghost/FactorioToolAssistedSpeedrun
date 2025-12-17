@@ -23,6 +23,8 @@
                 <MenuItem Header="Save" />
                 <MenuItem Header="Save As" />
                 <Separator />
+                <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding FactorioCommand}" />
+                <Separator />
                 <MenuItem Header="Script location" />
                 <MenuItem Header="Generate" />
                 <Separator />

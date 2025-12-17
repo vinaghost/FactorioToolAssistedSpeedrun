@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Models;
 using Microsoft.Win32;
 using System;
@@ -8,10 +9,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace FactorioToolAssistedSpeedrun
 {
-    public partial class MainViewModel
+    public partial class MainViewModel : ObservableObject
     {
         public MainViewModel()
         {
@@ -26,6 +28,67 @@ namespace FactorioToolAssistedSpeedrun
         }
 
         public ObservableCollection<StepModel> BooksCollection { get; set; }
+
+        [ObservableProperty]
+        private string _version = "Not loaded";
+
+        [RelayCommand]
+        private async Task Factorio()
+
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "Factorio executable (*.exe)|*.exe";
+            if (dialog.ShowDialog() != true) return;
+
+            var filename = dialog.FileName;
+            if (string.IsNullOrEmpty(filename))
+                return;
+
+            if (!File.Exists(filename))
+                return;
+
+            if (!filename.Contains("factorio.exe"))
+                return;
+
+            Version = await Task.Run(() =>
+            {
+                using var process = new Process()
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = filename,
+                        Arguments = "--dump-data",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                    }
+                };
+                var version = "Not loaded";
+                var outputBuilder = new StringBuilder();
+                void OutputDataReceivedHandler(object sender, DataReceivedEventArgs args)
+                {
+                    if (string.IsNullOrEmpty(args.Data)) return;
+
+                    var match = Regex.Match(args.Data, @"\d+\.\d+\.\d+");
+                    if (match.Success)
+                    {
+                        version = match.Value;
+                    }
+
+                    process.OutputDataReceived -= OutputDataReceivedHandler;
+                }
+                process.OutputDataReceived += OutputDataReceivedHandler;
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.WaitForExit();
+                return version;
+            });
+
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
+            _ = File.Exists(filePath);
+        }
 
         [RelayCommand]
         private async Task OpenFile()
@@ -51,28 +114,6 @@ namespace FactorioToolAssistedSpeedrun
                     var fileContent = await File.ReadAllTextAsync(filename);
                     var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
                     _ = prototypeData;
-                }
-
-                if (filename.Contains("factorio.exe"))
-                {
-                    await Task.Run(() =>
-                    {
-                        using var process = new Process()
-                        {
-                            StartInfo = new ProcessStartInfo
-                            {
-                                FileName = filename,
-                                Arguments = "--dump-data",
-                                UseShellExecute = false,
-                                CreateNoWindow = true,
-                            }
-                        };
-                        process.Start();
-                        process.WaitForExit();
-                    });
-                    string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                    string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
-                    _ = File.Exists(filePath);
                 }
             }
         }

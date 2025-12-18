@@ -20,15 +20,13 @@
             <MenuItem Header="_File">
                 <MenuItem Header="New" />
                 <MenuItem Header="Open" Command="{Binding OpenFileCommand}" />
-                <MenuItem Header="Save" />
-                <MenuItem Header="Save As" />
                 <Separator />
                 <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding FactorioCommand}" />
-                <Separator />
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="_Output">
                 <MenuItem Header="Script location" />
                 <MenuItem Header="Generate" />
-                <Separator />
-                <MenuItem Header="Exit" />
             </MenuItem>
             <MenuItem Header="Step types">
                 <MenuItem Header="Walk" />
@@ -38,23 +36,35 @@
             <MenuItem Header="Log level">
                 <MenuItem Header="Print message">
                     <MenuItem.Icon>
-                        <CheckBox IsChecked="False" />
+                        <CheckBox IsChecked="True" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Print savegame">
                     <MenuItem.Icon>
-                        <CheckBox IsChecked="False" />
+                        <CheckBox IsChecked="True" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Print tech">
                     <MenuItem.Icon>
-                        <CheckBox IsChecked="False" />
+                        <CheckBox IsChecked="True" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="Debug" />
-                <MenuItem Header="Development" />
-                <MenuItem Header="Release" />
+                <MenuItem Header="Debug">
+                    <MenuItem.Icon>
+                        <RadioButton GroupName="Environment" IsChecked="False" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Development">
+                    <MenuItem.Icon>
+                        <RadioButton GroupName="Environment" IsChecked="True" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Release">
+                    <MenuItem.Icon>
+                        <RadioButton GroupName="Environment" IsChecked="False" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </Menu>
         <!-- Main Content Area -->

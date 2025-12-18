@@ -75,9 +75,8 @@
             </Grid.ColumnDefinitions>
 
             <DataGrid x:Name="Steps"
-                ItemsSource="{Binding BooksCollection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                ItemsSource="{Binding StepCollection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                 EnableRowVirtualization="True"
-                EnableColumnVirtualization="True"
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 ScrollViewer.IsDeferredScrollingEnabled="True"

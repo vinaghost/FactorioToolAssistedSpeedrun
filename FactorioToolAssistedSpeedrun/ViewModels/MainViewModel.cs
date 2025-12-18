@@ -2,17 +2,14 @@
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Printing;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {

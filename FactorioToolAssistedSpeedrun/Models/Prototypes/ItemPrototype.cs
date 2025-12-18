@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace FactorioToolAssistedSpeedrun.Models
+namespace FactorioToolAssistedSpeedrun.Models.Prototypes
 {
     public class ItemPrototype : PrototypeBase
     {

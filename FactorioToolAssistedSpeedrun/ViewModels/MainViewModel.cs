@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace FactorioToolAssistedSpeedrun
+namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {

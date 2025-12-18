@@ -1,9 +1,9 @@
-﻿<Window x:Class="FactorioToolAssistedSpeedrun.MainWindow"
+﻿<Window x:Class="FactorioToolAssistedSpeedrun.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun"
+        xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
         Title="Factorio Tool Assisted Speedrun" Height="450" Width="800">

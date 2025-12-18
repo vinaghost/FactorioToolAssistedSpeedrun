@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AdonisUI.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -33,11 +35,21 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private string _version = "Not loaded";
 
         [RelayCommand]
+        private void LoadSettings()
+        {
+            var gameDataFile = Properties.Settings.Default.GameDataFile;
+            if (!string.IsNullOrEmpty(gameDataFile) && File.Exists(gameDataFile))
+            {
+                Version = Path.GetFileNameWithoutExtension(gameDataFile);
+            }
+        }
+
+        [RelayCommand]
         private async Task Factorio()
 
         {
             var dialog = new OpenFileDialog();
-            dialog.Filter = "Factorio executable (*.exe)|*.exe";
+            dialog.Filter = "Factorio executable (*.exe)|*.exe|Factorio data (*.json)|*.json";
             if (dialog.ShowDialog() != true) return;
 
             var filename = dialog.FileName;
@@ -47,47 +59,72 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!File.Exists(filename))
                 return;
 
-            if (!filename.Contains("factorio.exe"))
-                return;
-
-            Version = await Task.Run(() =>
+            if (filename.Contains("factorio.exe"))
             {
-                using var process = new Process()
+                Version = await Task.Run(() =>
                 {
-                    StartInfo = new ProcessStartInfo
+                    using var process = new Process()
                     {
-                        FileName = filename,
-                        Arguments = "--dump-data",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        RedirectStandardOutput = true,
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = filename,
+                            Arguments = "--dump-data",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true,
+                        }
+                    };
+                    var version = "Not loaded";
+                    var outputBuilder = new StringBuilder();
+                    void OutputDataReceivedHandler(object sender, DataReceivedEventArgs args)
+                    {
+                        if (string.IsNullOrEmpty(args.Data)) return;
+
+                        var match = Regex.Match(args.Data, @"\d+\.\d+\.\d+");
+                        if (match.Success)
+                        {
+                            version = match.Value;
+                        }
+
+                        process.OutputDataReceived -= OutputDataReceivedHandler;
                     }
-                };
-                var version = "Not loaded";
-                var outputBuilder = new StringBuilder();
-                void OutputDataReceivedHandler(object sender, DataReceivedEventArgs args)
+                    process.OutputDataReceived += OutputDataReceivedHandler;
+
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.WaitForExit();
+                    return version;
+                });
+
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
+                var fileContent = await File.ReadAllTextAsync(filePath);
+                var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
+                var gameData = new GameData(prototypeData!);
+
+                var gameDataFile = $"{Version}.json";
+                await File.WriteAllTextAsync(gameDataFile, JsonSerializer.Serialize(gameData));
+
+                Properties.Settings.Default.GameDataFile = gameDataFile;
+                Properties.Settings.Default.Save();
+            }
+
+            if (filename.EndsWith(".json"))
+            {
+                var fileContent = await File.ReadAllTextAsync(filename);
+                try
                 {
-                    if (string.IsNullOrEmpty(args.Data)) return;
-
-                    var match = Regex.Match(args.Data, @"\d+\.\d+\.\d+");
-                    if (match.Success)
-                    {
-                        version = match.Value;
-                    }
-
-                    process.OutputDataReceived -= OutputDataReceivedHandler;
+                    var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
+                    var gameData = new GameData(prototypeData!);
+                    Version = Path.GetFileNameWithoutExtension(filename);
+                    Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
+                    Properties.Settings.Default.Save();
                 }
-                process.OutputDataReceived += OutputDataReceivedHandler;
-
-                process.Start();
-                process.BeginOutputReadLine();
-                process.WaitForExit();
-                return version;
-            });
-
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
-            _ = File.Exists(filePath);
+                catch
+                {
+                    MessageBox.Show("Failed to load game data from the selected JSON file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         [RelayCommand]
@@ -224,12 +261,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         var loggingLine = line.Split(";");
                         _ = loggingLine;
                     }
-                }
-                if (filename.Contains("data-raw-dump.json"))
-                {
-                    var fileContent = await File.ReadAllTextAsync(filename);
-                    var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
-                    _ = prototypeData;
                 }
             }
         }

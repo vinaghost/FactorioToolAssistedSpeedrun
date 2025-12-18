@@ -4,12 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
         Title="Factorio Tool Assisted Speedrun" Height="450" Width="800">
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}" />
     </Window.Style>
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded"
+                                SourceObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
+            <behaviors:InvokeCommandAction Command="{Binding LoadSettingsCommand}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -22,7 +29,6 @@
                 <MenuItem Header="Open" Command="{Binding OpenFileCommand}" />
                 <Separator />
                 <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding FactorioCommand}" />
-                <MenuItem Header="Exit" />
             </MenuItem>
             <MenuItem Header="_Output">
                 <MenuItem Header="Script location" />
@@ -79,7 +85,7 @@
                 EnableRowVirtualization="True"
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
-                ScrollViewer.IsDeferredScrollingEnabled="True"
+                ScrollViewer.IsDeferredScrollingEnabled="False"
                 AutoGenerateColumns="False"
                 CanUserAddRows="False">
                 <DataGrid.Columns>

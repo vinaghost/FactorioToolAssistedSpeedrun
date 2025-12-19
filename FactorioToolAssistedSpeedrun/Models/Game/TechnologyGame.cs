@@ -2,10 +2,20 @@
 
 namespace FactorioToolAssistedSpeedrun.Models.Game
 {
-    public class TechnologyGame(TechnologyPrototype prototype) : DataBase(prototype)
+    public class TechnologyGame : DataBase
     {
-        public int? Count { get; set; } = prototype.Unit?.Count;
-        public double? Time { get; set; } = prototype.Unit?.Time;
-        public List<ResearchIngredient>? Ingredients { get; set; } = prototype.Unit?.Ingredients;
+        public TechnologyGame() : base()
+        { }
+
+        public TechnologyGame(TechnologyPrototype prototype) : base(prototype)
+        {
+            Count = prototype.Unit?.Count;
+            Time = prototype.Unit?.Time;
+            Ingredients = prototype.Unit?.Ingredients;
+        }
+
+        public int? Count { get; set; }
+        public double? Time { get; set; }
+        public List<ResearchIngredient>? Ingredients { get; set; }
     }
 }

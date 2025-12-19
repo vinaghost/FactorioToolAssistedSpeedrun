@@ -2,9 +2,18 @@
 
 namespace FactorioToolAssistedSpeedrun.Models.Game
 {
-    public class ItemGame(ItemPrototype prototype) : DataBase(prototype)
+    public class ItemGame : DataBase
     {
-        public int StackSize { get; set; } = prototype.StackSize;
-        public bool IsBuilable { get; set; } = prototype.PlaceAsTile is not null || prototype.PlaceResult is not null;
+        public ItemGame()
+        { }
+
+        public ItemGame(ItemPrototype prototype) : base(prototype)
+        {
+            StackSize = prototype.StackSize;
+            IsBuilable = prototype.PlaceAsTile is not null || prototype.PlaceResult is not null;
+        }
+
+        public int StackSize { get; set; }
+        public bool IsBuilable { get; set; }
     }
 }

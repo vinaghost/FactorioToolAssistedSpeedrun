@@ -2,17 +2,37 @@
 
 namespace FactorioToolAssistedSpeedrun.Models.Game
 {
-    public class RecipeGame(RecipePrototype prototype) : DataBase(prototype)
+    public class RecipeGame : DataBase
     {
-        public string Category { get; set; } = prototype.Category;
-        public List<ProductGame>? Input { get; set; } = prototype.Input?.Select(i => new ProductGame(i)).ToList();
-        public List<ProductGame>? Output { get; set; } = prototype.Output?.Select(o => new ProductGame(o)).ToList();
+        public RecipeGame() : base()
+        { }
+
+        public RecipeGame(RecipePrototype prototype) : base(prototype)
+        {
+            Category = prototype.Category;
+            Input = prototype.Input?.Select(i => new ProductGame(i)).ToList();
+            Output = prototype.Output?.Select(o => new ProductGame(o)).ToList();
+        }
+
+        public string? Category { get; set; }
+        public List<ProductGame>? Input { get; set; }
+        public List<ProductGame>? Output { get; set; }
     }
 
-    public class ProductGame(ProductPrototype prototype)
+    public class ProductGame
     {
-        public string Type { get; set; } = prototype.Type;
-        public string Name { get; set; } = prototype.Name;
-        public int Amount { get; set; } = prototype.Amount;
+        public ProductGame()
+        { }
+
+        public ProductGame(ProductPrototype prototype)
+        {
+            Type = prototype.Type;
+            Name = prototype.Name;
+            Amount = prototype.Amount;
+        }
+
+        public string? Type { get; set; }
+        public string? Name { get; set; }
+        public int Amount { get; set; }
     }
 }

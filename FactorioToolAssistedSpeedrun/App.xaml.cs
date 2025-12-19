@@ -25,6 +25,7 @@ namespace FactorioToolAssistedSpeedrun
             var services = new ServiceCollection();
 
             services.AddTransient<MainViewModel>();
+            services.AddTransient<LoadingViewModel>();
 
             return services.BuildServiceProvider();
         }

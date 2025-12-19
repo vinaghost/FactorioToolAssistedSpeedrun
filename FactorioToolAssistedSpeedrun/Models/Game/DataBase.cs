@@ -3,9 +3,18 @@ using Humanizer;
 
 namespace FactorioToolAssistedSpeedrun.Models.Game
 {
-    public class DataBase(PrototypeBase prototype)
+    public class DataBase
     {
-        public string Name { get; set; } = prototype.Name;
-        public string HumanizeName { get; set; } = prototype.Name.Humanize().Transform(To.SentenceCase);
+        public DataBase()
+        { }
+
+        public DataBase(PrototypeBase prototype)
+        {
+            Name = prototype.Name;
+            HumanizeName = prototype.Name.Humanize().Transform(To.SentenceCase);
+        }
+
+        public string? Name { get; set; }
+        public string? HumanizeName { get; set; }
     }
 }

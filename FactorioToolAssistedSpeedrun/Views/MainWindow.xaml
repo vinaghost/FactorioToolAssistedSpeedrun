@@ -11,6 +11,9 @@
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}" />
     </Window.Style>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Loaded"
                                 SourceObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
@@ -23,7 +26,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Menu Grid.ColumnSpan="2">
+        <Menu>
             <MenuItem Header="_File">
                 <MenuItem Header="New" />
                 <MenuItem Header="Open" Command="{Binding OpenFileCommand}" />
@@ -99,6 +102,13 @@
                     <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" />
                 </DataGrid.Columns>
             </DataGrid>
+        </Grid>
+        <Grid Grid.Row="1" Visibility="{Binding LoadingViewModel.IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Style="{DynamicResource Background}" />
+            <Border Style="{DynamicResource Content}">
+                <ProgressBar IsIndeterminate="True" Width="400"  Height="20" Margin="10" />
+                <!--<TextBlock x:Name="Message" Margin="10" />-->
+            </Border>
         </Grid>
     </Grid>
 </Window>

@@ -2,20 +2,27 @@
 
 namespace FactorioToolAssistedSpeedrun.Models.Game
 {
-    public class GameData(PrototypeData prototypeData)
+    public class GameData
     {
-        public List<TechnologyGame> Technologies { get; set; } =
-            [.. prototypeData.Technologies
-                .Select(t => new TechnologyGame(t.Value))];
+        public GameData()
+        { }
 
-        public List<ItemGame> Items { get; set; } =
-            [.. prototypeData.Items
+        public GameData(PrototypeData prototypeData)
+        {
+            Technologies = [.. prototypeData.Technologies
+                .Select(t => new TechnologyGame(t.Value))];
+            Items = [.. prototypeData.Items
                 .Where(i => !i.Value.Hidden && !i.Value.Parameter)
                 .Select(i => new ItemGame(i.Value))];
-
-        public List<RecipeGame> Recipes { get; set; } =
-            [.. prototypeData.Recipes
+            Recipes = [.. prototypeData.Recipes
                 .Where(r => !r.Value.Hidden)
                 .Select(r => new RecipeGame(r.Value))];
+        }
+
+        public List<TechnologyGame>? Technologies { get; set; }
+
+        public List<ItemGame>? Items { get; set; }
+
+        public List<RecipeGame>? Recipes { get; set; }
     }
 }

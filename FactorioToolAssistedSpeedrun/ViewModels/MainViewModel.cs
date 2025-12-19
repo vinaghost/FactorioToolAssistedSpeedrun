@@ -17,7 +17,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        public MainViewModel()
+        public LoadingViewModel LoadingViewModel { get; }
+
+        public MainViewModel(LoadingViewModel loadingViewModel)
         {
             StepCollection = new ObservableCollection<StepModel>
             {
@@ -27,6 +29,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 new StepModel { Step = "Tech", X = 0, Y = 0, Amount = 0, Item = "Automation", Orientation = "N/A", Modifier = "", Comment = "Research automation" },
                 new StepModel { Step = "Craft", X = 12.3, Y = 8.8, Amount = 2, Item = "Transport Belt", Orientation = "N/A", Modifier = "", Comment = "Prepare belts" }
             };
+
+            LoadingViewModel = loadingViewModel;
         }
 
         public ObservableCollection<StepModel> StepCollection { get; set; }
@@ -61,6 +65,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             if (filename.Contains("factorio.exe"))
             {
+                LoadingViewModel.Show();
                 Version = await Task.Run(() =>
                 {
                     using var process = new Process()
@@ -107,15 +112,17 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
                 Properties.Settings.Default.GameDataFile = gameDataFile;
                 Properties.Settings.Default.Save();
+
+                LoadingViewModel.Hide();
             }
 
             if (filename.EndsWith(".json"))
             {
+                LoadingViewModel.Show();
                 var fileContent = await File.ReadAllTextAsync(filename);
                 try
                 {
-                    var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
-                    var gameData = new GameData(prototypeData!);
+                    var gameData = JsonSerializer.Deserialize<GameData>(fileContent);
                     Version = Path.GetFileNameWithoutExtension(filename);
                     Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
                     Properties.Settings.Default.Save();
@@ -124,6 +131,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 {
                     MessageBox.Show("Failed to load game data from the selected JSON file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                LoadingViewModel.Hide();
             }
         }
 

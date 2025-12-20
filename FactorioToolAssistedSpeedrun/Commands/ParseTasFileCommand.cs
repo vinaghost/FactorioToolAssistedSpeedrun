@@ -5,23 +5,28 @@ using System.IO;
 
 namespace FactorioToolAssistedSpeedrun.Commands
 {
-    public class ParseTasFileCommand : ICommand
+    public class TasFileResult
     {
-        public required string FileName { get; init; }
-
         public List<Step> StepCollection { get; } = [];
         public List<Template> TemplateCollection { get; } = [];
 
-        public string Goal { get; private set; } = "";
-        public string ModsFolder { get; private set; } = "";
+        public string Goal { get; set; } = "";
+        public string ModsFolder { get; set; } = "";
 
-        public int SelectedRow { get; private set; }
-        public int ImportIntoRow { get; private set; }
-        public bool PrintMessage { get; private set; } = false;
-        public bool PrintSavegame { get; private set; } = false;
-        public bool PrintTech { get; private set; } = false;
+        public int SelectedRow { get; set; }
+        public int ImportIntoRow { get; set; }
+        public bool PrintMessage { get; set; } = false;
+        public bool PrintSavegame { get; set; } = false;
+        public bool PrintTech { get; set; } = false;
 
-        public int Environment { get; private set; } = 1;
+        public int Environment { get; set; } = 1;
+    }
+
+    public class ParseTasFileCommand : ICommand, ICommandResult<TasFileResult>
+    {
+        public required string FileName { get; init; }
+
+        public TasFileResult Result { get; private set; } = null!;
 
         public async Task Execute()
         {
@@ -41,7 +46,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
             if (line.Equals(TasFileConstants.GOAL_INDICATOR))
             {
                 var goalLine = sr.ReadLine() ?? throw new TasFileParserException("Expected goal line");
-                Goal = goalLine;
+                Result.Goal = goalLine;
             }
 
             line = sr.ReadLine() ?? throw new TasFileParserException("Expected steps indicator line");
@@ -63,7 +68,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
                     var step = new Step()
                     {
-                        Id = StepCollection.Count + 1,
+                        Id = Result.StepCollection.Count + 1,
                         Type = segments[0],
                         X = double.TryParse(segments[1], out double x) ? x : 0,
                         Y = double.TryParse(segments[2], out double y) ? y : 0,
@@ -75,7 +80,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         Modifier = segments[8],
                     };
 
-                    StepCollection.Add(step);
+                    Result.StepCollection.Add(step);
                     line = sr.ReadLine();
                 }
             }
@@ -99,7 +104,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     }
                     var template = new Template()
                     {
-                        Id = TemplateCollection.Count(x => x.Name == segments[0]) + 1,
+                        Id = Result.TemplateCollection.Count(x => x.Name == segments[0]) + 1,
                         Name = segments[0],
                         Type = segments[1],
                         X = double.TryParse(segments[2], out double x) ? x : 0,
@@ -112,7 +117,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         Modifier = segments[9],
                     };
 
-                    TemplateCollection.Add(template);
+                    Result.TemplateCollection.Add(template);
                     line = sr.ReadLine();
                 }
             }
@@ -128,7 +133,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
             if (line.Equals(TasFileConstants.CODE_FILE_INDICATOR))
             {
                 var codeFileLine = sr.ReadLine() ?? throw new TasFileParserException("Expected step folder line");
-                ModsFolder = codeFileLine[..^1];
+                Result.ModsFolder = codeFileLine[..^1];
             }
 
             line = sr.ReadLine() ?? throw new TasFileParserException("Expected selected row indicator line");
@@ -139,7 +144,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 if (segments.Length != 4) throw new TasFileParserException($"Invalid selected row format: {line}");
                 if (int.TryParse(segments[1], out int startRow) && int.TryParse(segments[2], out int endRow))
                 {
-                    SelectedRow = startRow;
+                    Result.SelectedRow = startRow;
                 }
                 else
                 {
@@ -154,7 +159,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 if (segments.Length != 2) throw new TasFileParserException($"Invalid import into row format: {line}");
                 if (int.TryParse(segments[1], out int importIntoRow))
                 {
-                    ImportIntoRow = importIntoRow;
+                    Result.ImportIntoRow = importIntoRow;
                 }
                 else
                 {
@@ -167,12 +172,12 @@ namespace FactorioToolAssistedSpeedrun.Commands
             {
                 var segments = line.Split(";");
                 if (segments.Length != 6) throw new TasFileParserException($"Invalid logging format: {line}");
-                PrintSavegame = segments[1].Equals("1");
-                PrintTech = segments[2].Equals("1");
-                PrintMessage = segments[3].Equals("1");
+                Result.PrintSavegame = segments[1].Equals("1");
+                Result.PrintTech = segments[2].Equals("1");
+                Result.PrintMessage = segments[3].Equals("1");
                 if (int.TryParse(segments[4], out int environment))
                 {
-                    Environment = environment;
+                    Result.Environment = environment;
                 }
                 else
                 {

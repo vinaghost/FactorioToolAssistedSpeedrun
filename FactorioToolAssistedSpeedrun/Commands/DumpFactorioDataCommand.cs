@@ -6,10 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace FactorioToolAssistedSpeedrun.Commands
 {
-    public partial class DumpFactorioDataCommand : ICommand
+    public partial class DumpFactorioDataCommand : ICommand, ICommandResult<string>
     {
         public required string FileName { get; init; }
-        public string Version { get; private set; } = "Not loaded";
+        public string Result { get; private set; } = "Not loaded";
 
         public async Task Execute()
         {
@@ -33,7 +33,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 var match = VersionMatcher().Match(args.Data);
                 if (match.Success)
                 {
-                    Version = match.Value;
+                    Result = match.Value;
                 }
 
                 process.OutputDataReceived -= OutputDataReceivedHandler;

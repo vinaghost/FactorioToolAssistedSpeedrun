@@ -357,6 +357,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 };
                 await dumpFactorioDataCommand.Execute();
 
+                Version = dumpFactorioDataCommand.Result;
+
                 string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
                 var fileContent = await File.ReadAllTextAsync(filePath);
@@ -430,6 +432,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     {
                         MessageBox.Show($"Failed to parse the TAS file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
+                    var tasFileResult = parseTasFileCommand.Result;
 
                     var dbFile = Path.Combine(Path.GetDirectoryName(filename)!, $"{Path.GetFileNameWithoutExtension(filename)}.db");
 
@@ -444,48 +447,48 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
                     try
                     {
-                        context.Steps.AddRange(parseTasFileCommand.StepCollection);
-                        context.Templates.AddRange(parseTasFileCommand.TemplateCollection);
+                        context.Steps.AddRange(tasFileResult.StepCollection);
+                        context.Templates.AddRange(tasFileResult.TemplateCollection);
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.MODS_FOLDER_SETTING_KEY,
-                            Value = parseTasFileCommand.ModsFolder
+                            Value = tasFileResult.ModsFolder
                         });
 
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.SelectedRow,
-                            Value = parseTasFileCommand.SelectedRow.ToString()
+                            Value = tasFileResult.SelectedRow.ToString()
                         });
 
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.ImportIntoRow,
-                            Value = parseTasFileCommand.ImportIntoRow.ToString()
+                            Value = tasFileResult.ImportIntoRow.ToString()
                         });
 
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.PrintMessage,
-                            Value = parseTasFileCommand.PrintMessage.ToString()
+                            Value = tasFileResult.PrintMessage ? "1" : "0"
                         });
 
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.PrintSavegame,
-                            Value = parseTasFileCommand.PrintSavegame.ToString()
+                            Value = tasFileResult.PrintSavegame ? "1" : "0"
                         });
 
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.PrintTech,
-                            Value = parseTasFileCommand.PrintTech.ToString()
+                            Value = tasFileResult.PrintTech ? "1" : "0"
                         });
 
                         context.Settings.Add(new Setting
                         {
                             Key = SettingConstants.Environment,
-                            Value = parseTasFileCommand.Environment.ToString()
+                            Value = tasFileResult.Environment.ToString()
                         });
 
                         await transaction.CommitAsync();

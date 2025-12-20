@@ -9,6 +9,7 @@ using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -34,15 +35,131 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             LoadingViewModel = loadingViewModel;
         }
 
+        private bool _isLoading = false;
+
         [ObservableProperty]
         private string _version = "Not loaded";
 
         [ObservableProperty]
         private string _projectName = "No project loaded";
 
+        private string _projectDataFile = "";
+
+        [ObservableProperty]
+        private bool _printComments = false;
+
+        partial void OnPrintCommentsChanged(bool value)
+        {
+            if (_isLoading)
+                return;
+            if (string.IsNullOrEmpty(_projectDataFile))
+                return;
+            if (!File.Exists(_projectDataFile))
+                return;
+            using var context = new ProjectDbContext(_projectDataFile);
+            context.Settings
+                .Where(s => s.Key == SettingConstants.PrintMessage)
+                .ExecuteUpdate(s => s.SetProperty(s => s.Value, value ? "1" : "0"));
+        }
+
+        [ObservableProperty]
+        private bool _printSavegame = true;
+
+        partial void OnPrintSavegameChanged(bool value)
+        {
+            if (_isLoading)
+                return;
+            if (string.IsNullOrEmpty(_projectDataFile))
+                return;
+            if (!File.Exists(_projectDataFile))
+                return;
+            using var context = new ProjectDbContext(_projectDataFile);
+            context.Settings
+                .Where(s => s.Key == SettingConstants.PrintSavegame)
+                .ExecuteUpdate(s => s.SetProperty(s => s.Value, value ? "1" : "0"));
+        }
+
+        [ObservableProperty]
+        private bool _printTech = true;
+
+        partial void OnPrintTechChanged(bool value)
+        {
+            if (_isLoading)
+                return;
+            if (string.IsNullOrEmpty(_projectDataFile))
+                return;
+            if (!File.Exists(_projectDataFile))
+                return;
+            using var context = new ProjectDbContext(_projectDataFile);
+            context.Settings
+                .Where(s => s.Key == SettingConstants.PrintTech)
+                .ExecuteUpdate(s => s.SetProperty(s => s.Value, value ? "1" : "0"));
+        }
+
+        [ObservableProperty]
+        private bool _debugMode = false;
+
+        partial void OnDebugModeChanged(bool value)
+        {
+            if (_isLoading)
+                return;
+            if (!value)
+                return;
+            if (string.IsNullOrEmpty(_projectDataFile))
+                return;
+            if (!File.Exists(_projectDataFile))
+                return;
+
+            using var context = new ProjectDbContext(_projectDataFile);
+            context.Settings
+                .Where(s => s.Key == SettingConstants.Environment)
+                .ExecuteUpdate(s => s.SetProperty(s => s.Value, "0"));
+        }
+
+        [ObservableProperty]
+        private bool _developmentMode = true;
+
+        partial void OnDevelopmentModeChanged(bool value)
+        {
+            if (_isLoading)
+                return;
+            if (!value)
+                return;
+            if (string.IsNullOrEmpty(_projectDataFile))
+                return;
+            if (!File.Exists(_projectDataFile))
+                return;
+
+            using var context = new ProjectDbContext(_projectDataFile);
+            context.Settings
+                .Where(s => s.Key == SettingConstants.Environment)
+                .ExecuteUpdate(s => s.SetProperty(s => s.Value, "1"));
+        }
+
+        [ObservableProperty]
+        private bool _productionMode = false;
+
+        partial void OnProductionModeChanged(bool value)
+        {
+            if (_isLoading)
+                return;
+            if (!value)
+                return;
+            if (string.IsNullOrEmpty(_projectDataFile))
+                return;
+            if (!File.Exists(_projectDataFile))
+                return;
+
+            using var context = new ProjectDbContext(_projectDataFile);
+            context.Settings
+                .Where(s => s.Key == SettingConstants.Environment)
+                .ExecuteUpdate(s => s.SetProperty(s => s.Value, "2"));
+        }
+
         [RelayCommand]
         private void LoadSettings()
         {
+            _isLoading = true;
             var gameDataFile = Properties.Settings.Default.GameDataFile;
             if (!string.IsNullOrEmpty(gameDataFile) && File.Exists(gameDataFile))
             {
@@ -54,7 +171,81 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 try
                 {
-                    using var _ = new ProjectDbContext(projectDataFile);
+                    using var context = new ProjectDbContext(projectDataFile);
+                    _projectDataFile = projectDataFile;
+
+                    var printMessageSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintMessage);
+                    if (printMessageSetting is not null)
+                    {
+                        PrintComments = printMessageSetting.Value == "1";
+                    }
+                    else
+                    {
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.PrintMessage,
+                            Value = "0"
+                        });
+                    }
+
+                    var printSavegameSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintSavegame);
+                    if (printSavegameSetting is not null)
+                    {
+                        PrintSavegame = printSavegameSetting.Value == "1";
+                    }
+                    else
+                    {
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.PrintSavegame,
+                            Value = "1"
+                        });
+                    }
+
+                    var printTechSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintTech);
+                    if (printTechSetting is not null)
+                    {
+                        PrintTech = printTechSetting.Value == "1";
+                    }
+                    else
+                    {
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.PrintTech,
+                            Value = "1"
+                        });
+                    }
+
+                    var environmentSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.Environment);
+                    if (environmentSetting is not null)
+                    {
+                        switch (environmentSetting.Value)
+                        {
+                            case "0":
+                                DebugMode = true;
+                                break;
+
+                            case "1":
+                                DevelopmentMode = true;
+                                break;
+
+                            case "2":
+                                ProductionMode = true;
+                                break;
+
+                            default:
+                                DevelopmentMode = true;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.Environment,
+                            Value = "1"
+                        });
+                    }
                     ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
                 }
                 catch
@@ -62,6 +253,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     MessageBox.Show("Failed to load project database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            _isLoading = false;
         }
 
         [RelayCommand]

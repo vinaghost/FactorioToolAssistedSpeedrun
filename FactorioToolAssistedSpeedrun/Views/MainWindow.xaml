@@ -43,35 +43,35 @@
                 <MenuItem Header="Tech" />
             </MenuItem>
             <MenuItem Header="Log level">
-                <MenuItem Header="Print message">
-                    <MenuItem.Icon>
-                        <CheckBox IsChecked="True" />
-                    </MenuItem.Icon>
-                </MenuItem>
                 <MenuItem Header="Print savegame">
                     <MenuItem.Icon>
-                        <CheckBox IsChecked="True" />
+                        <CheckBox IsChecked="{Binding PrintSavegame}" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Print tech">
                     <MenuItem.Icon>
-                        <CheckBox IsChecked="True" />
+                        <CheckBox IsChecked="{Binding PrintTech}" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Print comments">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="{Binding PrintComments}" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="Debug">
                     <MenuItem.Icon>
-                        <RadioButton GroupName="Environment" IsChecked="False" />
+                        <RadioButton GroupName="Environment"  IsChecked="{Binding DebugMode}" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Development">
                     <MenuItem.Icon>
-                        <RadioButton GroupName="Environment" IsChecked="True" />
+                        <RadioButton GroupName="Environment" IsChecked="{Binding DevelopmentMode}" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Release">
+                <MenuItem Header="Production">
                     <MenuItem.Icon>
-                        <RadioButton GroupName="Environment" IsChecked="False" />
+                        <RadioButton GroupName="Environment" IsChecked="{Binding ProductionMode}" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>

@@ -12,11 +12,8 @@ using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {
@@ -40,6 +37,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [ObservableProperty]
         private string _version = "Not loaded";
 
+        [ObservableProperty]
+        private string _projectName = "No project loaded";
+
         [RelayCommand]
         private void LoadSettings()
         {
@@ -55,12 +55,38 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 try
                 {
                     using var _ = new ProjectDbContext(projectDataFile);
+                    ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
                 }
                 catch
                 {
                     MessageBox.Show("Failed to load project database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        [RelayCommand]
+        private async Task NewProject()
+        {
+            LoadingViewModel.Show();
+            var dialog = new SaveFileDialog
+            {
+                Filter = "Tas database (*.db)|*.db",
+                FileName = "NewProject.db"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                var filename = dialog.FileName;
+                if (string.IsNullOrEmpty(filename))
+                    return;
+                using var context = new ProjectDbContext(filename);
+                await context.Database.EnsureCreatedAsync();
+                Properties.Settings.Default.ProjectDataFile = filename;
+                Properties.Settings.Default.Save();
+                ProjectName = Path.GetFileNameWithoutExtension(filename);
+
+                MessageBox.Show("New project database created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            LoadingViewModel.Hide();
         }
 
         [RelayCommand]
@@ -139,7 +165,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             LoadingViewModel.Hide();
         }
 
-        private static async Task OpenFileTask()
+        private async Task OpenFileTask()
         {
             var dialog = new OpenFileDialog
             {
@@ -231,6 +257,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         await context.SaveChangesAsync();
                         Properties.Settings.Default.ProjectDataFile = dbFile;
                         Properties.Settings.Default.Save();
+
+                        ProjectName = Path.GetFileNameWithoutExtension(dbFile);
+
                         MessageBox.Show("Database file created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch
@@ -248,6 +277,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         using var _ = new ProjectDbContext(filename);
                         Properties.Settings.Default.ProjectDataFile = filename;
                         Properties.Settings.Default.Save();
+                        ProjectName = Path.GetFileNameWithoutExtension(filename);
                         MessageBox.Show("Project database loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch

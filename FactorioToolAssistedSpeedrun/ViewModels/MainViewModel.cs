@@ -44,6 +44,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private string _projectName = "No project loaded";
 
         private string _projectDataFile = "";
+        private string _modsFolder = "";
 
         [ObservableProperty]
         private bool _printComments = false;
@@ -246,6 +247,21 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                             Value = "1"
                         });
                     }
+
+                    var modsFolderSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY);
+                    if (modsFolderSetting is not null)
+                    {
+                        _modsFolder = modsFolderSetting.Value;
+                    }
+                    else
+                    {
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.MODS_FOLDER_SETTING_KEY,
+                            Value = ""
+                        });
+                    }
+
                     ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
                 }
                 catch
@@ -254,6 +270,34 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 }
             }
             _isLoading = false;
+        }
+
+        [RelayCommand]
+        private async Task ModsFolder()
+        {
+            if (string.IsNullOrEmpty(_projectDataFile))
+            {
+                MessageBox.Show("No project loaded.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            LoadingViewModel.Show();
+
+            var dialog = new OpenFolderDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                var folderName = dialog.FolderName;
+                if (!string.IsNullOrEmpty(folderName))
+                {
+                    using var context = new ProjectDbContext(_projectDataFile);
+                    context.Settings
+                        .Where(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY)
+                        .ExecuteUpdate(s => s.SetProperty(s => s.Value, folderName));
+
+                    MessageBox.Show("Mods folder updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+
+            LoadingViewModel.Hide();
         }
 
         [RelayCommand]

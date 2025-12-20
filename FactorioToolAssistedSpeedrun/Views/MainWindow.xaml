@@ -34,7 +34,7 @@
                 <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding DumpFactorioDataCommand}" />
             </MenuItem>
             <MenuItem Header="_Output">
-                <MenuItem Header="Script location" />
+                <MenuItem Header="Script location" Command="{Binding ModsFolderCommand}" />
                 <MenuItem Header="Generate" />
             </MenuItem>
             <MenuItem Header="Step types">

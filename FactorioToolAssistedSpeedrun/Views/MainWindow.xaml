@@ -31,7 +31,7 @@
                 <MenuItem Header="New" />
                 <MenuItem Header="Open" Command="{Binding OpenFileCommand}" />
                 <Separator />
-                <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding FactorioCommand}" />
+                <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding DumpFactorioDataCommand}" />
             </MenuItem>
             <MenuItem Header="_Output">
                 <MenuItem Header="Script location" />

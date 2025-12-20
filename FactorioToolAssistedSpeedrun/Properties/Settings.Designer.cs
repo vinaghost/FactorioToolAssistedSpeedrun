@@ -34,5 +34,17 @@ namespace FactorioToolAssistedSpeedrun.Properties {
                 this["GameDataFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ProjectDataFile {
+            get {
+                return ((string)(this["ProjectDataFile"]));
+            }
+            set {
+                this["ProjectDataFile"] = value;
+            }
+        }
     }
 }

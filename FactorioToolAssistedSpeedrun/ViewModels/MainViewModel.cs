@@ -1,10 +1,15 @@
 ﻿using AdonisUI.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Constants;
+using FactorioToolAssistedSpeedrun.DbContexts;
+using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,21 +24,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     {
         public LoadingViewModel LoadingViewModel { get; }
 
-        public MainViewModel(LoadingViewModel loadingViewModel)
-        {
-            StepCollection = new ObservableCollection<StepModel>
-            {
-                new StepModel { Step = "Walk", X = 0, Y = 0, Amount = 0, Item = "", Orientation = "N/A", Modifier = "", Comment = "Start position" },
-                new StepModel { Step = "Craft", X = 5.5, Y = 7.2, Amount = 1, Item = "Iron Gear", Orientation = "N/A", Modifier = "", Comment = "First craft" },
-                new StepModel { Step = "Walk", X = 10, Y = 15, Amount = 0, Item = "", Orientation = "East", Modifier = "Fast", Comment = "Move to next area" },
-                new StepModel { Step = "Tech", X = 0, Y = 0, Amount = 0, Item = "Automation", Orientation = "N/A", Modifier = "", Comment = "Research automation" },
-                new StepModel { Step = "Craft", X = 12.3, Y = 8.8, Amount = 2, Item = "Transport Belt", Orientation = "N/A", Modifier = "", Comment = "Prepare belts" }
-            };
+        public ObservableCollection<StepModel> StepCollection { get; set; } = [];
 
-            LoadingViewModel = loadingViewModel;
+        public MainViewModel()
+        {
+            LoadingViewModel = new LoadingViewModel();
         }
 
-        public ObservableCollection<StepModel> StepCollection { get; set; }
+        [ActivatorUtilitiesConstructor]
+        public MainViewModel(LoadingViewModel loadingViewModel)
+        {
+            LoadingViewModel = loadingViewModel;
+        }
 
         [ObservableProperty]
         private string _version = "Not loaded";
@@ -46,15 +48,37 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 Version = Path.GetFileNameWithoutExtension(gameDataFile);
             }
+
+            var projectDataFile = Properties.Settings.Default.ProjectDataFile;
+            if (!string.IsNullOrEmpty(projectDataFile) && File.Exists(projectDataFile))
+            {
+                try
+                {
+                    using var _ = new ProjectDbContext(projectDataFile);
+                }
+                catch
+                {
+                    MessageBox.Show("Failed to load project database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         [RelayCommand]
-        private async Task Factorio()
-
+        private async Task DumpFactorioData()
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "Factorio executable (*.exe)|*.exe|Factorio data (*.json)|*.json";
-            if (dialog.ShowDialog() != true) return;
+            LoadingViewModel.Show();
+            await DumpFactorioDataTask();
+            LoadingViewModel.Hide();
+        }
+
+        private async Task DumpFactorioDataTask()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Factorio executable (*.exe)|*.exe|Factorio data (*.json)|*.json"
+            };
+            if (dialog.ShowDialog() != true)
+                return;
 
             var filename = dialog.FileName;
             if (string.IsNullOrEmpty(filename))
@@ -65,41 +89,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             if (filename.Contains("factorio.exe"))
             {
-                LoadingViewModel.Show();
-                Version = await Task.Run(() =>
+                var dumpFactorioDataCommand = new DumpFactorioDataCommand
                 {
-                    using var process = new Process()
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = filename,
-                            Arguments = "--dump-data",
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                            RedirectStandardOutput = true,
-                        }
-                    };
-                    var version = "Not loaded";
-                    var outputBuilder = new StringBuilder();
-                    void OutputDataReceivedHandler(object sender, DataReceivedEventArgs args)
-                    {
-                        if (string.IsNullOrEmpty(args.Data)) return;
-
-                        var match = Regex.Match(args.Data, @"\d+\.\d+\.\d+");
-                        if (match.Success)
-                        {
-                            version = match.Value;
-                        }
-
-                        process.OutputDataReceived -= OutputDataReceivedHandler;
-                    }
-                    process.OutputDataReceived += OutputDataReceivedHandler;
-
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.WaitForExit();
-                    return version;
-                });
+                    FileName = filename
+                };
+                await dumpFactorioDataCommand.Execute();
 
                 string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
@@ -112,8 +106,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
                 Properties.Settings.Default.GameDataFile = gameDataFile;
                 Properties.Settings.Default.Save();
+                MessageBox.Show($"Game data dumped and saved to {gameDataFile}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                LoadingViewModel.Hide();
+                return;
             }
 
             if (filename.EndsWith(".json"))
@@ -126,20 +121,31 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     Version = Path.GetFileNameWithoutExtension(filename);
                     Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
                     Properties.Settings.Default.Save();
+
+                    MessageBox.Show($"Game data loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch
                 {
                     MessageBox.Show("Failed to load game data from the selected JSON file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                LoadingViewModel.Hide();
             }
         }
 
         [RelayCommand]
         private async Task OpenFile()
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "Text files (*.txt)|*.txt";
+            LoadingViewModel.Show();
+            await OpenFileTask();
+            LoadingViewModel.Hide();
+        }
+
+        private static async Task OpenFileTask()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Tas database (*.db)|*.db|Tas files (*.txt)|*.txt"
+            };
+
             if (dialog.ShowDialog() == true)
             {
                 var filename = dialog.FileName;
@@ -150,124 +156,103 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     return;
                 if (filename.EndsWith(".txt"))
                 {
-                    using var sr = File.OpenText(filename);
-
-                    var line = sr.ReadLine();
-                    if (line is null) return;
-                    if (line.Equals(TasFileConstants.TOTAL_STEPS_INDICATOR))
+                    var parseTasFileCommand = new ParseTasFileCommand
                     {
-                        var totalStepsLine = sr.ReadLine();
-                        if (int.TryParse(totalStepsLine, out int totalSteps))
+                        FileName = filename
+                    };
+                    try
+                    {
+                        await parseTasFileCommand.Execute();
+                    }
+                    catch (TasFileParserException ex)
+                    {
+                        MessageBox.Show($"Failed to parse the TAS file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+
+                    var dbFile = Path.Combine(Path.GetDirectoryName(filename)!, $"{Path.GetFileNameWithoutExtension(filename)}.db");
+
+                    var result = MessageBox.Show($"Tool will create a new db file for this project at {dbFile}", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                    if (result == MessageBoxResult.No)
+                        return;
+
+                    using var context = new ProjectDbContext(dbFile);
+                    await context.Database.EnsureCreatedAsync();
+
+                    using var transaction = await context.Database.BeginTransactionAsync();
+
+                    try
+                    {
+                        context.Steps.AddRange(parseTasFileCommand.StepCollection);
+                        context.Templates.AddRange(parseTasFileCommand.TemplateCollection);
+                        context.Settings.Add(new Setting
                         {
-                            _ = totalSteps;
-                        }
-                    }
+                            Key = SettingConstants.MODS_FOLDER_SETTING_KEY,
+                            Value = parseTasFileCommand.ModsFolder
+                        });
 
-                    line = sr.ReadLine();
-                    if (line is null) return;
-                    if (line.Equals(TasFileConstants.GOAL_INDICATOR))
-                    {
-                        var goalLine = sr.ReadLine();
-                        _ = goalLine;
-                    }
-
-                    line = sr.ReadLine();
-                    if (line is null) return;
-                    if (line.Equals(TasFileConstants.STEPS_INDICATOR))
-                    {
-                        StepCollection.Clear();
-                        var stepLine = sr.ReadLine();
-
-                        var steps = new List<StepModel>();
-                        while (stepLine is not null)
+                        context.Settings.Add(new Setting
                         {
-                            if (stepLine.Equals(TasFileConstants.TEMPLATES_INDICATOR))
-                            {
-                                break;
-                            }
-                            var segments = stepLine.Split(';');
-                            var step = new StepModel()
-                            {
-                                Step = segments.Length > 0 ? segments[0] : "Unknow",
-                                X = segments.Length > 1 && double.TryParse(segments[1], out double x) ? x : 0,
-                                Y = segments.Length > 2 && double.TryParse(segments[2], out double y) ? y : 0,
-                                Amount = segments.Length > 3 && int.TryParse(segments[3], out int amount) ? amount : 0,
-                                Item = segments.Length > 4 ? segments[4] : "",
-                                Orientation = segments.Length > 5 ? segments[5] : "",
-                                Comment = segments.Length > 6 ? segments[6] : "",
-                                Color = segments.Length > 7 ? segments[7] : "",
-                                Modifier = segments.Length > 8 ? segments[8] : "",
-                            };
+                            Key = SettingConstants.SelectedRow,
+                            Value = parseTasFileCommand.SelectedRow.ToString()
+                        });
 
-                            steps.Add(step);
-                            stepLine = sr.ReadLine();
-                        }
-                        for (var i = 0; i < 10; i++)
+                        context.Settings.Add(new Setting
                         {
-                            foreach (var step in steps)
-                            {
-                                StepCollection.Add(step);
-                            }
-                        }
+                            Key = SettingConstants.ImportIntoRow,
+                            Value = parseTasFileCommand.ImportIntoRow.ToString()
+                        });
 
-                        line = stepLine;
-                    }
-
-                    if (line is null) return;
-
-                    if (line.Equals(TasFileConstants.TEMPLATES_INDICATOR))
-                    {
-                        var templates = new List<string>();
-                        while (line is not null)
+                        context.Settings.Add(new Setting
                         {
-                            if (line.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
-                            {
-                                break;
-                            }
-                            templates.Add(line);
-                            line = sr.ReadLine();
-                        }
+                            Key = SettingConstants.PrintMessage,
+                            Value = parseTasFileCommand.PrintMessage.ToString()
+                        });
 
-                        _ = templates;
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.PrintSavegame,
+                            Value = parseTasFileCommand.PrintSavegame.ToString()
+                        });
+
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.PrintTech,
+                            Value = parseTasFileCommand.PrintTech.ToString()
+                        });
+
+                        context.Settings.Add(new Setting
+                        {
+                            Key = SettingConstants.Environment,
+                            Value = parseTasFileCommand.Environment.ToString()
+                        });
+
+                        await transaction.CommitAsync();
+
+                        await context.SaveChangesAsync();
+                        Properties.Settings.Default.ProjectDataFile = dbFile;
+                        Properties.Settings.Default.Save();
+                        MessageBox.Show("Database file created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-                    if (line is null) return;
-                    if (line.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
+                    catch
                     {
-                        var saveFileLine = sr.ReadLine();
-                        _ = saveFileLine;
+                        await transaction.RollbackAsync();
+                        MessageBox.Show("Failed to create database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
+                    return;
+                }
 
-                    line = sr.ReadLine();
-                    if (line is null) return;
-                    if (line.Equals(TasFileConstants.CODE_FILE_INDICATOR))
+                if (filename.EndsWith(".db"))
+                {
+                    try
                     {
-                        var codeFileLine = sr.ReadLine();
-                        _ = codeFileLine;
+                        using var _ = new ProjectDbContext(filename);
+                        Properties.Settings.Default.ProjectDataFile = filename;
+                        Properties.Settings.Default.Save();
+                        MessageBox.Show("Project database loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-
-                    line = sr.ReadLine();
-                    if (line is null) return;
-
-                    if (line.Contains(TasFileConstants.SELECTED_ROW_INDICATOR))
+                    catch
                     {
-                        var selectedRowLine = line.Split(";");
-                        _ = selectedRowLine;
-                    }
-
-                    line = sr.ReadLine();
-                    if (line is null) return;
-                    if (line.Contains(TasFileConstants.IMPORT_INTO_ROW_INDICATOR))
-                    {
-                        var importIntoLine = line.Split(";");
-                        _ = importIntoLine;
-                    }
-
-                    line = sr.ReadLine();
-                    if (line is null) return;
-                    if (line.Contains(TasFileConstants.LOGGING_INDICATOR))
-                    {
-                        var loggingLine = line.Split(";");
-                        _ = loggingLine;
+                        MessageBox.Show("Failed to load project database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }

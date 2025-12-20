@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/FactorioToolAssistedSpeedrun/data-raw-dump.json
+/FactorioToolAssistedSpeedrun/data.db
+/FactorioToolAssistedSpeedrun/data.txt

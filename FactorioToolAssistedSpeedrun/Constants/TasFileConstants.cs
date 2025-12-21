@@ -6,6 +6,8 @@ namespace FactorioToolAssistedSpeedrun.Constants
 {
     public static class TasFileConstants
     {
+        public const string VERSION = "2.0.5";
+
         public const string TOTAL_STEPS_INDICATOR = "Total lines:";
         public const string TOTAL_COMMANDS_INDICATOR = "Total commands:";
         public const string GOAL_INDICATOR = "Goal:";

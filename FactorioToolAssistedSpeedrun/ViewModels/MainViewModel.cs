@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -293,11 +294,95 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         .Where(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY)
                         .ExecuteUpdate(s => s.SetProperty(s => s.Value, folderName));
 
+                    _modsFolder = folderName;
+
                     MessageBox.Show("Mods folder updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
 
             LoadingViewModel.Hide();
+        }
+
+        [RelayCommand]
+        private async Task GenerateScript()
+        {
+            if (string.IsNullOrEmpty(_projectDataFile))
+            {
+                MessageBox.Show("No project loaded.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            LoadingViewModel.Show();
+            await GenerateScriptTask();
+            LoadingViewModel.Hide();
+        }
+
+        private async Task GenerateScriptTask()
+        {
+            if (string.IsNullOrEmpty(_modsFolder) || !Directory.Exists(_modsFolder))
+            {
+                var dialog = new OpenFolderDialog();
+                if (dialog.ShowDialog() == true)
+                {
+                    var folderName = dialog.FolderName;
+                    if (string.IsNullOrEmpty(folderName))
+                    {
+                        MessageBox.Show("Script folder path is empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    using var context = new ProjectDbContext(_projectDataFile);
+                    context.Settings
+                        .Where(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY)
+                        .ExecuteUpdate(s => s.SetProperty(s => s.Value, folderName));
+
+                    _modsFolder = folderName;
+                }
+                else
+                {
+                    MessageBox.Show("Script folder is required to generate the script.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            var controlFile = Path.Combine(_modsFolder, "control.lua");
+            if (!File.Exists(controlFile))
+            {
+                File.Copy(Path.Combine("LuaFolders", "control.lua"), controlFile);
+            }
+            var settingsFile = Path.Combine(_modsFolder, "settings.lua");
+            if (!File.Exists(settingsFile))
+            {
+                File.Copy(Path.Combine("LuaFolders", "settings.lua"), settingsFile);
+            }
+            var goalFile = Path.Combine(_modsFolder, "goals.lua");
+            if (!File.Exists(goalFile))
+            {
+                File.Copy(Path.Combine("LuaFolders", "goals.lua"), goalFile);
+            }
+            var localeFile = Path.Combine(_modsFolder, "locale", "en", "locale.cfg");
+            if (!File.Exists(localeFile))
+            {
+                Directory.CreateDirectory(Path.Combine(_modsFolder, "locale", "en"));
+                File.Copy(Path.Combine("LuaFolders", "locale", "en", "locale.cfg"), localeFile);
+            }
+
+            var addVariableFileCommand = new AddVariableFileCommand
+            {
+                FolderLocation = _modsFolder,
+                EnvironmentId = DebugMode ? 0 : DevelopmentMode ? 1 : 2,
+                PrintMessage = PrintComments,
+                PrintSavegame = PrintSavegame,
+                PrintTech = PrintTech
+            };
+
+            await addVariableFileCommand.Execute();
+
+            var addInfoFileCommand = new AddInfoFileCommand
+            {
+                FolderLocation = _modsFolder,
+            };
+
+            await addInfoFileCommand.Execute();
         }
 
         [RelayCommand]

@@ -35,7 +35,7 @@
             </MenuItem>
             <MenuItem Header="_Output">
                 <MenuItem Header="Script location" Command="{Binding ModsFolderCommand}" />
-                <MenuItem Header="Generate" />
+                <MenuItem Header="Generate" Command="{Binding GenerateScriptCommand}" />
             </MenuItem>
             <MenuItem Header="Step types">
                 <MenuItem Header="Walk" />

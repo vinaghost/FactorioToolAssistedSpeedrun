@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Styles\" />
-    <Folder Include="Parsers\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="LuaFolders\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

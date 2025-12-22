@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -24,6 +23,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public LoadingViewModel LoadingViewModel { get; }
 
         public ObservableCollection<StepModel> StepCollection { get; set; } = [];
+        private GameData? _gameData;
 
         public MainViewModel()
         {
@@ -166,6 +166,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!string.IsNullOrEmpty(gameDataFile) && File.Exists(gameDataFile))
             {
                 Version = Path.GetFileNameWithoutExtension(gameDataFile);
+                var fileContent = File.ReadAllText(gameDataFile);
+                try
+                {
+                    _gameData = JsonSerializer.Deserialize<GameData>(fileContent);
+                }
+                catch
+                {
+                    MessageBox.Show("Failed to load game data from the saved JSON file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
 
             var projectDataFile = Properties.Settings.Default.ProjectDataFile;
@@ -312,6 +321,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
 
+            if (_gameData is null)
+            {
+                MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             LoadingViewModel.Show();
             await GenerateScriptTask();
             LoadingViewModel.Hide();
@@ -383,6 +398,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             };
 
             await addInfoFileCommand.Execute();
+
+            var addStepFileCommand = new AddStepsFileCommand
+            {
+                FolderLocation = _modsFolder,
+                DbContext = new ProjectDbContext(_projectDataFile),
+                GameData = _gameData!
+            };
+            await addStepFileCommand.Execute();
         }
 
         [RelayCommand]
@@ -450,6 +473,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
                 var gameData = new GameData(prototypeData!);
 
+                _gameData = gameData;
+
                 var gameDataFile = $"{Version}.json";
                 await File.WriteAllTextAsync(gameDataFile, JsonSerializer.Serialize(gameData));
 
@@ -470,6 +495,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     Version = Path.GetFileNameWithoutExtension(filename);
                     Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
                     Properties.Settings.Default.Save();
+                    _gameData = gameData;
 
                     MessageBox.Show($"Game data loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -483,6 +509,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task OpenFile()
         {
+            if (_gameData is null)
+            {
+                MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             LoadingViewModel.Show();
             await OpenFileTask();
             LoadingViewModel.Hide();
@@ -507,7 +538,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 {
                     var parseTasFileCommand = new ParseTasFileCommand
                     {
-                        FileName = filename
+                        FileName = filename,
+                        GameData = _gameData!
                     };
                     try
                     {
@@ -521,14 +553,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
                     var dbFile = Path.Combine(Path.GetDirectoryName(filename)!, $"{Path.GetFileNameWithoutExtension(filename)}.db");
 
-                    var result = MessageBox.Show($"Tool will create a new db file for this project at {dbFile}", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                    var result = MessageBox.Show($"Tool will create a new db file for this project at {dbFile} (existing file will be overrided) ", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
                     if (result == MessageBoxResult.No)
                         return;
 
                     using var context = new ProjectDbContext(dbFile);
+                    await context.Database.EnsureDeletedAsync();
                     await context.Database.EnsureCreatedAsync();
-
-                    using var transaction = await context.Database.BeginTransactionAsync();
 
                     try
                     {
@@ -576,8 +607,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                             Value = tasFileResult.Environment.ToString()
                         });
 
-                        await transaction.CommitAsync();
-
                         await context.SaveChangesAsync();
                         Properties.Settings.Default.ProjectDataFile = dbFile;
                         Properties.Settings.Default.Save();
@@ -588,7 +617,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     }
                     catch
                     {
-                        await transaction.RollbackAsync();
                         MessageBox.Show("Failed to create database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     return;

@@ -1,10 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Constants;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml.Linq;
 
 namespace FactorioToolAssistedSpeedrun.Commands
 {

@@ -11,7 +11,14 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
         public DataBase(PrototypeBase prototype)
         {
             Name = prototype.Name;
-            HumanizeName = prototype.Name.Humanize().Transform(To.SentenceCase);
+            if (Name == "long-handed-inserter")
+            {
+                HumanizeName = "Long-handed inserter";
+            }
+            else
+            {
+                HumanizeName = prototype.Name.Humanize().Transform(To.SentenceCase);
+            }
         }
 
         public string? Name { get; set; }

@@ -1,7 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-using System.Data;
 using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun

@@ -1,6 +1,7 @@
 ﻿using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Exceptions;
+using FactorioToolAssistedSpeedrun.Models.Game;
 using System.IO;
 
 namespace FactorioToolAssistedSpeedrun.Commands
@@ -25,8 +26,9 @@ namespace FactorioToolAssistedSpeedrun.Commands
     public class ParseTasFileCommand : ICommand, ICommandResult<TasFileResult>
     {
         public required string FileName { get; init; }
+        public required GameData GameData { get; init; }
 
-        public TasFileResult Result { get; private set; } = null!;
+        public TasFileResult Result { get; } = new();
 
         public async Task Execute()
         {
@@ -50,6 +52,29 @@ namespace FactorioToolAssistedSpeedrun.Commands
             }
 
             line = sr.ReadLine() ?? throw new TasFileParserException("Expected steps indicator line");
+
+            var itemNameDictionary = new Dictionary<string, string>();
+
+            foreach (var item in GameData.Items!)
+            {
+                if (item.Name is null || item.HumanizeName is null) continue;
+                itemNameDictionary[item.HumanizeName] = item.Name;
+            }
+
+            var techNameDictionary = new Dictionary<string, string>();
+            foreach (var tech in GameData.Technologies!)
+            {
+                if (tech.Name is null || tech.HumanizeName is null) continue;
+                techNameDictionary[tech.HumanizeName] = tech.Name;
+            }
+
+            var recipeNameDictionary = new Dictionary<string, string>();
+            foreach (var recipe in GameData.Recipes!)
+            {
+                if (recipe.Name is null || recipe.HumanizeName is null) continue;
+                recipeNameDictionary[recipe.HumanizeName] = recipe.Name;
+            }
+
             if (line.Equals(TasFileConstants.STEPS_INDICATOR))
             {
                 line = sr.ReadLine();
@@ -66,6 +91,9 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         throw new TasFileParserException($"Invalid step format: {line}");
                     }
 
+                    var itemName = itemNameDictionary.TryGetValue(segments[4], out string? value) ? value : segments[4];
+                    itemName = techNameDictionary.TryGetValue(itemName, out string? techValue) ? techValue : itemName;
+                    itemName = recipeNameDictionary.TryGetValue(itemName, out string? recipeValue) ? recipeValue : itemName;
                     var step = new Step()
                     {
                         Id = Result.StepCollection.Count + 1,
@@ -73,7 +101,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         X = double.TryParse(segments[1], out double x) ? x : 0,
                         Y = double.TryParse(segments[2], out double y) ? y : 0,
                         Amount = int.TryParse(segments[3], out int amount) ? amount : 0,
-                        Item = segments[4],
+                        Item = itemName,
                         Orientation = segments[5],
                         Comment = segments[6],
                         Color = segments[7],

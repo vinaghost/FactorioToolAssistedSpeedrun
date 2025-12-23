@@ -16,5 +16,7 @@ namespace FactorioToolAssistedSpeedrun.Entities
         public string Modifier { get; set; } = "";
         public string Color { get; set; } = "";
         public string Comment { get; set; } = "";
+        public bool IsSkip { get; set; } = false;
+        public bool IsSplit { get; set; } = false;
     }
 }

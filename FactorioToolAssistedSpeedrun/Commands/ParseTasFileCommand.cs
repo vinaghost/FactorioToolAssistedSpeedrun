@@ -94,6 +94,13 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     var itemName = itemNameDictionary.TryGetValue(segments[4], out string? value) ? value : segments[4];
                     itemName = techNameDictionary.TryGetValue(itemName, out string? techValue) ? techValue : itemName;
                     itemName = recipeNameDictionary.TryGetValue(itemName, out string? recipeValue) ? recipeValue : itemName;
+
+                    var isSkip = segments[8].Contains("skip");
+                    var isSplit = segments[8].Contains("split");
+                    segments[8] = segments[8].Replace("skip", "").Replace("split", "");
+                    var modifierSegments = segments[8].Split(',');
+                    segments[8] = string.Join(',', modifierSegments.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
+
                     var step = new Step()
                     {
                         Id = Result.StepCollection.Count + 1,
@@ -106,6 +113,8 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         Comment = segments[6],
                         Color = segments[7],
                         Modifier = segments[8],
+                        IsSkip = isSkip,
+                        IsSplit = isSplit
                     };
 
                     Result.StepCollection.Add(step);

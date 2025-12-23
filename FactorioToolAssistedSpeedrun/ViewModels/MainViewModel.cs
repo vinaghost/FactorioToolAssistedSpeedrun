@@ -403,7 +403,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 FolderLocation = _modsFolder,
                 DbContext = new ProjectDbContext(_projectDataFile),
-                GameData = _gameData!
             };
             await addStepFileCommand.Execute();
         }
@@ -424,6 +423,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     return;
                 using var context = new ProjectDbContext(filename);
                 await context.Database.EnsureCreatedAsync();
+                context.SetupTriggers();
                 Properties.Settings.Default.ProjectDataFile = filename;
                 Properties.Settings.Default.Save();
                 ProjectName = Path.GetFileNameWithoutExtension(filename);
@@ -558,11 +558,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         return;
 
                     using var context = new ProjectDbContext(dbFile);
-                    await context.Database.EnsureDeletedAsync();
-                    await context.Database.EnsureCreatedAsync();
 
                     try
                     {
+                        await context.Database.EnsureDeletedAsync();
+                        await context.Database.EnsureCreatedAsync();
+                        context.SetupTriggers();
+
                         context.Steps.AddRange(tasFileResult.StepCollection);
                         context.Templates.AddRange(tasFileResult.TemplateCollection);
                         context.Settings.Add(new Setting
@@ -615,9 +617,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
                         MessageBox.Show("Database file created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        MessageBox.Show("Failed to create database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (ex.InnerException is not null)
+                        {
+                            ex = ex.InnerException;
+                        }
+                        MessageBox.Show($"Failed to create database file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     return;
                 }

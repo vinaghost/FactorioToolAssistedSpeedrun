@@ -31,10 +31,10 @@
                 <MenuItem Header="New" Command="{Binding NewProjectCommand}" />
                 <MenuItem Header="Open" Command="{Binding OpenFileCommand}" />
                 <Separator />
-                <MenuItem Header="Factorio" InputGestureText="{Binding Version}" Command="{Binding DumpFactorioDataCommand}" />
+                <MenuItem Header="Factorio"  Command="{Binding DumpFactorioDataCommand}" InputGestureText="{Binding Version}" />
             </MenuItem>
             <MenuItem Header="_Output">
-                <MenuItem Header="Script location" Command="{Binding ModsFolderCommand}" />
+                <MenuItem Header="Script location" Command="{Binding SetScriptLocationCommand}" InputGestureText="{Binding ScriptFolder}" />
                 <MenuItem Header="Generate" Command="{Binding GenerateScriptCommand}" />
             </MenuItem>
             <MenuItem Header="Step types">

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Commands
 {
-    public class AddVariableFileCommand : ICommand
+    public class AddVariableFileCommand : IAsyncCommand
     {
         public required string FolderLocation { get; init; }
         public required int EnvironmentId { get; init; }

@@ -12,11 +12,11 @@ namespace FactorioToolAssistedSpeedrun.Commands
         public List<Template> TemplateCollection { get; } = [];
 
         public string Goal { get; set; } = "";
-        public string ModsFolder { get; set; } = "";
+        public string ScriptFolder { get; set; } = "";
 
         public int SelectedRow { get; set; }
         public int ImportIntoRow { get; set; }
-        public bool PrintMessage { get; set; } = false;
+        public bool PrintComments { get; set; } = false;
         public bool PrintSavegame { get; set; } = false;
         public bool PrintTech { get; set; } = false;
 
@@ -30,7 +30,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public TasFileResult Result { get; } = new();
 
-        public async Task Execute()
+        public void Execute()
         {
             using var sr = File.OpenText(FileName);
             var line = sr.ReadLine() ?? throw new TasFileParserException("Empty file");
@@ -173,7 +173,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
             if (line.Equals(TasFileConstants.CODE_FILE_INDICATOR))
             {
                 var codeFileLine = sr.ReadLine() ?? throw new TasFileParserException("Expected step folder line");
-                Result.ModsFolder = codeFileLine[..^1];
+                Result.ScriptFolder = codeFileLine[..^1];
             }
 
             line = sr.ReadLine() ?? throw new TasFileParserException("Expected selected row indicator line");
@@ -214,7 +214,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 if (segments.Length != 6) throw new TasFileParserException($"Invalid logging format: {line}");
                 Result.PrintSavegame = segments[1].Equals("1");
                 Result.PrintTech = segments[2].Equals("1");
-                Result.PrintMessage = segments[3].Equals("1");
+                Result.PrintComments = segments[3].Equals("1");
                 if (int.TryParse(segments[4], out int environment))
                 {
                     Result.Environment = environment;

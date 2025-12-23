@@ -3,8 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Entities;
-using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
@@ -44,8 +42,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [ObservableProperty]
         private string _projectName = "No project loaded";
 
+        [ObservableProperty]
+        private string _scriptFolder = "";
+
         private string _projectDataFile = "";
-        private string _modsFolder = "";
 
         [ObservableProperty]
         private bool _printComments = false;
@@ -58,10 +58,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             if (!File.Exists(_projectDataFile))
                 return;
-            using var context = new ProjectDbContext(_projectDataFile);
-            context.Settings
-                .Where(s => s.Key == SettingConstants.PrintMessage)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, value ? "1" : "0"));
+
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.PrintMessage,
+                Value = value ? "1" : "0"
+            };
+
+            updateSettingCommand.Execute();
         }
 
         [ObservableProperty]
@@ -75,10 +80,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             if (!File.Exists(_projectDataFile))
                 return;
-            using var context = new ProjectDbContext(_projectDataFile);
-            context.Settings
-                .Where(s => s.Key == SettingConstants.PrintSavegame)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, value ? "1" : "0"));
+
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.PrintSavegame,
+                Value = value ? "1" : "0"
+            };
+            updateSettingCommand.Execute();
         }
 
         [ObservableProperty]
@@ -92,10 +101,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             if (!File.Exists(_projectDataFile))
                 return;
-            using var context = new ProjectDbContext(_projectDataFile);
-            context.Settings
-                .Where(s => s.Key == SettingConstants.PrintTech)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, value ? "1" : "0"));
+
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.PrintTech,
+                Value = value ? "1" : "0"
+            };
+            updateSettingCommand.Execute();
         }
 
         [ObservableProperty]
@@ -112,10 +125,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!File.Exists(_projectDataFile))
                 return;
 
-            using var context = new ProjectDbContext(_projectDataFile);
-            context.Settings
-                .Where(s => s.Key == SettingConstants.Environment)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, "0"));
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.Environment,
+                Value = "0"
+            };
+            updateSettingCommand.Execute();
         }
 
         [ObservableProperty]
@@ -132,10 +148,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!File.Exists(_projectDataFile))
                 return;
 
-            using var context = new ProjectDbContext(_projectDataFile);
-            context.Settings
-                .Where(s => s.Key == SettingConstants.Environment)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, "1"));
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.Environment,
+                Value = "1"
+            };
+            updateSettingCommand.Execute();
         }
 
         [ObservableProperty]
@@ -152,164 +171,123 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!File.Exists(_projectDataFile))
                 return;
 
-            using var context = new ProjectDbContext(_projectDataFile);
-            context.Settings
-                .Where(s => s.Key == SettingConstants.Environment)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, "2"));
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.Environment,
+                Value = "2"
+            };
+
+            updateSettingCommand.Execute();
         }
 
         [RelayCommand]
-        private void LoadSettings()
+        private async Task LoadSettings()
         {
             _isLoading = true;
-            var gameDataFile = Properties.Settings.Default.GameDataFile;
-            if (!string.IsNullOrEmpty(gameDataFile) && File.Exists(gameDataFile))
+
+            try
             {
-                Version = Path.GetFileNameWithoutExtension(gameDataFile);
-                var fileContent = File.ReadAllText(gameDataFile);
-                try
-                {
-                    _gameData = JsonSerializer.Deserialize<GameData>(fileContent);
-                }
-                catch
-                {
-                    MessageBox.Show("Failed to load game data from the saved JSON file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                LoadGameDataFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load game data file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            var projectDataFile = Properties.Settings.Default.ProjectDataFile;
-            if (!string.IsNullOrEmpty(projectDataFile) && File.Exists(projectDataFile))
+            try
             {
-                try
-                {
-                    using var context = new ProjectDbContext(projectDataFile);
-                    _projectDataFile = projectDataFile;
-
-                    var printMessageSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintMessage);
-                    if (printMessageSetting is not null)
-                    {
-                        PrintComments = printMessageSetting.Value == "1";
-                    }
-                    else
-                    {
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.PrintMessage,
-                            Value = "0"
-                        });
-                    }
-
-                    var printSavegameSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintSavegame);
-                    if (printSavegameSetting is not null)
-                    {
-                        PrintSavegame = printSavegameSetting.Value == "1";
-                    }
-                    else
-                    {
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.PrintSavegame,
-                            Value = "1"
-                        });
-                    }
-
-                    var printTechSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintTech);
-                    if (printTechSetting is not null)
-                    {
-                        PrintTech = printTechSetting.Value == "1";
-                    }
-                    else
-                    {
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.PrintTech,
-                            Value = "1"
-                        });
-                    }
-
-                    var environmentSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.Environment);
-                    if (environmentSetting is not null)
-                    {
-                        switch (environmentSetting.Value)
-                        {
-                            case "0":
-                                DebugMode = true;
-                                break;
-
-                            case "1":
-                                DevelopmentMode = true;
-                                break;
-
-                            case "2":
-                                ProductionMode = true;
-                                break;
-
-                            default:
-                                DevelopmentMode = true;
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.Environment,
-                            Value = "1"
-                        });
-                    }
-
-                    var modsFolderSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY);
-                    if (modsFolderSetting is not null)
-                    {
-                        _modsFolder = modsFolderSetting.Value;
-                    }
-                    else
-                    {
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.MODS_FOLDER_SETTING_KEY,
-                            Value = ""
-                        });
-                    }
-
-                    ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
-                }
-                catch
-                {
-                    MessageBox.Show("Failed to load project database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                await LoadProjectDataFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load project data file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             _isLoading = false;
         }
 
+        private void LoadGameDataFile()
+        {
+            var gameDataFile = Properties.Settings.Default.GameDataFile;
+            if (!File.Exists(gameDataFile))
+                return;
+
+            Version = Path.GetFileNameWithoutExtension(gameDataFile);
+
+            var fileContent = File.ReadAllText(gameDataFile);
+            _gameData = JsonSerializer.Deserialize<GameData>(fileContent);
+        }
+
+        private async Task LoadProjectDataFile()
+        {
+            var projectDataFile = Properties.Settings.Default.ProjectDataFile;
+            if (!File.Exists(projectDataFile))
+                return;
+
+            var loadSettingsCommand = new LoadSettingsCommand
+            {
+                ProjectDataFile = projectDataFile
+            };
+
+            await Task.Run(loadSettingsCommand.Execute);
+
+            var settingsResult = loadSettingsCommand.Result;
+
+            PrintComments = settingsResult.PrintComments;
+            PrintSavegame = settingsResult.PrintSavegame;
+            PrintTech = settingsResult.PrintTech;
+
+            DebugMode = settingsResult.DebugMode;
+            DevelopmentMode = settingsResult.DevelopmentMode;
+            ProductionMode = settingsResult.ProductionMode;
+            ScriptFolder = settingsResult.ScriptFolder;
+
+            _projectDataFile = projectDataFile;
+            ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
+        }
+
         [RelayCommand]
-        private async Task ModsFolder()
+        private async Task SetScriptLocation()
         {
             if (string.IsNullOrEmpty(_projectDataFile))
             {
-                MessageBox.Show("No project loaded.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("No project loaded. Please open project first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            LoadingViewModel.Show();
 
             var dialog = new OpenFolderDialog();
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() != true)
+                return;
+
+            var folderName = dialog.FolderName;
+            if (string.IsNullOrEmpty(folderName))
+                return;
+
+            LoadingViewModel.Show();
+
+            try
             {
-                var folderName = dialog.FolderName;
-                if (!string.IsNullOrEmpty(folderName))
-                {
-                    using var context = new ProjectDbContext(_projectDataFile);
-                    context.Settings
-                        .Where(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY)
-                        .ExecuteUpdate(s => s.SetProperty(s => s.Value, folderName));
-
-                    _modsFolder = folderName;
-
-                    MessageBox.Show("Mods folder updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                await SetScriptLocationTask(folderName);
+                MessageBox.Show("Script location set successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to set script location. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             LoadingViewModel.Hide();
+        }
+
+        private async Task SetScriptLocationTask(string folderName)
+        {
+            var updateSettingCommand = new UpdateSettingCommand
+            {
+                ProjectDataFile = _projectDataFile,
+                Setting = SettingConstants.ScriptFolder,
+                Value = folderName
+            };
+            await Task.Run(updateSettingCommand.Execute);
+            ScriptFolder = folderName;
         }
 
         [RelayCommand]
@@ -327,14 +305,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
 
-            LoadingViewModel.Show();
-            await GenerateScriptTask();
-            LoadingViewModel.Hide();
-        }
-
-        private async Task GenerateScriptTask()
-        {
-            if (string.IsNullOrEmpty(_modsFolder) || !Directory.Exists(_modsFolder))
+            if (string.IsNullOrEmpty(ScriptFolder) || !Directory.Exists(ScriptFolder))
             {
                 var dialog = new OpenFolderDialog();
                 if (dialog.ShowDialog() == true)
@@ -342,48 +313,65 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     var folderName = dialog.FolderName;
                     if (string.IsNullOrEmpty(folderName))
                     {
-                        MessageBox.Show("Script folder path is empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Script location path is empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    using var context = new ProjectDbContext(_projectDataFile);
-                    context.Settings
-                        .Where(s => s.Key == SettingConstants.MODS_FOLDER_SETTING_KEY)
-                        .ExecuteUpdate(s => s.SetProperty(s => s.Value, folderName));
 
-                    _modsFolder = folderName;
+                    var updateSettingCommand = new UpdateSettingCommand
+                    {
+                        ProjectDataFile = _projectDataFile,
+                        Setting = SettingConstants.ScriptFolder,
+                        Value = folderName
+                    };
+
+                    ScriptFolder = folderName;
                 }
                 else
                 {
-                    MessageBox.Show("Script folder is required to generate the script.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Script location is required to generate the script.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
-            var controlFile = Path.Combine(_modsFolder, "control.lua");
+            LoadingViewModel.Show();
+            try
+            {
+                await GenerateScriptTask();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to generate script. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            LoadingViewModel.Hide();
+        }
+
+        private async Task GenerateScriptTask()
+        {
+            var controlFile = Path.Combine(ScriptFolder, "control.lua");
             if (!File.Exists(controlFile))
             {
                 File.Copy(Path.Combine("LuaFolders", "control.lua"), controlFile);
             }
-            var settingsFile = Path.Combine(_modsFolder, "settings.lua");
+            var settingsFile = Path.Combine(ScriptFolder, "settings.lua");
             if (!File.Exists(settingsFile))
             {
                 File.Copy(Path.Combine("LuaFolders", "settings.lua"), settingsFile);
             }
-            var goalFile = Path.Combine(_modsFolder, "goals.lua");
+            var goalFile = Path.Combine(ScriptFolder, "goals.lua");
             if (!File.Exists(goalFile))
             {
                 File.Copy(Path.Combine("LuaFolders", "goals.lua"), goalFile);
             }
-            var localeFile = Path.Combine(_modsFolder, "locale", "en", "locale.cfg");
+            var localeFile = Path.Combine(ScriptFolder, "locale", "en", "locale.cfg");
             if (!File.Exists(localeFile))
             {
-                Directory.CreateDirectory(Path.Combine(_modsFolder, "locale", "en"));
+                Directory.CreateDirectory(Path.Combine(ScriptFolder, "locale", "en"));
                 File.Copy(Path.Combine("LuaFolders", "locale", "en", "locale.cfg"), localeFile);
             }
 
             var addVariableFileCommand = new AddVariableFileCommand
             {
-                FolderLocation = _modsFolder,
+                FolderLocation = ScriptFolder,
                 EnvironmentId = DebugMode ? 0 : DevelopmentMode ? 1 : 2,
                 PrintMessage = PrintComments,
                 PrintSavegame = PrintSavegame,
@@ -394,14 +382,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var addInfoFileCommand = new AddInfoFileCommand
             {
-                FolderLocation = _modsFolder,
+                FolderLocation = ScriptFolder,
             };
 
             await addInfoFileCommand.Execute();
 
             var addStepFileCommand = new AddStepsFileCommand
             {
-                FolderLocation = _modsFolder,
+                FolderLocation = ScriptFolder,
                 DbContext = new ProjectDbContext(_projectDataFile),
             };
             await addStepFileCommand.Execute();
@@ -421,9 +409,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 var filename = dialog.FileName;
                 if (string.IsNullOrEmpty(filename))
                     return;
+
                 using var context = new ProjectDbContext(filename);
                 await context.Database.EnsureCreatedAsync();
                 context.SetupTriggers();
+
                 Properties.Settings.Default.ProjectDataFile = filename;
                 Properties.Settings.Default.Save();
                 ProjectName = Path.GetFileNameWithoutExtension(filename);
@@ -436,13 +426,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task DumpFactorioData()
         {
-            LoadingViewModel.Show();
-            await DumpFactorioDataTask();
-            LoadingViewModel.Hide();
-        }
-
-        private async Task DumpFactorioDataTask()
-        {
             var dialog = new OpenFileDialog
             {
                 Filter = "Factorio executable (*.exe)|*.exe|Factorio data (*.json)|*.json"
@@ -451,59 +434,73 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
 
             var filename = dialog.FileName;
-            if (string.IsNullOrEmpty(filename))
-                return;
-
             if (!File.Exists(filename))
                 return;
 
-            if (filename.Contains("factorio.exe"))
+            LoadingViewModel.Show();
+            if (filename.EndsWith("factorio.exe"))
             {
-                var dumpFactorioDataCommand = new DumpFactorioDataCommand
-                {
-                    FileName = filename
-                };
-                await dumpFactorioDataCommand.Execute();
-
-                Version = dumpFactorioDataCommand.Result;
-
-                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
-                var fileContent = await File.ReadAllTextAsync(filePath);
-                var prototypeData = JsonSerializer.Deserialize<PrototypeData>(fileContent);
-                var gameData = new GameData(prototypeData!);
-
-                _gameData = gameData;
-
-                var gameDataFile = $"{Version}.json";
-                await File.WriteAllTextAsync(gameDataFile, JsonSerializer.Serialize(gameData));
-
-                Properties.Settings.Default.GameDataFile = gameDataFile;
-                Properties.Settings.Default.Save();
-                MessageBox.Show($"Game data dumped and saved to {gameDataFile}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                return;
-            }
-
-            if (filename.EndsWith(".json"))
-            {
-                LoadingViewModel.Show();
-                var fileContent = await File.ReadAllTextAsync(filename);
                 try
                 {
-                    var gameData = JsonSerializer.Deserialize<GameData>(fileContent);
-                    Version = Path.GetFileNameWithoutExtension(filename);
-                    Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
-                    Properties.Settings.Default.Save();
-                    _gameData = gameData;
-
-                    MessageBox.Show($"Game data loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await DumpFactorioDataTask(filename);
+                    MessageBox.Show($"Game data dumped successfully. Version: {Version}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Failed to load game data from the selected JSON file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Failed to dump game data from the selected Factorio executable. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            else if (filename.EndsWith(".json"))
+            {
+                try
+                {
+                    await LoadFactorioDataTask(filename);
+                    MessageBox.Show($"Game data loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to load game data from the selected JSON file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
+            LoadingViewModel.Hide();
+        }
+
+        private async Task DumpFactorioDataTask(string filename)
+        {
+            var dumpFactorioDataCommand = new DumpFactorioDataCommand
+            {
+                FileName = filename
+            };
+            await Task.Run(dumpFactorioDataCommand.Execute);
+            Version = dumpFactorioDataCommand.Result;
+
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
+            var fileContent = File.OpenRead(filePath);
+            var prototypeData = await JsonSerializer.DeserializeAsync<PrototypeData>(fileContent);
+            var gameData = new GameData(prototypeData!);
+
+            _gameData = gameData;
+
+            var gameDataFile = $"{Version}.json";
+            await File.WriteAllTextAsync(gameDataFile, JsonSerializer.Serialize(gameData));
+
+            Properties.Settings.Default.GameDataFile = gameDataFile;
+            Properties.Settings.Default.Save();
+        }
+
+        private async Task LoadFactorioDataTask(string filename)
+        {
+            var fileContent = File.OpenRead(filename);
+
+            var gameData = await JsonSerializer.DeserializeAsync<GameData>(fileContent);
+
+            _gameData = gameData;
+            Version = Path.GetFileNameWithoutExtension(filename);
+
+            Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
+            Properties.Settings.Default.Save();
         }
 
         [RelayCommand]
@@ -514,136 +511,94 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            LoadingViewModel.Show();
-            await OpenFileTask();
-            LoadingViewModel.Hide();
-        }
 
-        private async Task OpenFileTask()
-        {
             var dialog = new OpenFileDialog
             {
                 Filter = "Tas database (*.db)|*.db|Tas files (*.txt)|*.txt"
             };
 
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() != true)
+                return;
+
+            var filename = dialog.FileName;
+            if (!File.Exists(filename))
+                return;
+
+            LoadingViewModel.Show();
+            if (filename.EndsWith(".txt"))
             {
-                var filename = dialog.FileName;
-                if (string.IsNullOrEmpty(filename))
-                    return;
-
-                if (!File.Exists(filename))
-                    return;
-                if (filename.EndsWith(".txt"))
+                try
                 {
-                    var parseTasFileCommand = new ParseTasFileCommand
-                    {
-                        FileName = filename,
-                        GameData = _gameData!
-                    };
-                    try
-                    {
-                        await parseTasFileCommand.Execute();
-                    }
-                    catch (TasFileParserException ex)
-                    {
-                        MessageBox.Show($"Failed to parse the TAS file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    var tasFileResult = parseTasFileCommand.Result;
-
-                    var dbFile = Path.Combine(Path.GetDirectoryName(filename)!, $"{Path.GetFileNameWithoutExtension(filename)}.db");
-
-                    var result = MessageBox.Show($"Tool will create a new db file for this project at {dbFile} (existing file will be overrided) ", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
-                    if (result == MessageBoxResult.No)
-                        return;
-
-                    using var context = new ProjectDbContext(dbFile);
-
-                    try
-                    {
-                        await context.Database.EnsureDeletedAsync();
-                        await context.Database.EnsureCreatedAsync();
-                        context.SetupTriggers();
-
-                        context.Steps.AddRange(tasFileResult.StepCollection);
-                        context.Templates.AddRange(tasFileResult.TemplateCollection);
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.MODS_FOLDER_SETTING_KEY,
-                            Value = tasFileResult.ModsFolder
-                        });
-
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.SelectedRow,
-                            Value = tasFileResult.SelectedRow.ToString()
-                        });
-
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.ImportIntoRow,
-                            Value = tasFileResult.ImportIntoRow.ToString()
-                        });
-
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.PrintMessage,
-                            Value = tasFileResult.PrintMessage ? "1" : "0"
-                        });
-
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.PrintSavegame,
-                            Value = tasFileResult.PrintSavegame ? "1" : "0"
-                        });
-
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.PrintTech,
-                            Value = tasFileResult.PrintTech ? "1" : "0"
-                        });
-
-                        context.Settings.Add(new Setting
-                        {
-                            Key = SettingConstants.Environment,
-                            Value = tasFileResult.Environment.ToString()
-                        });
-
-                        await context.SaveChangesAsync();
-                        Properties.Settings.Default.ProjectDataFile = dbFile;
-                        Properties.Settings.Default.Save();
-
-                        ProjectName = Path.GetFileNameWithoutExtension(dbFile);
-
-                        MessageBox.Show("Database file created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex.InnerException is not null)
-                        {
-                            ex = ex.InnerException;
-                        }
-                        MessageBox.Show($"Failed to create database file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    return;
+                    await MigrateTasFile(filename);
+                    MessageBox.Show("Tas file migrated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-
-                if (filename.EndsWith(".db"))
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        using var _ = new ProjectDbContext(filename);
-                        Properties.Settings.Default.ProjectDataFile = filename;
-                        Properties.Settings.Default.Save();
-                        ProjectName = Path.GetFileNameWithoutExtension(filename);
-                        MessageBox.Show("Project database loaded successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Failed to load project database file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    if (ex.InnerException is not null) ex = ex.InnerException;
+                    MessageBox.Show($"Failed to migrate TAS file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            else if (filename.EndsWith(".db"))
+            {
+                try
+                {
+                    await OpenFileTask(filename);
+                    MessageBox.Show("Project database file opened successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    if (ex.InnerException is not null) ex = ex.InnerException;
+                    MessageBox.Show($"Failed to open project database file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            LoadingViewModel.Hide();
+        }
+
+        private async Task MigrateTasFile(string filename)
+        {
+            var parseTasFileCommand = new ParseTasFileCommand
+            {
+                FileName = filename,
+                GameData = _gameData!
+            };
+
+            await Task.Run(parseTasFileCommand.Execute);
+            var tasFileResult = parseTasFileCommand.Result;
+
+            var dbFile = Path.Combine(Path.GetDirectoryName(filename)!, $"{Path.GetFileNameWithoutExtension(filename)}.db");
+
+            var result = MessageBox.Show($"Tool will create a new db file for this project at {dbFile} (existing file will be overrided) ", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+            if (result == MessageBoxResult.No)
+                return;
+
+            var migrateTasFileDataCommand = new MigrateTasFileDataCommand
+            {
+                ProjectDataFile = dbFile,
+                TasFileResult = tasFileResult
+            };
+            await Task.Run(migrateTasFileDataCommand.Execute);
+
+            PrintComments = tasFileResult.PrintComments;
+            PrintSavegame = tasFileResult.PrintSavegame;
+            PrintTech = tasFileResult.PrintTech;
+
+            DebugMode = tasFileResult.Environment == 0;
+            DevelopmentMode = tasFileResult.Environment == 1;
+            ProductionMode = tasFileResult.Environment == 2;
+            ScriptFolder = tasFileResult.ScriptFolder;
+
+            Properties.Settings.Default.ProjectDataFile = dbFile;
+            Properties.Settings.Default.Save();
+
+            ProjectName = Path.GetFileNameWithoutExtension(dbFile);
+        }
+
+        private async Task OpenFileTask(string filename)
+        {
+            using var _ = new ProjectDbContext(filename);
+            Properties.Settings.Default.ProjectDataFile = filename;
+            Properties.Settings.Default.Save();
+            ProjectName = Path.GetFileNameWithoutExtension(filename);
         }
     }
 }

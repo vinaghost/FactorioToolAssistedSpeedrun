@@ -2,7 +2,7 @@
 {
     public static class SettingConstants
     {
-        public const string MODS_FOLDER_SETTING_KEY = "ModsFolder";
+        public const string ScriptFolder = "ScriptFolder";
         public const string SelectedRow = "SelectedRow";
         public const string ImportIntoRow = "ImportIntoRow";
         public const string PrintMessage = "PrintMessage";

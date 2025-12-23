@@ -9,7 +9,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
         public required string FileName { get; init; }
         public string Result { get; private set; } = "Not loaded";
 
-        public async Task Execute()
+        public void Execute()
         {
             using var process = new Process()
             {

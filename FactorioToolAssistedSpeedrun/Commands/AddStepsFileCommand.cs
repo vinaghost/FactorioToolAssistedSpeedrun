@@ -7,7 +7,7 @@ using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Commands
 {
-    public class AddStepsFileCommand : ICommand
+    public class AddStepsFileCommand : IAsyncCommand
     {
         public required string FolderLocation { get; init; }
         public required ProjectDbContext DbContext { get; init; }

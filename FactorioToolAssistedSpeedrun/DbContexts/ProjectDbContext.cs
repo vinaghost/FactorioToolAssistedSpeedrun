@@ -1,6 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace FactorioToolAssistedSpeedrun.DbContexts
 {
@@ -25,7 +24,7 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS insert_building_after_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'Build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
+WHEN NEW.Type = 'build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Id
@@ -48,7 +47,7 @@ END;
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS update_building_destroystep_after_mine_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'Mine' AND NEW.IsSkip = 0 AND NEW.IsSplit = 0
+WHEN NEW.Type = 'mine' AND NEW.IsSkip = 0 AND NEW.IsSplit = 0
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Id

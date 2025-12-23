@@ -8,12 +8,19 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
         public DataBase()
         { }
 
+        public static Dictionary<string, string> NameDict = new() {
+            { "long-handed-inserter", "Long-handed inserter" },
+            { "research-speed-1", "Lab research speed 1" },
+            { "research-speed-2", "Lab research speed 2" },
+        };
+
         public DataBase(PrototypeBase prototype)
         {
             Name = prototype.Name;
-            if (Name == "long-handed-inserter")
+
+            if (NameDict.TryGetValue(prototype.Name, out string? value))
             {
-                HumanizeName = "Long-handed inserter";
+                HumanizeName = value;
             }
             else
             {

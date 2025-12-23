@@ -12,7 +12,7 @@
 
     public static class InventoryTypeExtensions
     {
-        public static string GetInventoryDefines(this InventoryType type, string entity)
+        public static string GetInventoryDefines(this InventoryType type, string entity = "")
         {
             switch (type)
             {

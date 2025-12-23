@@ -91,6 +91,9 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         throw new TasFileParserException($"Invalid step format: {line}");
                     }
 
+                    var type = segments[0].ToLower();
+                    if (type == "pick up") type = "pick";
+
                     var itemName = itemNameDictionary.TryGetValue(segments[4], out string? value) ? value : segments[4];
                     itemName = techNameDictionary.TryGetValue(itemName, out string? techValue) ? techValue : itemName;
                     itemName = recipeNameDictionary.TryGetValue(itemName, out string? recipeValue) ? recipeValue : itemName;
@@ -104,12 +107,12 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     var step = new Step()
                     {
                         Id = Result.StepCollection.Count + 1,
-                        Type = segments[0],
+                        Type = type,
                         X = double.TryParse(segments[1], out double x) ? x : 0,
                         Y = double.TryParse(segments[2], out double y) ? y : 0,
                         Amount = int.TryParse(segments[3], out int amount) ? amount : 0,
                         Item = itemName,
-                        Orientation = segments[5],
+                        Orientation = segments[5].ToLower(),
                         Comment = segments[6],
                         Color = segments[7],
                         Modifier = segments[8],

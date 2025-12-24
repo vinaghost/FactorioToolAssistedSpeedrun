@@ -1,6 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
-using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Text;
@@ -31,29 +31,29 @@ namespace FactorioToolAssistedSpeedrun.Commands
             {
                 writer.WriteLine(StepFormat(steps[i], i + 1).Replace("__DETAILS__", steps[i].Type switch
                 {
-                    "walk" => Walk(steps[i]),
-                    "mine" => Mine(steps[i]),
-                    "craft" => Craft(steps[i]),
-                    "tech" => Tech(steps[i]),
-                    "speed" => Speed(steps[i]),
-                    "pause" => Pause(steps[i]),
-                    "never idele" => NeverIdle(steps[i]),
-                    "keep walking" => KeepWalking(steps[i]),
-                    "keep on path" => KeepOnPath(steps[i]),
-                    "keep crafting" => KeepCrafting(steps[i]),
-                    "launch" => Launch(steps[i]),
-                    "save" => Save(steps[i]),
-                    "wait" => Wait(steps[i]),
-                    "pick" => PickUp(steps[i]),
-                    "rotate" => Rotate(steps[i]),
-                    "build" => Build(steps[i]),
-                    "take" => Take(steps[i]),
-                    "put" => Put(steps[i]),
-                    "recipe" => Recipe(steps[i]),
-                    "limit" => Limit(steps[i]),
-                    "priority" => Priority(steps[i]),
-                    "filter" => Filter(steps[i]),
-                    "drop" => Drop(steps[i]),
+                    StepType.Walk => Walk(steps[i]),
+                    StepType.Mine => Mine(steps[i]),
+                    StepType.Craft => Craft(steps[i]),
+                    StepType.Tech => Tech(steps[i]),
+                    StepType.Speed => Speed(steps[i]),
+                    StepType.Pause => Pause(steps[i]),
+                    StepType.NeverIdle => NeverIdle(steps[i]),
+                    StepType.KeepWalking => KeepWalking(steps[i]),
+                    StepType.KeepOnPath => KeepOnPath(steps[i]),
+                    StepType.KeepCrafting => KeepCrafting(steps[i]),
+                    StepType.Launch => Launch(steps[i]),
+                    StepType.Save => Save(steps[i]),
+                    StepType.Wait => Wait(steps[i]),
+                    StepType.Pick => PickUp(steps[i]),
+                    StepType.Rotate => Rotate(steps[i]),
+                    StepType.Build => Build(steps[i]),
+                    StepType.Take => Take(steps[i]),
+                    StepType.Put => Put(steps[i]),
+                    StepType.Recipe => Recipe(steps[i]),
+                    StepType.Limit => Limit(steps[i]),
+                    StepType.Priority => Priority(steps[i]),
+                    StepType.Filter => Filter(steps[i]),
+                    StepType.Drop => Drop(steps[i]),
                     _ => throw new Exception($"Unknown step type: {steps[i].Type}"),
                 }));
             }
@@ -65,12 +65,12 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public static string StepFormat(Step step, int count)
         {
-            if (step.Type.Equals("save", StringComparison.CurrentCultureIgnoreCase))
+            if (step.Type == StepType.Save)
             {
-                return $"step[{count}] = {{{step.Id}, \"{step.Type.ToLower()}\"__DETAILS__{Modifier(step.Modifier)}}}";
+                return $"step[{count}] = {{{step.Id}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Modifier(step.Modifier)}}}";
             }
 
-            return $"step[{count}] = {{{step.Id}, \"{step.Type.ToLower()}\"__DETAILS__{Comment(step.Comment)}{Modifier(step.Modifier)}}}";
+            return $"step[{count}] = {{{step.Id}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Comment(step.Comment)}{Modifier(step.Modifier)}}}";
         }
 
         public static string Comment(string comment)

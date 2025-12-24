@@ -1,0 +1,36 @@
+namespace FactorioToolAssistedSpeedrun.Enums
+{
+    public enum StepType
+    {
+        Walk,
+        Mine,
+        Craft,
+        Tech,
+        Speed,
+        Pause,
+        NeverIdle,
+        KeepWalking,
+        KeepOnPath,
+        KeepCrafting,
+        Launch,
+        Save,
+        Wait,
+        Pick,
+        Rotate,
+        Build,
+        Take,
+        Put,
+        Recipe,
+        Limit,
+        Priority,
+        Filter,
+        Drop,
+        Shoot,
+        Equip,
+        Throw,
+        Enter,
+        Drive,
+        Cancel,
+        Stop,
+    }
+}

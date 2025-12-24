@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FactorioToolAssistedSpeedrun.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Entities
 {
@@ -7,7 +8,7 @@ namespace FactorioToolAssistedSpeedrun.Entities
     public class Step
     {
         public int Id { get; set; }
-        public required string Type { get; set; }
+        public required StepType Type { get; set; }
         public double X { get; set; } = 0;
         public double Y { get; set; } = 0;
         public int Amount { get; set; } = 0;

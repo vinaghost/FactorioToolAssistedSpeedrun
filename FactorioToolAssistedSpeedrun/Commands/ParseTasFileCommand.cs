@@ -1,5 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using System.IO;
@@ -107,7 +108,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     var step = new Step()
                     {
                         Id = Result.StepCollection.Count + 1,
-                        Type = type,
+                        Type = type.ToStepType(),
                         X = double.TryParse(segments[1], out double x) ? x : 0,
                         Y = double.TryParse(segments[2], out double y) ? y : 0,
                         Amount = int.TryParse(segments[3], out int amount) ? amount : 0,

@@ -1,15 +1,5 @@
-﻿namespace FactorioToolAssistedSpeedrun.Models
+﻿namespace FactorioToolAssistedSpeedrun.Enums
 {
-    public enum InventoryType
-    {
-        Input,
-        Output,
-        Fuel,
-        Modules,
-        Chest,
-        Wreck,
-    };
-
     public static class InventoryTypeExtensions
     {
         public static string GetInventoryDefines(this InventoryType type, string entity = "")

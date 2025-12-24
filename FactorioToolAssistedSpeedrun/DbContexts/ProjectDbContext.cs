@@ -1,4 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.DbContexts
@@ -14,6 +15,16 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
         {
             optionsBuilder
                 .UseSqlite($"Data Source={name}");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Step>()
+                .Property(e => e.Type)
+                .HasConversion(
+                    v => v.ToStepTypeString(),
+                    v => v.ToStepType()
+                );
         }
 
         public void SetupTriggers()

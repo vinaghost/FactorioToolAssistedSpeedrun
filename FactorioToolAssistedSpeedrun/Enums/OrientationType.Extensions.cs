@@ -1,13 +1,5 @@
-﻿namespace FactorioToolAssistedSpeedrun.Models
+﻿namespace FactorioToolAssistedSpeedrun.Enums
 {
-    public enum OrientationType
-    {
-        North,
-        East,
-        South,
-        West,
-    }
-
     public static class OrientationTypeExtensions
     {
         public static string GetOrientationDefines(this OrientationType orientation)

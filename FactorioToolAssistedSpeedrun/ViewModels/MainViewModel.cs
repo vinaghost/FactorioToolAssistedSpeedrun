@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.DbContexts;
+using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
@@ -49,6 +50,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         [ObservableProperty]
         private bool _printComments = false;
+
+        [ObservableProperty]
+        private StepType _selectedStepType = StepType.Walk;
 
         partial void OnPrintCommentsChanged(bool value)
         {

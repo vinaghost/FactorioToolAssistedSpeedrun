@@ -5,18 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:converters="clr-namespace:FactorioToolAssistedSpeedrun.Conventers"
-        xmlns:enums="clr-namespace:FactorioToolAssistedSpeedrun.Enums"
+        xmlns:views="clr-namespace:FactorioToolAssistedSpeedrun.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
-        Title="{Binding ProjectName, StringFormat={}{0} - Factorio Tool Assisted Speedrun}" Height="450" Width="800">
+        Title="{Binding ProjectName, StringFormat={}{0} - Factorio Tool Assisted Speedrun}" Height="900" Width="1200">
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}" />
     </Window.Style>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:RadioButtonCheckedConverter x:Key="RadioButtonCheckedConverter" />
-        <Thickness x:Key="RadioButtonMargin">2,6</Thickness>
     </Window.Resources>
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Loaded"
@@ -82,106 +79,7 @@
             </MenuItem>
         </Menu>
         <!--Toolbar area-->
-        <GroupBox Header="Step type" Grid.Row="1" Margin="4" Padding="4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <!-- First Zone: 3 columns, 4 rows -->
-                <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <RadioButton Grid.Row="0" Grid.Column="0" Content="Walk" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Walk}}" />
-                        <RadioButton Grid.Row="0" Grid.Column="1" Content="Craft" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Craft}}" />
-                        <RadioButton Grid.Row="0" Grid.Column="2" Content="Tech" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Tech}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="0" Content="Wait" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Wait}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Pick Up" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Pick}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="2" Content="Drop" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Drop}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="0" Content="Cancel" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Cancel}}" IsEnabled="False" />
-                        <RadioButton Grid.Row="2" Grid.Column="1" Content="Mine" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Mine}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="2" Content="Throw" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Throw}}" IsEnabled="False" />
-                        <RadioButton Grid.Row="3" Grid.Column="0" Content="Shoot" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Shoot}}" IsEnabled="False" />
-                        <RadioButton Grid.Row="3" Grid.Column="1" Content="Equip" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Equip}}" IsEnabled="False" />
-                    </Grid>
-                </Border>
-                <!-- Second Zone: 3 columns, 4 rows -->
-                <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <RadioButton Grid.Row="0" Grid.Column="0" Content="Take" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Take}}" />
-                        <RadioButton Grid.Row="0" Grid.Column="1" Content="Put" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Put}}" />
-                        <RadioButton Grid.Row="0" Grid.Column="2" Content="Build" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Build}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="0" Content="Recipe" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Recipe}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Limit" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Limit}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="2" Content="Filter" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Filter}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="0" Content="Priority" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Priority}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="1" Content="Launch" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Launch}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="2" Content="Rotate" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Rotate}}" />
-                    </Grid>
-                </Border>
-                <!-- Third Zone: 3 columns, 4 rows -->
-                <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" Margin="2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <RadioButton Grid.Row="0" Grid.Column="0" Content="Game Speed" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Speed}}" />
-                        <RadioButton Grid.Row="0" Grid.Column="1" Content="Pause" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Pause}}" />
-                        <RadioButton Grid.Row="1" Grid.Column="0" Content="Stop" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Stop}}" IsEnabled="False" />
-                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Save" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Save}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="0" Content="Never Idle" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.NeverIdle}}" />
-                        <RadioButton Grid.Row="2" Grid.Column="1" Content="Keep Walking" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.KeepWalking}}" />
-                        <RadioButton Grid.Row="3" Grid.Column="0" Content="Keep on Path" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.KeepOnPath}}" />
-                        <RadioButton Grid.Row="3" Grid.Column="1" Content="Keep Crafting" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.KeepCrafting}}" />
-                    </Grid>
-                </Border>
-                <!-- Fourth Zone: 1 column, 2 rows -->
-                <Border Grid.Column="3" BorderBrush="Gray" BorderThickness="1" Margin="2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <RadioButton Grid.Row="0" Grid.Column="0" Content="Enter" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Enter}}" IsEnabled="False" />
-                        <RadioButton Grid.Row="1" Grid.Column="0" Content="Drive" Margin="{StaticResource RadioButtonMargin}" IsChecked="{Binding SelectedStepType, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Drive}}" IsEnabled="False" />
-                    </Grid>
-                </Border>
-            </Grid>
-        </GroupBox>
+        <views:StepPanel Grid.Row="1" DataContext="{Binding StepTypeViewModel}" />
         <!-- Main Content Area -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

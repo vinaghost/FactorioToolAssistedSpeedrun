@@ -20,6 +20,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         public LoadingViewModel LoadingViewModel { get; }
+        public StepTypeViewModel StepTypeViewModel { get; }
 
         public ObservableCollection<StepModel> StepCollection { get; set; } = [];
         private GameData? _gameData;
@@ -27,12 +28,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public MainViewModel()
         {
             LoadingViewModel = new LoadingViewModel();
+            StepTypeViewModel = new StepTypeViewModel();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(LoadingViewModel loadingViewModel)
+        public MainViewModel(LoadingViewModel loadingViewModel, StepTypeViewModel stepTypeViewModel)
         {
             LoadingViewModel = loadingViewModel;
+            StepTypeViewModel = stepTypeViewModel;
         }
 
         private bool _isLoading = false;
@@ -50,9 +53,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         [ObservableProperty]
         private bool _printComments = false;
-
-        [ObservableProperty]
-        private StepType _selectedStepType = StepType.Walk;
 
         partial void OnPrintCommentsChanged(bool value)
         {

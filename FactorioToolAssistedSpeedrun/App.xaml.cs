@@ -24,6 +24,7 @@ namespace FactorioToolAssistedSpeedrun
 
             services.AddTransient<MainViewModel>();
             services.AddTransient<LoadingViewModel>();
+            services.AddTransient<StepTypeViewModel>();
 
             return services.BuildServiceProvider();
         }

@@ -1,4 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.ViewModels;
+﻿using FactorioToolAssistedSpeedrun.Models.Game;
+using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
@@ -16,15 +17,16 @@ namespace FactorioToolAssistedSpeedrun
         }
 
         public new static App Current => (App)Application.Current;
+        public GameData? GameData { get; set; }
         public IServiceProvider Services { get; }
 
         private static ServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
 
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<LoadingViewModel>();
-            services.AddTransient<StepTypeViewModel>();
+            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<LoadingViewModel>();
+            services.AddSingleton<StepTypeViewModel>();
 
             return services.BuildServiceProvider();
         }

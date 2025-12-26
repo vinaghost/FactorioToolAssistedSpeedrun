@@ -33,12 +33,12 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
             // Ignore transport-belt because some are built for walking,
             // we don't want spam the table with them
             Database.ExecuteSqlRaw(@"
-CREATE TRIGGER IF NOT EXISTS insert_building_after_step
+CREATE TRIGGER IF NOT EXISTS insert_building_buildstep_after_build_step
 AFTER INSERT ON Steps
 WHEN NEW.Type = 'build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
 BEGIN
     UPDATE Buildings
-    SET DestroyStep = NEW.Id
+    SET DestroyStep = NEW.Location
     WHERE X = NEW.X AND Y = NEW.Y AND DestroyStep = -1;
 
     INSERT INTO Buildings (X, Y, Name, Orientation, BuildStep, DestroyStep)
@@ -47,7 +47,7 @@ BEGIN
         NEW.Y,
         NEW.Item,
         NEW.Orientation,
-        NEW.Id,
+        NEW.Location,
         -1
     );
 END;
@@ -61,46 +61,27 @@ AFTER INSERT ON Steps
 WHEN NEW.Type = 'mine' AND NEW.IsSkip = 0 AND NEW.IsSplit = 0
 BEGIN
     UPDATE Buildings
-    SET DestroyStep = NEW.Id
+    SET DestroyStep = NEW.Location
     WHERE X = NEW.X AND Y = NEW.Y AND DestroyStep = -1;
 END;
 ");
-            // Trigger to increment step IDs and adjust building references
-            // when a new step is inserted
-            Database.ExecuteSqlRaw(@"
-CREATE TRIGGER IF NOT EXISTS increment_step_ids_after_insert
-BEFORE INSERT ON Steps
-BEGIN
-    UPDATE Steps
-    SET Id = Id + 1
-    WHERE Id >= NEW.Id;
-
-    UPDATE Buildings
-    SET BuildStep = BuildStep + 1
-    WHERE BuildStep >= NEW.Id;
-
-    UPDATE Buildings
-    SET DestroyStep = DestroyStep + 1
-    WHERE DestroyStep >= NEW.Id;
-END;
-");
-            // Trigger to decrement step IDs and adjust building references
+            // Trigger to decrement step location and adjust building references
             // when a step is deleted
             Database.ExecuteSqlRaw(@"
-CREATE TRIGGER IF NOT EXISTS decrement_step_ids_after_delete
+CREATE TRIGGER IF NOT EXISTS decrement_step_location_after_delete
 AFTER DELETE ON Steps
 BEGIN
     UPDATE Steps
-    SET Id = Id - 1
-    WHERE Id > OLD.Id;
+    SET Location = Location - 1
+    WHERE Location > OLD.Location;
 
     UPDATE Buildings
     SET BuildStep = BuildStep - 1
-    WHERE BuildStep > OLD.Id;
+    WHERE BuildStep > OLD.Location;
 
     UPDATE Buildings
     SET DestroyStep = DestroyStep - 1
-    WHERE DestroyStep > OLD.Id;
+    WHERE DestroyStep > OLD.Location;
 END;
 ");
         }

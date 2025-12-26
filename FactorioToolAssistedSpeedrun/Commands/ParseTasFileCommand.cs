@@ -54,28 +54,6 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
             line = sr.ReadLine() ?? throw new TasFileParserException("Expected steps indicator line");
 
-            var itemNameDictionary = new Dictionary<string, string>();
-
-            foreach (var item in GameData.Items!)
-            {
-                if (item.Name is null || item.HumanizeName is null) continue;
-                itemNameDictionary[item.HumanizeName] = item.Name;
-            }
-
-            var techNameDictionary = new Dictionary<string, string>();
-            foreach (var tech in GameData.Technologies!)
-            {
-                if (tech.Name is null || tech.HumanizeName is null) continue;
-                techNameDictionary[tech.HumanizeName] = tech.Name;
-            }
-
-            var recipeNameDictionary = new Dictionary<string, string>();
-            foreach (var recipe in GameData.Recipes!)
-            {
-                if (recipe.Name is null || recipe.HumanizeName is null) continue;
-                recipeNameDictionary[recipe.HumanizeName] = recipe.Name;
-            }
-
             if (line.Equals(TasFileConstants.STEPS_INDICATOR))
             {
                 line = sr.ReadLine();
@@ -95,9 +73,9 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     var type = segments[0].ToLower();
                     if (type == "pick up") type = "pick";
 
-                    var itemName = itemNameDictionary.TryGetValue(segments[4], out string? value) ? value : segments[4];
-                    itemName = techNameDictionary.TryGetValue(itemName, out string? techValue) ? techValue : itemName;
-                    itemName = recipeNameDictionary.TryGetValue(itemName, out string? recipeValue) ? recipeValue : itemName;
+                    var itemName = GameData.ReverseItemsLocale.TryGetValue(segments[4], out string? value) ? value : segments[4];
+                    itemName = GameData.ReverseTechnologiesLocale.TryGetValue(itemName, out string? techValue) ? techValue : itemName;
+                    itemName = GameData.ReverseRecipesLocale.TryGetValue(itemName, out string? recipeValue) ? recipeValue : itemName;
 
                     var isSkip = segments[8].Contains("skip");
                     var isSplit = segments[8].Contains("split");
@@ -107,7 +85,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
                     var step = new Step()
                     {
-                        Id = Result.StepCollection.Count + 1,
+                        Location = Result.StepCollection.Count + 1,
                         Type = type.ToStepType(),
                         X = double.TryParse(segments[1], out double x) ? x : 0,
                         Y = double.TryParse(segments[2], out double y) ? y : 0,

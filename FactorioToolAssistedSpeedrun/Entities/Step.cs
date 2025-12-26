@@ -5,10 +5,13 @@ namespace FactorioToolAssistedSpeedrun.Entities
 {
     [PrimaryKey(nameof(Id))]
     [Index(nameof(Type))]
+    [Index(nameof(Location))]
     public class Step
     {
-        public int Id { get; set; }
-        public required StepType Type { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public int Location { get; set; }
+        public StepType Type { get; set; }
         public double X { get; set; } = 0;
         public double Y { get; set; } = 0;
         public int Amount { get; set; } = 0;

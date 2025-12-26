@@ -24,7 +24,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
             var steps = DbContext.Steps
                 .AsNoTracking()
                 .Where(s => !s.IsSkip)
-                .OrderBy(s => s.Id)
+                .OrderBy(s => s.Location)
                 .ToList();
 
             for (int i = 0; i < steps.Count; i++)
@@ -67,10 +67,10 @@ namespace FactorioToolAssistedSpeedrun.Commands
         {
             if (step.Type == StepType.Save)
             {
-                return $"step[{count}] = {{{step.Id}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Modifier(step.Modifier)}}}";
+                return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Modifier(step.Modifier)}}}";
             }
 
-            return $"step[{count}] = {{{step.Id}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Comment(step.Comment)}{Modifier(step.Modifier)}}}";
+            return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Comment(step.Comment)}{Modifier(step.Modifier)}}}";
         }
 
         public static string Comment(string comment)
@@ -264,12 +264,12 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public string Take(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Orientation, step.Id, step.X, step.Y)}";
+            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Orientation, step.Location, step.X, step.Y)}";
         }
 
         public string Put(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Orientation, step.Id, step.X, step.Y)}";
+            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Orientation, step.Location, step.X, step.Y)}";
         }
 
         public static string Recipe(Step step)
@@ -289,7 +289,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public string Filter(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {step.Amount},  {OrientationFilter(step.Id, step.X, step.Y)}";
+            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {step.Amount},  {OrientationFilter(step.Location, step.X, step.Y)}";
         }
 
         public static string Drop(Step step)

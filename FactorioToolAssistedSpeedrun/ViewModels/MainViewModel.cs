@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using Microsoft.EntityFrameworkCore;
@@ -22,8 +21,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public LoadingViewModel LoadingViewModel { get; }
         public StepTypeViewModel StepTypeViewModel { get; }
 
-        public ObservableCollection<StepModel> StepCollection { get; set; } = [];
-        private GameData? _gameData;
+        public ObservableCollection<Step> StepCollection { get; set; } = [];
 
         public MainViewModel()
         {
@@ -37,6 +35,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             LoadingViewModel = loadingViewModel;
             StepTypeViewModel = stepTypeViewModel;
         }
+
+        public Action? StepsChangeStarted;
+
+        public Action? StepsChangeCompleted;
 
         private bool _isLoading = false;
 
@@ -188,6 +190,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task LoadSettings()
         {
+            LoadingViewModel.IsShown = true;
             _isLoading = true;
 
             try
@@ -208,6 +211,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 MessageBox.Show($"Failed to load project data file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             _isLoading = false;
+            LoadingViewModel.IsShown = false;
         }
 
         private void LoadGameDataFile()
@@ -219,7 +223,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             Version = Path.GetFileNameWithoutExtension(gameDataFile);
 
             var fileContent = File.ReadAllText(gameDataFile);
-            _gameData = JsonSerializer.Deserialize<GameData>(fileContent);
+            App.Current.GameData = JsonSerializer.Deserialize<GameData>(fileContent);
         }
 
         private async Task LoadProjectDataFile()
@@ -227,6 +231,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var projectDataFile = Properties.Settings.Default.ProjectDataFile;
             if (!File.Exists(projectDataFile))
                 return;
+
+            _projectDataFile = projectDataFile;
+            ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
 
             var loadSettingsCommand = new LoadSettingsCommand
             {
@@ -246,8 +253,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             ProductionMode = settingsResult.ProductionMode;
             ScriptFolder = settingsResult.ScriptFolder;
 
-            _projectDataFile = projectDataFile;
-            ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
+            var loadStepsCommand = new LoadStepsCommand
+            {
+                ProjectDataFile = projectDataFile
+            };
+            await Task.Run(loadStepsCommand.Execute);
+
+            StepsChangeStarted?.Invoke();
+
+            for (var i = 0; i < 15; i++)
+            {
+                foreach (var step in loadStepsCommand.Result)
+                {
+                    StepCollection.Add(step);
+                }
+            }
+            StepsChangeCompleted?.Invoke();
         }
 
         [RelayCommand]
@@ -303,7 +324,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
 
-            if (_gameData is null)
+            if (App.Current.GameData is null)
             {
                 MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -479,13 +500,27 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             await Task.Run(dumpFactorioDataCommand.Execute);
             Version = dumpFactorioDataCommand.Result;
 
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string filePath = Path.Combine(appData, "Factorio", "script-output", "data-raw-dump.json");
-            var fileContent = File.OpenRead(filePath);
-            var prototypeData = await JsonSerializer.DeserializeAsync<PrototypeData>(fileContent);
-            var gameData = new GameData(prototypeData!);
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var scriptOutputDir = Path.Combine(appData, "Factorio", "script-output");
+            var dataRawDumpFile = Path.Combine(scriptOutputDir, "data-raw-dump.json");
+            var dataRawDumpFileContent = File.OpenRead(dataRawDumpFile);
+            var prototypeData = await JsonSerializer.DeserializeAsync<PrototypeData>(dataRawDumpFileContent);
 
-            _gameData = gameData;
+            var itemLocaleFile = Path.Combine(scriptOutputDir, "item-locale.json");
+            var itemLocaleFileContent = File.OpenRead(itemLocaleFile);
+            var itemLocaleData = await JsonSerializer.DeserializeAsync<LocalePrototype>(itemLocaleFileContent);
+
+            var recipeLocaleFile = Path.Combine(scriptOutputDir, "recipe-locale.json");
+            var recipeLocaleFileContent = File.OpenRead(recipeLocaleFile);
+            var recipeLocaleData = await JsonSerializer.DeserializeAsync<LocalePrototype>(recipeLocaleFileContent);
+
+            var technologyLocaleFile = Path.Combine(scriptOutputDir, "technology-locale.json");
+            var technologyLocaleFileContent = File.OpenRead(technologyLocaleFile);
+            var technologyLocaleData = await JsonSerializer.DeserializeAsync<LocalePrototype>(technologyLocaleFileContent);
+
+            var gameData = GameData.Create(prototypeData!, technologyLocaleData!, itemLocaleData!, recipeLocaleData!);
+
+            App.Current.GameData = gameData;
 
             var gameDataFile = $"{Version}.json";
             await File.WriteAllTextAsync(gameDataFile, JsonSerializer.Serialize(gameData));
@@ -500,7 +535,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var gameData = await JsonSerializer.DeserializeAsync<GameData>(fileContent);
 
-            _gameData = gameData;
+            App.Current.GameData = gameData;
             Version = Path.GetFileNameWithoutExtension(filename);
 
             Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
@@ -510,7 +545,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task OpenFile()
         {
-            if (_gameData is null)
+            if (App.Current.GameData is null)
             {
                 MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -563,7 +598,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var parseTasFileCommand = new ParseTasFileCommand
             {
                 FileName = filename,
-                GameData = _gameData!
+                GameData = App.Current.GameData!
             };
 
             await Task.Run(parseTasFileCommand.Execute);

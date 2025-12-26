@@ -11,7 +11,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public void Execute()
         {
-            using var process = new Process()
+            using var dumpDataProcess = new Process()
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -34,13 +34,27 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     Result = match.Value;
                 }
 
-                process.OutputDataReceived -= OutputDataReceivedHandler;
+                dumpDataProcess.OutputDataReceived -= OutputDataReceivedHandler;
             }
-            process.OutputDataReceived += OutputDataReceivedHandler;
+            dumpDataProcess.OutputDataReceived += OutputDataReceivedHandler;
 
-            process.Start();
-            process.BeginOutputReadLine();
-            process.WaitForExit();
+            using var dumpLocaleProcess = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = FileName,
+                    Arguments = "--dump-prototype-locale",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = false,
+                }
+            };
+
+            dumpDataProcess.Start();
+            dumpLocaleProcess.Start();
+            dumpDataProcess.BeginOutputReadLine();
+            dumpDataProcess.WaitForExit();
+            dumpLocaleProcess.WaitForExit();
         }
 
         [GeneratedRegex(@"\d+\.\d+\.\d+")]

@@ -33,7 +33,11 @@
             </Grid.RowDefinitions>
             <views:MenuBar Grid.Row="0" DataContext="{Binding MenuBarViewModel}" />
             <!--Toolbar area-->
-            <views:StepPanel Grid.Row="1" DataContext="{Binding StepTypeViewModel}" />
+            <StackPanel Orientation="Horizontal"  Grid.Row="1">
+                <views:StepTypePanel DataContext="{Binding StepTypePanelViewModel}" />
+                <views:StepDetailPanel DataContext="{Binding StepDetailPanelViewModel}" />
+            </StackPanel>
+
             <!-- Data panel -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>

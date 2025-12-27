@@ -27,8 +27,9 @@ namespace FactorioToolAssistedSpeedrun
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<LoadingViewModel>();
-            services.AddSingleton<StepTypeViewModel>();
             services.AddSingleton<MenuBarViewModel>();
+            services.AddSingleton<StepTypePanelViewModel>();
+            services.AddSingleton<StepDetailPanelViewModel>();
 
             return services.BuildServiceProvider();
         }

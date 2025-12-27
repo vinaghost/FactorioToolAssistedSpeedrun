@@ -15,24 +15,29 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         public LoadingViewModel LoadingViewModel { get; }
-        public StepTypeViewModel StepTypeViewModel { get; }
+
         public MenuBarViewModel MenuBarViewModel { get; }
+        public StepDetailPanelViewModel StepDetailPanelViewModel { get; }
+
+        public StepTypePanelViewModel StepTypePanelViewModel { get; }
 
         public ObservableCollection<Step> StepCollection { get; set; } = [];
 
         public MainViewModel()
         {
             LoadingViewModel = new LoadingViewModel();
-            StepTypeViewModel = new StepTypeViewModel();
             MenuBarViewModel = new MenuBarViewModel();
+            StepTypePanelViewModel = new StepTypePanelViewModel();
+            StepDetailPanelViewModel = new StepDetailPanelViewModel();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(LoadingViewModel loadingViewModel, StepTypeViewModel stepTypeViewModel, MenuBarViewModel menuBarViewModel)
+        public MainViewModel(LoadingViewModel loadingViewModel, MenuBarViewModel menuBarViewModel, StepTypePanelViewModel stepTypePanelViewModel, StepDetailPanelViewModel stepDetailPanelViewModel)
         {
             LoadingViewModel = loadingViewModel;
-            StepTypeViewModel = stepTypeViewModel;
             MenuBarViewModel = menuBarViewModel;
+            StepTypePanelViewModel = stepTypePanelViewModel;
+            StepDetailPanelViewModel = stepDetailPanelViewModel;
         }
 
         public Action? StepsChangeStarted;

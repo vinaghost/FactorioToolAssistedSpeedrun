@@ -18,6 +18,7 @@ namespace FactorioToolAssistedSpeedrun
 
         public new static App Current => (App)Application.Current;
         public GameData? GameData { get; set; }
+        public string? ProjectDataFile { get; set; }
         public IServiceProvider Services { get; }
 
         private static ServiceProvider ConfigureServices()
@@ -27,6 +28,7 @@ namespace FactorioToolAssistedSpeedrun
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<LoadingViewModel>();
             services.AddSingleton<StepTypeViewModel>();
+            services.AddSingleton<MenuBarViewModel>();
 
             return services.BuildServiceProvider();
         }

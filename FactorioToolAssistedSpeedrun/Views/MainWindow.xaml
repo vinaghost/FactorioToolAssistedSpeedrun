@@ -15,8 +15,6 @@
     </Window.Style>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <conventers:StepTypeToStringConverter x:Key="StepTypeToStringConverter" />
-        <conventers:ItemToHumanizeNameConverter x:Key="ItemToHumanizeNameConverter" />
     </Window.Resources>
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Loaded"
@@ -45,50 +43,22 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="6*" />
                 </Grid.ColumnDefinitions>
+
+                <!-- Tabs in the first column -->
+                <TabControl Grid.Column="0">
+                    <TabItem Header="Imports">
+                        <views:ImportTab DataContext="{Binding ImportTabViewModel}" />
+                    </TabItem>
+                    <TabItem Header="Templates">
+                        <views:TemplatesTab DataContext="{Binding TemplatesTabViewModel}" />
+                    </TabItem>
+                </TabControl>
+
                 <GridSplitter Grid.Column="1"
                               Width="5"
                               HorizontalAlignment="Center"
                               VerticalAlignment="Stretch" />
-                <Grid Grid.Column="2">
-                    <DockPanel LastChildFill="True">
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2">
-                            <Button Content="Add" Width="75" Margin="2" />
-                            <Button Content="Change" Width="75" Margin="2" />
-                            <Button Content="Delete" Width="75" Margin="2" />
-                            <Button Content="Move Up" Width="75" Margin="2" />
-                            <Button Content="Move Down" Width="75" Margin="2" />
-                            <Button Content="Skip" Width="60" Margin="20,2,2,2" />
-                            <Button Content="Split" Width="60" Margin="2" />
-                        </StackPanel>
-                        <DataGrid x:Name="Steps"
-                                  ItemsSource="{Binding StepCollection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                  EnableRowVirtualization="True"
-                                  VirtualizingPanel.IsVirtualizing="True"
-                                  VirtualizingPanel.VirtualizationMode="Recycling"
-                                  ScrollViewer.IsDeferredScrollingEnabled="True"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False"
-                                  CanUserSortColumns="False"
-                                  CanUserReorderColumns="False"
-                                  CanUserResizeRows="False"
-                                  Margin="0,5,0,0">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="" Binding="{Binding Location}" />
-                                <DataGridTextColumn Header="Step" Binding="{Binding Type, Converter={StaticResource StepTypeToStringConverter}}" Width="60" />
-                                <DataGridTextColumn Header="X" Binding="{Binding X}" Width="50" />
-                                <DataGridTextColumn Header="Y" Binding="{Binding Y}" Width="50" />
-                                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="60" />
-                                <DataGridTextColumn Header="Item" Binding="{Binding Item, Converter={StaticResource ItemToHumanizeNameConverter}}" Width="100" />
-                                <DataGridTextColumn Header="Orientation" Binding="{Binding Orientation}" Width="60" />
-                                <DataGridTextColumn Header="Modifier" Binding="{Binding Modifier}" Width="60" />
-                                <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="60" />
-                                <DataGridCheckBoxColumn Header="IsSkip" Binding="{Binding IsSkip}" Width="Auto" />
-                                <DataGridCheckBoxColumn Header="IsSplit" Binding="{Binding IsSplit}" Width="Auto" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </DockPanel>
-                </Grid>
+                <views:StepPanel Grid.Column="2" DataContext="{Binding StepPanelViewModel}" />
             </Grid>
         </Grid>
         <Grid Visibility="{Binding LoadingViewModel.IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">

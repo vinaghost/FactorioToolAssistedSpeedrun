@@ -12,11 +12,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public MainWindow()
         {
             InitializeComponent();
-            var vm = App.Current.Services.GetService<MainViewModel>()!;
-
-            DataContext = vm;
-            vm.StepsChangeStarted += () => Steps.BeginInit();
-            vm.StepsChangeCompleted += () => Steps.EndInit();
+            DataContext = App.Current.Services.GetService<MainViewModel>();
         }
     }
 }

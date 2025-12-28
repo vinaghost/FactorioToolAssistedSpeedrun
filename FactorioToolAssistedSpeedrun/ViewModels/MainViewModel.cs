@@ -20,8 +20,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public StepDetailPanelViewModel StepDetailPanelViewModel { get; }
 
         public StepTypePanelViewModel StepTypePanelViewModel { get; }
+        public StepPanelViewModel StepPanelViewModel { get; }
 
-        public ObservableCollection<Step> StepCollection { get; set; } = [];
+        public ImportTabViewModel ImportTabViewModel { get; }
+        public TemplatesTabViewModel TemplatesTabViewModel { get; }
 
         public MainViewModel()
         {
@@ -29,20 +31,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             MenuBarViewModel = new MenuBarViewModel();
             StepTypePanelViewModel = new StepTypePanelViewModel();
             StepDetailPanelViewModel = new StepDetailPanelViewModel();
+            StepPanelViewModel = new StepPanelViewModel();
+            ImportTabViewModel = new ImportTabViewModel();
+            TemplatesTabViewModel = new TemplatesTabViewModel();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(LoadingViewModel loadingViewModel, MenuBarViewModel menuBarViewModel, StepTypePanelViewModel stepTypePanelViewModel, StepDetailPanelViewModel stepDetailPanelViewModel)
+        public MainViewModel(LoadingViewModel loadingViewModel, MenuBarViewModel menuBarViewModel, StepTypePanelViewModel stepTypePanelViewModel, StepDetailPanelViewModel stepDetailPanelViewModel, StepPanelViewModel stepPanelViewModel, ImportTabViewModel importTabViewModel, TemplatesTabViewModel templatesTabViewModel)
         {
             LoadingViewModel = loadingViewModel;
             MenuBarViewModel = menuBarViewModel;
             StepTypePanelViewModel = stepTypePanelViewModel;
             StepDetailPanelViewModel = stepDetailPanelViewModel;
+            StepPanelViewModel = stepPanelViewModel;
+            ImportTabViewModel = importTabViewModel;
+            TemplatesTabViewModel = templatesTabViewModel;
         }
-
-        public Action? StepsChangeStarted;
-
-        public Action? StepsChangeCompleted;
 
         [RelayCommand]
         private async Task LoadSettings()
@@ -105,14 +109,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             };
             await Task.Run(loadStepsCommand.Execute);
 
-            StepsChangeStarted?.Invoke();
-
-            foreach (var step in loadStepsCommand.Result)
-            {
-                StepCollection.Add(step);
-            }
-
-            StepsChangeCompleted?.Invoke();
+            StepPanelViewModel.LoadSteps(loadStepsCommand.Result);
         }
     }
 }

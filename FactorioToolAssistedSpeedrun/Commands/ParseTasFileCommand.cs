@@ -2,6 +2,8 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Exceptions;
+using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using System.IO;
 
@@ -63,42 +65,11 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     {
                         break;
                     }
+
                     var segments = line.Split(';');
 
-                    if (segments.Length != 10)
-                    {
-                        throw new TasFileParserException($"Invalid step format: {line}");
-                    }
-
-                    var type = segments[0].ToLower();
-                    if (type == "pick up") type = "pick";
-
-                    var itemName = GameData.ReverseItemsLocale.TryGetValue(segments[4], out string? value) ? value : segments[4];
-                    itemName = GameData.ReverseTechnologiesLocale.TryGetValue(itemName, out string? techValue) ? techValue : itemName;
-                    itemName = GameData.ReverseRecipesLocale.TryGetValue(itemName, out string? recipeValue) ? recipeValue : itemName;
-
-                    var isSkip = segments[8].Contains("skip");
-                    var isSplit = segments[8].Contains("split");
-                    segments[8] = segments[8].Replace("skip", "").Replace("split", "");
-                    var modifierSegments = segments[8].Split(',');
-                    segments[8] = string.Join(',', modifierSegments.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
-
-                    var step = new Step()
-                    {
-                        Location = Result.StepCollection.Count + 1,
-                        Type = type.ToStepType(),
-                        X = double.TryParse(segments[1], out double x) ? x : 0,
-                        Y = double.TryParse(segments[2], out double y) ? y : 0,
-                        Amount = int.TryParse(segments[3], out int amount) ? amount : 0,
-                        Item = itemName,
-                        Orientation = segments[5].ToLower(),
-                        Comment = segments[6],
-                        Color = segments[7],
-                        Modifier = segments[8],
-                        IsSkip = isSkip,
-                        IsSplit = isSplit
-                    };
-
+                    var step = ReadStep(segments);
+                    step.Location = Result.StepCollection.Count + 1;
                     Result.StepCollection.Add(step);
                     line = sr.ReadLine();
                 }
@@ -117,25 +88,15 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         break;
                     }
                     var segments = line.Split(';');
-                    if (segments.Length != 11)
+                    if (segments.Length < 10)
                     {
                         throw new TasFileParserException($"Invalid template format: {line}");
                     }
-                    var template = new Template()
-                    {
-                        Id = Result.TemplateCollection.Count(x => x.Name == segments[0]) + 1,
-                        Name = segments[0],
-                        Type = segments[1],
-                        X = double.TryParse(segments[2], out double x) ? x : 0,
-                        Y = double.TryParse(segments[3], out double y) ? y : 0,
-                        Amount = int.TryParse(segments[4], out int amount) ? amount : 0,
-                        Item = segments[5],
-                        Orientation = segments[6],
-                        Comment = segments[7],
-                        Color = segments[8],
-                        Modifier = segments[9],
-                    };
+                    var name = segments[0];
+                    var step = ReadStep(segments[1..10]);
+                    var template = Template.FromStep(name, step);
 
+                    step.Location = Result.TemplateCollection.Count(x => x.Name == name);
                     Result.TemplateCollection.Add(template);
                     line = sr.ReadLine();
                 }
@@ -203,6 +164,135 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     throw new TasFileParserException($"Invalid environment value: {segments[4]}");
                 }
             }
+        }
+
+        private Step ReadStep(string[] segments)
+        {
+            if (segments.Length < 9)
+            {
+                throw new TasFileParserException($"Invalid step format: {string.Join(',', segments)}");
+            }
+
+            static double GetX(string[] segments)
+            {
+                var x = double.TryParse(segments[1], out double xVal) ? xVal : 0;
+                return x;
+            }
+            static double GetY(string[] segments)
+            {
+                var y = double.TryParse(segments[2], out double yVal) ? yVal : 0;
+                return y;
+            }
+            static int GetAmount(string[] segments)
+            {
+                var amount = int.TryParse(segments[3], out int amountVal) ? amountVal : 0;
+                return amount;
+            }
+
+            static string GetItemName(string[] segments, GameData gameData)
+            {
+                if (!gameData.ReverseItemsLocale.TryGetValue(segments[4], out string? value))
+                {
+                    throw new TasFileParserException($"Unknown recipe: {segments[4]}");
+                }
+                return value;
+            }
+
+            static string GetRecipeName(string[] segments, GameData gameData)
+            {
+                if (!gameData.ReverseRecipesLocale.TryGetValue(segments[4], out string? value))
+                {
+                    throw new TasFileParserException($"Unknown recipe: {segments[4]}");
+                }
+                return value;
+            }
+            static string GetTechName(string[] segments, GameData gameData)
+            {
+                if (!gameData.ReverseTechnologiesLocale.TryGetValue(segments[4], out string? value))
+                {
+                    throw new TasFileParserException($"Unknown technology: {segments[4]}");
+                }
+                return value;
+            }
+
+            static ModifierType GetModifierString(string[] segments)
+            {
+                var modifierSegments = segments[8].Split(',');
+                foreach (var modifierStr in modifierSegments.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()))
+                {
+                    if (ModifierTypeExtensions.Lookup.TryGetValue(modifierStr, out ModifierType modifierValue))
+                    {
+                        return modifierValue;
+                    }
+                }
+                return ModifierType.None;
+            }
+
+            var type = segments[0].ToStepType();
+            var comment = segments[6];
+            var color = segments[7];
+            var isSkip = segments[8].Contains("skip");
+
+            var step = new Step()
+            {
+                Type = type,
+                IsSkip = isSkip,
+                Comment = comment,
+                Color = color,
+            };
+
+            if (StepTypeExtensions.StepTypeHasCoordinate.Contains(type))
+            {
+                step.X = GetX(segments);
+                step.Y = GetY(segments);
+            }
+
+            if (StepTypeExtensions.StepTypeHasItemName.Contains(type))
+            {
+                step.Item = GetItemName(segments, GameData);
+            }
+            else if (type == StepType.Tech)
+            {
+                step.Item = GetTechName(segments, GameData);
+            }
+            else if (type == StepType.Recipe)
+            {
+                step.Item = GetRecipeName(segments, GameData);
+            }
+
+            if (StepTypeExtensions.StepTypeHasAmount.Contains(type))
+            {
+                step.Amount = GetAmount(segments);
+            }
+
+            if (StepTypeExtensions.StepTypeHasModifier.Contains(type))
+            {
+                step.Modifier = GetModifierString(segments);
+            }
+
+            if (type == StepType.Priority)
+            {
+                step.Option = new Option()
+                {
+                    Priority = Priority.FromString(segments[5]),
+                };
+            }
+            if (type == StepType.Build)
+            {
+                step.Option = new Option()
+                {
+                    Orientation = segments[5].ToOrientationType(),
+                };
+            }
+            if (type == StepType.Limit || type == StepType.Put || type == StepType.Take || type == StepType.Equip)
+            {
+                step.Option = new Option()
+                {
+                    Inventory = segments[5].ToInventoryType(),
+                };
+            }
+
+            return step;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.DbContexts
@@ -19,12 +21,41 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Step>()
-                .Property(e => e.Type)
-                .HasConversion(
-                    v => v.ToStepTypeString(),
-                    v => v.ToStepType()
+            modelBuilder.Entity<Step>(entityBuilder =>
+            {
+                entityBuilder.ComplexProperty(e => e.Option, builder =>
+                {
+                    builder.Property(e => e.Priority)
+                        .HasColumnName("Priority")
+                        .HasConversion(
+                            v => Priority.ToString(v),
+                            v => Priority.FromString(v));
+
+                    builder.Property(e => e.Inventory)
+                        .HasColumnName("Inventory")
+                        .HasConversion(
+                            v => v.ToInventoryTypeString(),
+                            v => v.ToInventoryType());
+
+                    builder.Property(e => e.Orientation)
+                        .HasColumnName("Orientation")
+                        .HasConversion(
+                            v => v.ToOrientationTypeString(),
+                            v => v.ToOrientationType()
+                    );
+                });
+                entityBuilder.Property(e => e.Type)
+                    .HasConversion(
+                        v => v.ToStepTypeString(),
+                        v => v.ToStepType()
                 );
+
+                entityBuilder.Property(e => e.Modifier)
+                    .HasConversion(
+                        v => v.ToModifierTypeString(),
+                        v => v.ToModifierType()
+                );
+            });
         }
 
         public void SetupTriggers()
@@ -35,7 +66,7 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS insert_building_buildstep_after_build_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
+WHEN NEW.Type = 'Build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location
@@ -58,7 +89,7 @@ END;
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS update_building_destroystep_after_mine_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'mine' AND NEW.IsSkip = 0 AND NEW.IsSplit = 0
+WHEN NEW.Type = 'Mine' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location

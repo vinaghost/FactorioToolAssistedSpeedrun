@@ -44,7 +44,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                     StepType.Launch => Launch(steps[i]),
                     StepType.Save => Save(steps[i]),
                     StepType.Wait => Wait(steps[i]),
-                    StepType.Pick => PickUp(steps[i]),
+                    StepType.PickUp => PickUp(steps[i]),
                     StepType.Rotate => Rotate(steps[i]),
                     StepType.Build => Build(steps[i]),
                     StepType.Take => Take(steps[i]),
@@ -67,10 +67,10 @@ namespace FactorioToolAssistedSpeedrun.Commands
         {
             if (step.Type == StepType.Save)
             {
-                return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Modifier(step.Modifier)}}}";
+                return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString().ToLower()}\"__DETAILS__{step.Modifier.ToLuaString()}}}";
             }
 
-            return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString()}\"__DETAILS__{Comment(step.Comment)}{Modifier(step.Modifier)}}}";
+            return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString().ToLower()}\"__DETAILS__{Comment(step.Comment)}{step.Modifier.ToLuaString()}}}";
         }
 
         public static string Comment(string comment)
@@ -78,41 +78,8 @@ namespace FactorioToolAssistedSpeedrun.Commands
             return comment == "" ? "" : $", comment = \"{comment}\"";
         }
 
-        public static string Modifier(string modifier)
+        public string OrientationInventory(InventoryType inventoryType, int id = 0, double x = 0, double y = 0)
         {
-            var sb = new StringBuilder();
-            sb.Append(", ");
-            if (modifier.Contains("no order"))
-            {
-                sb.Append(" no_order = true,");
-            }
-            if (modifier.Contains("wait for"))
-            {
-                sb.Append(" wait_for = true,");
-            }
-            if (modifier.Contains("cancel others"))
-            {
-                sb.Append(" cancel = true,");
-            }
-            if (modifier.Contains("walk towards"))
-            {
-                sb.Append(" walk_towards = true,");
-            }
-            if (modifier.Contains("all"))
-            {
-                sb.Append(" all = true,");
-            }
-
-            return sb.Length == 2 ? "" : sb.ToString();
-        }
-
-        public string OrientationInventory(string orientation, int id = 0, double x = 0, double y = 0)
-        {
-            if (!Enum.TryParse<InventoryType>(orientation, true, out var inventoryType))
-            {
-                throw new Exception($"Unknown inventory type: {orientation}");
-            }
-
             if (inventoryType == InventoryType.Input || inventoryType == InventoryType.Modules)
             {
                 var entity = DbContext.Buildings
@@ -123,29 +90,6 @@ namespace FactorioToolAssistedSpeedrun.Commands
             }
 
             return inventoryType.GetInventoryDefines();
-        }
-
-        public static string Orientation(string orientation)
-        {
-            if (!Enum.TryParse<OrientationType>(orientation, true, out var orientationType))
-            {
-                throw new Exception($"Unknown orientation type: {orientation}");
-            }
-            return orientationType.GetOrientationDefines();
-        }
-
-        public static string OrientationPriority(string orientation)
-        {
-            var segments = orientation.Split(',');
-            if (segments.Length != 2)
-            {
-                throw new Exception($"Unknown orientation priority type: {orientation}");
-            }
-
-            var input = segments[0].Trim();
-            var output = segments[1].Trim();
-
-            return $"\"{input}\", \"{output}\"";
         }
 
         public string OrientationFilter(int id, double x, double y)
@@ -259,17 +203,17 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public static string Build(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Orientation(step.Orientation)}";
+            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {step.Option!.Orientation.GetOrientationDefines()}";
         }
 
         public string Take(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Orientation, step.Location, step.X, step.Y)}";
+            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Option!.Inventory, step.Location, step.X, step.Y)}";
         }
 
         public string Put(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Orientation, step.Location, step.X, step.Y)}";
+            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Option!.Inventory, step.Location, step.X, step.Y)}";
         }
 
         public static string Recipe(Step step)
@@ -279,12 +223,12 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
         public string Limit(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, {step.Amount}, {OrientationInventory(step.Orientation)}";
+            return $", {Coordinates(step.X, step.Y)}, {step.Amount}, {OrientationInventory(step.Option!.Inventory)}";
         }
 
         public static string Priority(Step step)
         {
-            return $", {Coordinates(step.X, step.Y)}, {OrientationPriority(step.Orientation)}";
+            return $", {Coordinates(step.X, step.Y)}, {step.Option!.Priority}";
         }
 
         public string Filter(Step step)

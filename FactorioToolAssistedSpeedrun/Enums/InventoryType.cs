@@ -2,6 +2,7 @@
 {
     public enum InventoryType
     {
+        None,
         Input,
         Output,
         Fuel,

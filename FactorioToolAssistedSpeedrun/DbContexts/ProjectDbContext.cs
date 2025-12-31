@@ -1,7 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models;
-using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.DbContexts
@@ -23,50 +22,78 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
         {
             modelBuilder.Entity<Step>(entityBuilder =>
             {
-                entityBuilder.ComplexProperty(e => e.Option, builder =>
-                {
-                    builder.Property(e => e.Priority)
-                        .HasColumnName("Priority")
-                        .HasConversion(
-                            v => Priority.ToString(v),
-                            v => Priority.FromString(v));
+                entityBuilder.Property(e => e.Priority)
+                    .HasConversion(
+                        v => Priority.ToLuaString(v),
+                        v => Priority.FromString(v));
 
-                    builder.Property(e => e.Inventory)
-                        .HasColumnName("Inventory")
-                        .HasConversion(
-                            v => v.ToInventoryTypeString(),
-                            v => v.ToInventoryType());
+                entityBuilder.Property(e => e.Inventory)
+                    .HasConversion(
+                        v => InventoryTypeExtensions.ToString(v),
+                        v => InventoryTypeExtensions.FromString(v));
 
-                    builder.Property(e => e.Orientation)
-                        .HasColumnName("Orientation")
-                        .HasConversion(
-                            v => v.ToOrientationTypeString(),
-                            v => v.ToOrientationType()
-                    );
-                });
+                entityBuilder.Property(e => e.Orientation)
+                    .HasConversion(
+                        v => OrientationTypeExtensions.ToString(v),
+                        v => OrientationTypeExtensions.FromString(v));
                 entityBuilder.Property(e => e.Type)
                     .HasConversion(
-                        v => v.ToStepTypeString(),
-                        v => v.ToStepType()
-                );
+                        v => StepTypeExtensions.ToString(v),
+                        v => StepTypeExtensions.FromString(v));
 
                 entityBuilder.Property(e => e.Modifier)
                     .HasConversion(
-                        v => v.ToModifierTypeString(),
-                        v => v.ToModifierType()
+                        v => ModifierTypeExtensions.ToString(v),
+                        v => ModifierTypeExtensions.FromString(v)
                 );
+            });
+
+            modelBuilder.Entity<Template>(entityBuilder =>
+            {
+                entityBuilder.Property(e => e.Priority)
+                   .HasConversion(
+                       v => Priority.ToLuaString(v),
+                       v => Priority.FromString(v));
+
+                entityBuilder.Property(e => e.Inventory)
+                    .HasConversion(
+                        v => InventoryTypeExtensions.ToString(v),
+                        v => InventoryTypeExtensions.FromString(v));
+
+                entityBuilder.Property(e => e.Orientation)
+                    .HasConversion(
+                        v => OrientationTypeExtensions.ToString(v),
+                        v => OrientationTypeExtensions.FromString(v));
+                entityBuilder.Property(e => e.Type)
+                    .HasConversion(
+                        v => StepTypeExtensions.ToString(v),
+                        v => StepTypeExtensions.FromString(v));
+
+                entityBuilder.Property(e => e.Modifier)
+                    .HasConversion(
+                        v => ModifierTypeExtensions.ToString(v),
+                        v => ModifierTypeExtensions.FromString(v));
             });
         }
 
         public void SetupTriggers()
         {
+            // Trigger to prevent updating Steps.Type
+            Database.ExecuteSqlRaw(@"
+CREATE TRIGGER IF NOT EXISTS block_update_step_type
+BEFORE UPDATE OF TYPE ON Steps
+BEGIN
+  SELECT RAISE(ABORT, 'Updating Steps.Type is prohibited');
+END;
+");
+
             // Trigger to insert a Building after a Build step
             // Ignore transport-belt because some are built for walking,
             // we don't want spam the table with them
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS insert_building_buildstep_after_build_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'Build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
+WHEN NEW.Type = 'build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location
@@ -89,7 +116,7 @@ END;
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS update_building_destroystep_after_mine_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'Mine' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
+WHEN NEW.Type = 'mine' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location

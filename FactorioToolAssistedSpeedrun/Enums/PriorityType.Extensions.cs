@@ -1,31 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Frozen;
 
 namespace FactorioToolAssistedSpeedrun.Enums
 {
     public static class PriorityTypeExtensions
     {
-        public static string ToLuaString(this PriorityType priorityType)
+        private static FrozenDictionary<string, PriorityType> _lookup { get; } =
+           new Dictionary<string, PriorityType>()
+           {
+                { "left", PriorityType.Left },
+                { "none", PriorityType.None },
+                { "right", PriorityType.Right },
+           }
+           .ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+
+        private static readonly FrozenDictionary<PriorityType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
+
+        public static string ToString(PriorityType priority)
         {
-            return priorityType switch
+            if (_reverseLookup.TryGetValue(priority, out var str))
             {
-                PriorityType.Left => "\"left\"",
-                PriorityType.None => "\"none\"",
-                PriorityType.Right => "\"right\"",
-                _ => "\"none\"",
-            };
+                return str;
+            }
+            return "";
         }
 
         public static PriorityType FromString(string str)
         {
-            return str.ToLower() switch
+            if (_lookup.TryGetValue(str, out var priority))
             {
-                "left" => PriorityType.Left,
-                "none" => PriorityType.None,
-                "right" => PriorityType.Right,
-                _ => PriorityType.None,
-            };
+                return priority;
+            }
+            return PriorityType.None;
+        }
+
+        public static string ToLuaString(PriorityType priority)
+        {
+            if (_reverseLookup.TryGetValue(priority, out var str))
+            {
+                return $"\"{str}\"";
+            }
+            return "";
         }
     }
 }

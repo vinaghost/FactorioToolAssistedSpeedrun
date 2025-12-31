@@ -5,36 +5,38 @@ namespace FactorioToolAssistedSpeedrun.Enums
     public static class InventoryTypeExtensions
     {
         private static FrozenDictionary<string, InventoryType> _lookup { get; } =
-            new Dictionary<string, InventoryType>(StringComparer.OrdinalIgnoreCase)
+            new Dictionary<string, InventoryType>()
             {
-                { "Input", InventoryType.Input},
-                { "Output", InventoryType.Output },
-                { "Fuel", InventoryType.Fuel },
-                { "Modules", InventoryType.Modules },
-                { "Chest", InventoryType.Chest },
-                { "Wreck", InventoryType.Wreck },
+                { "input", InventoryType.Input},
+                { "output", InventoryType.Output },
+                { "fuel", InventoryType.Fuel },
+                { "modules", InventoryType.Modules },
+                { "chest", InventoryType.Chest },
+                { "wreck", InventoryType.Wreck },
             }
-            .ToFrozenDictionary();
+            .ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
         private static readonly FrozenDictionary<InventoryType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-        public static InventoryType ToInventoryType(this string type)
+        public static InventoryType? FromString(string type)
         {
-            if (_lookup.TryGetValue(type.Trim(), out var iInventoryType))
-                return iInventoryType;
-            return InventoryType.Chest;
+            if (_lookup.TryGetValue(type.Trim(), out var inventory))
+                return inventory;
+            return null;
         }
 
-        public static string ToInventoryTypeString(this InventoryType inventoryType)
+        public static string ToString(InventoryType? inventory)
         {
-            if (_reverseLookup.TryGetValue(inventoryType, out var str))
+            if (!inventory.HasValue)
+                return "";
+            if (_reverseLookup.TryGetValue(inventory.Value, out var str))
                 return str;
-            return _reverseLookup[InventoryType.Chest];
+            return "";
         }
 
-        public static string GetInventoryDefines(this InventoryType type, string entity = "")
+        public static string GetInventoryDefines(this InventoryType inventory, string entity = "")
         {
-            switch (type)
+            switch (inventory)
             {
                 case InventoryType.Input:
                     if (entity == "lab")

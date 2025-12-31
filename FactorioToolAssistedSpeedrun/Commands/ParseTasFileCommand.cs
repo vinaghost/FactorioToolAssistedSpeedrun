@@ -3,7 +3,6 @@ using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models;
-using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using System.IO;
 
@@ -215,7 +214,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 return value;
             }
 
-            static ModifierType GetModifierString(string[] segments)
+            static ModifierType? GetModifierString(string[] segments)
             {
                 var modifierSegments = segments[8].Split(',');
                 foreach (var modifierStr in modifierSegments.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()))
@@ -225,10 +224,10 @@ namespace FactorioToolAssistedSpeedrun.Commands
                         return modifierValue;
                     }
                 }
-                return ModifierType.None;
+                return null;
             }
 
-            var type = segments[0].ToStepType();
+            var type = segments[0].FromString();
             var comment = segments[6];
             var color = segments[7];
             var isSkip = segments[8].Contains("skip");
@@ -241,55 +240,43 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 Color = color,
             };
 
-            if (StepTypeExtensions.StepTypeHasCoordinate.Contains(type))
+            if (type.ContainFlag(ParameterFlag.Point))
             {
                 step.X = GetX(segments);
                 step.Y = GetY(segments);
             }
 
-            if (StepTypeExtensions.StepTypeHasItemName.Contains(type))
+            if (type.ContainFlag(ParameterFlag.Item))
             {
-                step.Item = GetItemName(segments, GameData);
-            }
-            else if (type == StepType.Tech)
-            {
-                step.Item = GetTechName(segments, GameData);
-            }
-            else if (type == StepType.Recipe)
-            {
-                step.Item = GetRecipeName(segments, GameData);
+                step.Item = type switch
+                {
+                    StepType.Tech => GetTechName(segments, GameData),
+                    StepType.Recipe => GetRecipeName(segments, GameData),
+                    _ => GetItemName(segments, GameData),
+                };
             }
 
-            if (StepTypeExtensions.StepTypeHasAmount.Contains(type))
+            if (type.ContainFlag(ParameterFlag.Amount))
             {
                 step.Amount = GetAmount(segments);
             }
 
-            if (StepTypeExtensions.StepTypeHasModifier.Contains(type))
+            if (type.ContainFlag(ParameterFlag.Modifier))
             {
                 step.Modifier = GetModifierString(segments);
             }
 
-            if (type == StepType.Priority)
+            if (type.ContainFlag(ParameterFlag.Priority))
             {
-                step.Option = new Option()
-                {
-                    Priority = Priority.FromString(segments[5]),
-                };
+                step.Priority = Priority.FromString(segments[5]);
             }
-            if (type == StepType.Build)
+            if (type.ContainFlag(ParameterFlag.Orientation))
             {
-                step.Option = new Option()
-                {
-                    Orientation = segments[5].ToOrientationType(),
-                };
+                step.Orientation = OrientationTypeExtensions.FromString(segments[5]);
             }
-            if (type == StepType.Limit || type == StepType.Put || type == StepType.Take || type == StepType.Equip)
+            if (type.ContainFlag(ParameterFlag.Inventory))
             {
-                step.Option = new Option()
-                {
-                    Inventory = segments[5].ToInventoryType(),
-                };
+                step.Inventory = InventoryTypeExtensions.FromString(segments[5]);
             }
 
             return step;

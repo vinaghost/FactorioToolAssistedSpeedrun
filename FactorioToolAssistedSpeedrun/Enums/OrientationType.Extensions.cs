@@ -5,29 +5,31 @@ namespace FactorioToolAssistedSpeedrun.Enums
     public static class OrientationTypeExtensions
     {
         private static FrozenDictionary<string, OrientationType> _lookup { get; } =
-            new Dictionary<string, OrientationType>(StringComparer.OrdinalIgnoreCase)
+            new Dictionary<string, OrientationType>()
             {
-                { "North", OrientationType.North },
-                { "East", OrientationType.East },
-                { "South", OrientationType.South },
-                { "West", OrientationType.West },
+                { "north", OrientationType.North },
+                { "east", OrientationType.East },
+                { "south", OrientationType.South },
+                { "west", OrientationType.West },
             }
-            .ToFrozenDictionary();
+            .ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
         private static readonly FrozenDictionary<OrientationType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-        public static OrientationType ToOrientationType(this string type)
+        public static OrientationType? FromString(string str)
         {
-            if (_lookup.TryGetValue(type.Trim(), out var orientationType))
-                return orientationType;
-            return OrientationType.North;
+            if (_lookup.TryGetValue(str, out var orientation))
+                return orientation;
+            return null;
         }
 
-        public static string ToOrientationTypeString(this OrientationType orientationType)
+        public static string ToString(OrientationType? orientation)
         {
-            if (_reverseLookup.TryGetValue(orientationType, out var str))
+            if (!orientation.HasValue)
+                return "";
+            if (_reverseLookup.TryGetValue(orientation.Value, out var str))
                 return str;
-            return _reverseLookup[OrientationType.North];
+            return "";
         }
 
         public static string GetOrientationDefines(this OrientationType orientation)

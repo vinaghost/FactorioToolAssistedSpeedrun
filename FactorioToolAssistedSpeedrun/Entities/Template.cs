@@ -1,6 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models;
-using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Entities
@@ -18,8 +17,10 @@ namespace FactorioToolAssistedSpeedrun.Entities
         public double Y { get; set; } = 0;
         public int Amount { get; set; } = 0;
         public string Item { get; set; } = "";
-        public Option? Option { get; set; }
-        public ModifierType Modifier { get; set; }
+        public OrientationType? Orientation { get; set; }
+        public InventoryType? Inventory { get; set; }
+        public Priority? Priority { get; set; }
+        public ModifierType? Modifier { get; set; }
         public string Color { get; set; } = "";
         public string Comment { get; set; } = "";
 
@@ -34,7 +35,9 @@ namespace FactorioToolAssistedSpeedrun.Entities
                 Y = step.Y,
                 Amount = step.Amount,
                 Item = step.Item,
-                Option = step.Option,
+                Orientation = step.Orientation,
+                Inventory = step.Inventory,
+                Priority = step.Priority,
                 Modifier = step.Modifier,
                 Color = step.Color,
                 Comment = step.Comment

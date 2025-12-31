@@ -29,33 +29,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
 
             for (int i = 0; i < steps.Count; i++)
             {
-                writer.WriteLine(StepFormat(steps[i], i + 1).Replace("__DETAILS__", steps[i].Type switch
-                {
-                    StepType.Walk => Walk(steps[i]),
-                    StepType.Mine => Mine(steps[i]),
-                    StepType.Craft => Craft(steps[i]),
-                    StepType.Tech => Tech(steps[i]),
-                    StepType.Speed => Speed(steps[i]),
-                    StepType.Pause => Pause(steps[i]),
-                    StepType.NeverIdle => NeverIdle(steps[i]),
-                    StepType.KeepWalking => KeepWalking(steps[i]),
-                    StepType.KeepOnPath => KeepOnPath(steps[i]),
-                    StepType.KeepCrafting => KeepCrafting(steps[i]),
-                    StepType.Launch => Launch(steps[i]),
-                    StepType.Save => Save(steps[i]),
-                    StepType.Wait => Wait(steps[i]),
-                    StepType.PickUp => PickUp(steps[i]),
-                    StepType.Rotate => Rotate(steps[i]),
-                    StepType.Build => Build(steps[i]),
-                    StepType.Take => Take(steps[i]),
-                    StepType.Put => Put(steps[i]),
-                    StepType.Recipe => Recipe(steps[i]),
-                    StepType.Limit => Limit(steps[i]),
-                    StepType.Priority => Priority(steps[i]),
-                    StepType.Filter => Filter(steps[i]),
-                    StepType.Drop => Drop(steps[i]),
-                    _ => throw new Exception($"Unknown step type: {steps[i].Type}"),
-                }));
+                writer.WriteLine(StepFormat(steps[i], i + 1));
             }
 
             writer.WriteLine($"step[{steps.Count}] = {{\"break\"}}");
@@ -63,19 +37,104 @@ namespace FactorioToolAssistedSpeedrun.Commands
             writer.WriteLine("return step");
         }
 
-        public static string StepFormat(Step step, int count)
+        public string StepFormat(Step step, int count)
         {
-            if (step.Type == StepType.Save)
+            var sb = new StringBuilder();
+
+            var type = step.Type;
+            sb.Append($"step[{count}] = {{{step.Location}");
+            if (type == StepType.PickUp)
             {
-                return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString().ToLower()}\"__DETAILS__{step.Modifier.ToLuaString()}}}";
+                sb.Append($", \"pick\"");
+            }
+            else
+            {
+                sb.Append($", \"{StepTypeExtensions.ToString(type)}\"");
+            }
+            if (type.ContainFlag(ParameterFlag.Point))
+            {
+                sb.Append($", {{{step.X:F6}, {step.Y:F6}}}");
             }
 
-            return $"step[{count}] = {{{step.Location}, \"{step.Type.ToStepTypeString().ToLower()}\"__DETAILS__{Comment(step.Comment)}{step.Modifier.ToLuaString()}}}";
-        }
+            if (type == StepType.Craft)
+            {
+                if (type.ContainFlag(ParameterFlag.Amount))
+                {
+                    if (step.Amount < 1)
+                        sb.Append($", -1");
+                    else
+                        sb.Append($", {step.Amount}");
+                }
+                if (type.ContainFlag(ParameterFlag.Item))
+                {
+                    sb.Append($", \"{step.Item}\"");
+                }
+            }
+            else
+            {
+                if (type.ContainFlag(ParameterFlag.Item))
+                {
+                    sb.Append($", \"{step.Item}\"");
+                }
 
-        public static string Comment(string comment)
-        {
-            return comment == "" ? "" : $", comment = \"{comment}\"";
+                if (type.ContainFlag(ParameterFlag.Amount))
+                {
+                    if (type == StepType.Rotate)
+                    {
+                        if (step.Amount == 3)
+                            sb.Append(", true");
+                        else
+                            sb.Append(", false");
+                    }
+                    else
+                    {
+                        if (step.Amount < 1)
+                            sb.Append($", -1");
+                        else
+                            sb.Append($", {step.Amount}");
+                    }
+                }
+            }
+
+            if (type.ContainFlag(ParameterFlag.Orientation))
+            {
+                sb.Append($", {step.Orientation!.Value.GetOrientationDefines()}");
+            }
+
+            if (type.ContainFlag(ParameterFlag.Inventory))
+            {
+                sb.Append($", {OrientationInventory(step.Inventory!.Value, step.Location, step.X, step.Y)}");
+            }
+
+            if (type.ContainFlag(ParameterFlag.Priority))
+            {
+                sb.Append($", {step.Priority!.ToLuaString()}");
+            }
+
+            if (type.ContainFlag(ParameterFlag.Modifier))
+            {
+                if (step.Type != StepType.Mine && step.Modifier.HasValue)
+                {
+                    sb.Append($", {ModifierTypeExtensions.ToLuaString(step.Modifier.Value)}");
+                }
+            }
+
+            if (step.Type == StepType.Filter)
+            {
+                sb.Append($", {OrientationFilter(step.Location, step.X, step.Y)}");
+            }
+
+            if (step.Type == StepType.Save)
+            {
+                sb.Append($", \"{step.Comment}\"");
+            }
+            else
+            {
+                var comment = string.IsNullOrEmpty(step.Comment) ? "" : $", comment = \"{step.Comment}\"";
+                sb.Append($"{comment}");
+            }
+            sb.Append("}");
+            return sb.ToString();
         }
 
         public string OrientationInventory(InventoryType inventoryType, int id = 0, double x = 0, double y = 0)
@@ -111,134 +170,6 @@ namespace FactorioToolAssistedSpeedrun.Commands
             {
                 throw new Exception($"Unknown entity type for filter orientation: {entity.Name}");
             }
-        }
-
-        public static string Coordinates(double x, double y)
-        {
-            return $"{{{x:F6}, {y:F6}}}";
-        }
-
-        public static string Amount(int amount)
-        {
-            return amount == 0 ? "-1" : $"{amount}";
-        }
-
-        public static string Walk(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}";
-        }
-
-        public static string Mine(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, {Amount(step.Amount)}";
-        }
-
-        public static string Craft(Step step)
-        {
-            return $", {Amount(step.Amount)}, \"{step.Item}\"";
-        }
-
-        public static string Tech(Step step)
-        {
-            return $", \"{step.Item}\"";
-        }
-
-        public static string Speed(Step step)
-        {
-            return $", {step.Amount}";
-        }
-
-        public static string Pause(Step _)
-        {
-            return "";
-        }
-
-        public static string NeverIdle(Step _)
-        {
-            return "";
-        }
-
-        public static string KeepWalking(Step _)
-        {
-            return "";
-        }
-
-        public static string KeepOnPath(Step _)
-        {
-            return "";
-        }
-
-        public static string KeepCrafting(Step _)
-        {
-            return "";
-        }
-
-        public static string Launch(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}";
-        }
-
-        public static string Save(Step step)
-        {
-            return $", \"{step.Comment}\"";
-        }
-
-        public static string Wait(Step step)
-        {
-            return $", {step.Amount}";
-        }
-
-        public static string PickUp(Step step)
-        {
-            return $", \"{step.Amount}\"";
-        }
-
-        public static string Rotate(Step step)
-        {
-            if (step.Amount == 3)
-                return $", {Coordinates(step.X, step.Y)}, true";
-            else
-                return $", {Coordinates(step.X, step.Y)}, false";
-        }
-
-        public static string Build(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {step.Option!.Orientation.GetOrientationDefines()}";
-        }
-
-        public string Take(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Option!.Inventory, step.Location, step.X, step.Y)}";
-        }
-
-        public string Put(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {Amount(step.Amount)}, {OrientationInventory(step.Option!.Inventory, step.Location, step.X, step.Y)}";
-        }
-
-        public static string Recipe(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\"";
-        }
-
-        public string Limit(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, {step.Amount}, {OrientationInventory(step.Option!.Inventory)}";
-        }
-
-        public static string Priority(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, {step.Option!.Priority}";
-        }
-
-        public string Filter(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\", {step.Amount},  {OrientationFilter(step.Location, step.X, step.Y)}";
-        }
-
-        public static string Drop(Step step)
-        {
-            return $", {Coordinates(step.X, step.Y)}, \"{step.Item}\"";
         }
     }
 }

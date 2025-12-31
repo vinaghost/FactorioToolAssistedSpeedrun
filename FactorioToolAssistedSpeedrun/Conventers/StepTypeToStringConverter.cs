@@ -10,7 +10,7 @@ namespace FactorioToolAssistedSpeedrun.Conventers
         {
             if (value is StepType stepType)
             {
-                return stepType.ToStepTypeString();
+                return StepTypeExtensions.ToString(stepType);
             }
             return value?.ToString() ?? "";
         }
@@ -19,7 +19,7 @@ namespace FactorioToolAssistedSpeedrun.Conventers
         {
             if (value is string str)
             {
-                return str.ToStepType();
+                return str.FromString();
             }
             throw new InvalidOperationException("Invalid conversion");
         }

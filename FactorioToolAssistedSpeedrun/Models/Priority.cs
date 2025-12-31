@@ -1,7 +1,4 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Models
 {
@@ -10,16 +7,16 @@ namespace FactorioToolAssistedSpeedrun.Models
         public required PriorityType In { get; set; }
         public required PriorityType Out { get; set; }
 
-        public static string DefaultString => $"{PriorityType.None.ToLuaString()}, {PriorityType.None.ToLuaString()}";
+        public static string DefaultString => $"{PriorityTypeExtensions.ToLuaString(PriorityType.None)}, {PriorityTypeExtensions.ToLuaString(PriorityType.None)}";
 
-        public override string ToString()
+        public string ToLuaString()
         {
-            return $"{In.ToLuaString()}, {Out.ToLuaString()}";
+            return $"{PriorityTypeExtensions.ToLuaString(In)}, {PriorityTypeExtensions.ToLuaString(Out)}";
         }
 
-        public static string ToString(Priority? priority)
+        public static string ToLuaString(Priority? priority)
         {
-            return priority is null ? "" : priority.ToString();
+            return priority is null ? "" : priority.ToLuaString();
         }
 
         public static Priority? FromString(string str)

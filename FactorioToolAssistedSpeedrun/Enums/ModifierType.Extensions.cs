@@ -1,51 +1,45 @@
-﻿using System;
-using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Frozen;
 
 namespace FactorioToolAssistedSpeedrun.Enums
 {
     public static class ModifierTypeExtensions
     {
-        public static readonly FrozenDictionary<string, ModifierType> Lookup = new Dictionary<string, ModifierType>(StringComparer.OrdinalIgnoreCase)
+        public static readonly FrozenDictionary<string, ModifierType> Lookup = new Dictionary<string, ModifierType>()
         {
-            { "", ModifierType.None },
             { "all", ModifierType.All },
             { "walk_towards", ModifierType.WalkTowards},
             { "split", ModifierType.Split},
-        }.ToFrozenDictionary();
+        }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
         public static readonly FrozenDictionary<ModifierType, string> ReverseLookup = Lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-        public static string ToLuaString(this ModifierType modifier)
+        public static string ToLuaString(ModifierType modifier)
         {
-            if (modifier == ModifierType.None)
-            {
-                return "";
-            }
             if (ReverseLookup.TryGetValue(modifier, out var str))
             {
-                return $",  {str} = true,";
+                return $"{str} = true";
             }
             return "";
         }
 
-        public static string ToModifierTypeString(this ModifierType modifier)
+        public static string ToString(ModifierType? modifier)
         {
-            if (ReverseLookup.TryGetValue(modifier, out var str))
+            if (!modifier.HasValue)
+                return "";
+            if (ReverseLookup.TryGetValue(modifier.Value, out var str))
             {
                 return str;
             }
             return "";
         }
 
-        public static ModifierType ToModifierType(this string str)
+        public static ModifierType? FromString(string str)
         {
             if (Lookup.TryGetValue(str, out var modifier))
             {
                 return modifier;
             }
-            return ModifierType.None;
+            return null;
         }
     }
 }

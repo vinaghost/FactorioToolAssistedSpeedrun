@@ -24,7 +24,7 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
             {
                 entityBuilder.Property(e => e.Priority)
                     .HasConversion(
-                        v => Priority.ToLuaString(v),
+                        v => Priority.ToString(v),
                         v => Priority.FromString(v));
 
                 entityBuilder.Property(e => e.Inventory)
@@ -52,7 +52,7 @@ namespace FactorioToolAssistedSpeedrun.DbContexts
             {
                 entityBuilder.Property(e => e.Priority)
                    .HasConversion(
-                       v => Priority.ToLuaString(v),
+                       v => Priority.ToString(v),
                        v => Priority.FromString(v));
 
                 entityBuilder.Property(e => e.Inventory)

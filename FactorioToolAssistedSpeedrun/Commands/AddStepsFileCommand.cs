@@ -111,9 +111,9 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 sb.Append($", {step.Priority!.ToLuaString()}");
             }
 
-            if (type.ContainFlag(ParameterFlag.Modifier))
+            if (type.ContainFlag(ParameterFlag.Modifier) && step.Modifier.HasValue)
             {
-                if (step.Type != StepType.Mine && step.Modifier.HasValue)
+                if (step.Type != StepType.Mine)
                 {
                     sb.Append($", {ModifierTypeExtensions.ToLuaString(step.Modifier.Value)}");
                 }

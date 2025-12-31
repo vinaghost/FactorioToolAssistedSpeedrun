@@ -7,16 +7,24 @@ namespace FactorioToolAssistedSpeedrun.Models
         public required PriorityType In { get; set; }
         public required PriorityType Out { get; set; }
 
-        public static string DefaultString => $"{PriorityTypeExtensions.ToLuaString(PriorityType.None)}, {PriorityTypeExtensions.ToLuaString(PriorityType.None)}";
-
         public string ToLuaString()
         {
             return $"{PriorityTypeExtensions.ToLuaString(In)}, {PriorityTypeExtensions.ToLuaString(Out)}";
         }
 
+        public override string ToString()
+        {
+            return $"{PriorityTypeExtensions.ToString(In)}, {PriorityTypeExtensions.ToString(Out)}";
+        }
+
         public static string ToLuaString(Priority? priority)
         {
             return priority is null ? "" : priority.ToLuaString();
+        }
+
+        public static string ToString(Priority? priority)
+        {
+            return priority is null ? "" : priority.ToString();
         }
 
         public static Priority? FromString(string str)

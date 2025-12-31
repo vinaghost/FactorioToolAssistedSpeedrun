@@ -16,7 +16,7 @@ namespace FactorioToolAssistedSpeedrun.Enums
             { StepType.Limit, ParameterFlag.Point | ParameterFlag.Amount | ParameterFlag.Inventory },
             { StepType.Filter, ParameterFlag.Point | ParameterFlag.Item | ParameterFlag.Amount },
             { StepType.Rotate, ParameterFlag.Point | ParameterFlag.Amount },
-            { StepType.Priority, ParameterFlag.Point | ParameterFlag.Modifier },
+            { StepType.Priority, ParameterFlag.Point | ParameterFlag.Priority | ParameterFlag.Modifier },
             { StepType.Put, ParameterFlag.Point | ParameterFlag.Item | ParameterFlag.Amount | ParameterFlag.Inventory },
             { StepType.Take, ParameterFlag.Point | ParameterFlag.Item | ParameterFlag.Amount | ParameterFlag.Inventory | ParameterFlag.Modifier },
             { StepType.Mine, ParameterFlag.Point | ParameterFlag.Amount | ParameterFlag.Modifier },

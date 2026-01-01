@@ -19,7 +19,7 @@ namespace FactorioToolAssistedSpeedrun.Conventers
         {
             if (value is string str)
             {
-                return str.FromString();
+                return StepTypeExtensions.FromString(str);
             }
             throw new InvalidOperationException("Invalid conversion");
         }

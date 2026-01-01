@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 namespace FactorioToolAssistedSpeedrun.Conventers
 {
-    public class ItemToHumanizeNameConverter : IValueConverter
+    public class ItemNameToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

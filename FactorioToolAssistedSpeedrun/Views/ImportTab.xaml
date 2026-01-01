@@ -2,12 +2,13 @@
     x:Class="FactorioToolAssistedSpeedrun.Views.ImportTab"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance vm:ImportTabViewModel, IsDesignTimeCreatable=True}">
+    d:DataContext="{d:DesignInstance vm:ImportTabViewModel,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -20,17 +21,41 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="2">
+        <StackPanel
+            Grid.Row="0"
+            Grid.Column="0"
+            Margin="2"
+            Orientation="Horizontal">
             <Button Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Content="C" />
             <TextBox MinWidth="60" Text="13031" />
         </StackPanel>
-        <Button Grid.Row="1" Grid.Column="0" Content="Into steps" Margin="2" />
+        <Button
+            Grid.Row="1"
+            Grid.Column="0"
+            Margin="2"
+            Content="Into steps" />
 
-        <TextBox Grid.Row="0" Grid.Column="1" Margin="2" />
-        <Button Grid.Row="1" Grid.Column="1" Content="Create template" Margin="2" IsEnabled="False" />
+        <TextBox
+            Grid.Row="0"
+            Grid.Column="1"
+            Margin="2" />
+        <Button
+            Grid.Row="1"
+            Grid.Column="1"
+            Margin="2"
+            Content="Create template"
+            IsEnabled="False" />
 
-        <CheckBox Grid.Row="0" Grid.Column="2" Content="Clear import" Margin="2" VerticalAlignment="Center" />
+        <CheckBox
+            Grid.Row="0"
+            Grid.Column="2"
+            Margin="2"
+            VerticalAlignment="Center"
+            Content="Clear import" />
 
-        <RichTextBox Grid.Row="2" Grid.ColumnSpan="4" VerticalScrollBarVisibility="Auto" />
+        <RichTextBox
+            Grid.Row="2"
+            Grid.ColumnSpan="4"
+            VerticalScrollBarVisibility="Auto" />
     </Grid>
 </UserControl>

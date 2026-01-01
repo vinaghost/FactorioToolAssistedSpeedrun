@@ -227,7 +227,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 return null;
             }
 
-            var type = segments[0].FromString();
+            var type = StepTypeExtensions.FromString(segments[0]);
             var comment = segments[6];
             var color = segments[7];
             var isSkip = segments[8].Contains("skip");

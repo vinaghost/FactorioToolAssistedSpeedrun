@@ -2,16 +2,17 @@
     x:Class="FactorioToolAssistedSpeedrun.Views.StepPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:conventers="clr-namespace:FactorioToolAssistedSpeedrun.Conventers"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
-    xmlns:conventers="clr-namespace:FactorioToolAssistedSpeedrun.Conventers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance vm:StepPanelViewModel, IsDesignTimeCreatable=True}">
+    d:DataContext="{d:DesignInstance vm:StepPanelViewModel,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <conventers:StepTypeToStringConverter x:Key="StepTypeToStringConverter" />
-        <conventers:ItemToHumanizeNameConverter x:Key="ItemToHumanizeNameConverter" />
+        <conventers:ItemNameToStringConverter x:Key="ItemNameToStringConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -26,42 +27,88 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Button Content="Add" Grid.Column="0" Margin="2" />
-        <Button Content="Change" Grid.Column="1" Margin="2" />
-        <Button Content="Delete" Grid.Column="2" Margin="2" />
-        <Button Content="Move Up" Grid.Column="3" Margin="2" />
-        <Button Content="Move Down" Grid.Column="4" Margin="2" />
-        <Button Content="Skip" Grid.Column="6" Margin="2" />
-        <Button Content="Split" Grid.Column="7" Margin="2" />
-        <DataGrid x:Name="Steps"
-                  Grid.Row="1"
-                  Grid.ColumnSpan="8"
-                  ItemsSource="{Binding StepCollection, Mode=OneWay}"
-                  EnableRowVirtualization="True"
-                  VirtualizingPanel.IsVirtualizing="True"
-                  VirtualizingPanel.VirtualizationMode="Recycling"
-                  ScrollViewer.IsDeferredScrollingEnabled="True"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  CanUserSortColumns="False"
-                  CanUserReorderColumns="False"
-                  CanUserResizeRows="False"
-                  Margin="0,5,0,0">
+        <Button
+            Grid.Column="0"
+            Margin="2"
+            Content="Add" />
+        <Button
+            Grid.Column="1"
+            Margin="2"
+            Content="Change" />
+        <Button
+            Grid.Column="2"
+            Margin="2"
+            Content="Delete" />
+        <Button
+            Grid.Column="3"
+            Margin="2"
+            Content="Move Up" />
+        <Button
+            Grid.Column="4"
+            Margin="2"
+            Content="Move Down" />
+        <Button
+            Grid.Column="6"
+            Margin="2"
+            Content="Skip" />
+        <DataGrid
+            x:Name="Steps"
+            Grid.Row="1"
+            Grid.ColumnSpan="7"
+            Margin="0,5,0,0"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            CanUserDeleteRows="False"
+            CanUserReorderColumns="False"
+            CanUserResizeRows="False"
+            CanUserSortColumns="False"
+            EnableRowVirtualization="True"
+            ItemsSource="{Binding StepCollection, Mode=OneWay}"
+            ScrollViewer.IsDeferredScrollingEnabled="True"
+            VirtualizingPanel.IsVirtualizing="True"
+            VirtualizingPanel.VirtualizationMode="Recycling">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="" Binding="{Binding Location}" />
-                <DataGridTextColumn Header="Step" Binding="{Binding Type, Converter={StaticResource StepTypeToStringConverter}}" Width="60" />
-                <DataGridTextColumn Header="X" Binding="{Binding X}" Width="50" />
-                <DataGridTextColumn Header="Y" Binding="{Binding Y}" Width="50" />
-                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="60" />
-                <DataGridTextColumn Header="Item" Binding="{Binding Item, Converter={StaticResource ItemToHumanizeNameConverter}}" Width="100" />
-                <DataGridTextColumn Header="Orientation" Binding="{Binding Orientation}" Width="60" />
-                <DataGridTextColumn Header="Modifier" Binding="{Binding Modifier}" Width="60" />
-                <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="60" />
-                <DataGridCheckBoxColumn Header="IsSkip" Binding="{Binding IsSkip}" Width="Auto" />
-                <DataGridCheckBoxColumn Header="IsSplit" Binding="{Binding IsSplit}" Width="Auto" />
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding Location}"
+                    Header="" />
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding Type, Mode=OneWay, Converter={StaticResource StepTypeToStringConverter}}"
+                    Header="Step" />
+                <DataGridTextColumn
+                    Width="Auto"
+                    Binding="{Binding X}"
+                    Header="X" />
+                <DataGridTextColumn
+                    Width="Auto"
+                    Binding="{Binding Y}"
+                    Header="Y" />
+                <DataGridTextColumn
+                    Width="Auto"
+                    Binding="{Binding Amount}"
+                    Header="Amount" />
+                <DataGridTextColumn
+                    Width="2*"
+                    Binding="{Binding Item, Converter={StaticResource ItemNameToStringConverter}}"
+                    Header="Item" />
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding Orientation}"
+                    Header="Orientation" />
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding Modifier}"
+                    Header="Modifier" />
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding Comment}"
+                    Header="Comment" />
+                <DataGridCheckBoxColumn
+                    Width="Auto"
+                    Binding="{Binding IsSkip}"
+                    Header="Skip" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

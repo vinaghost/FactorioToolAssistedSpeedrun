@@ -42,14 +42,14 @@ namespace FactorioToolAssistedSpeedrun.Enums
 
         private static readonly FrozenDictionary<StepType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
 
-        public static StepType FromString(this string str)
+        public static StepType FromString(string str)
         {
             if (_lookup.TryGetValue(str, out var step))
                 return step;
             return StepType.Stop;
         }
 
-        public static string ToString(this StepType step)
+        public static string ToString(StepType step)
         {
             if (_reverseLookup.TryGetValue(step, out var str))
                 return str;

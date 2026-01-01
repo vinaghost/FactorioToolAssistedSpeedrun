@@ -1,6 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
 
-namespace FactorioToolAssistedSpeedrun.Models
+namespace FactorioToolAssistedSpeedrun.Models.Database
 {
     public class Priority
     {

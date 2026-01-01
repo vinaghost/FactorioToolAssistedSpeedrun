@@ -1,6 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.DbContexts
@@ -97,7 +97,7 @@ WHEN NEW.Type = 'build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location
-    WHERE X = NEW.X AND Y = NEW.Y AND DestroyStep = -1;
+    WHERE ABS(X - NEW.X) < 0.0001 AND ABS(Y - NEW.Y) < 0.0001 AND DestroyStep = -1;
 
     INSERT INTO Buildings (X, Y, Name, Orientation, BuildStep, DestroyStep)
     VALUES (
@@ -120,7 +120,7 @@ WHEN NEW.Type = 'mine' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location
-    WHERE X = NEW.X AND Y = NEW.Y AND DestroyStep = -1;
+    WHERE ABS(X - NEW.X) < 0.0001 AND ABS(Y - NEW.Y) < 0.0001 AND DestroyStep = -1;
 END;
 ");
             // Trigger to decrement step location and adjust building references

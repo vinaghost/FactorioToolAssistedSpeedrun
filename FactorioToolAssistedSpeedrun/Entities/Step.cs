@@ -1,5 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Models;
+using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Entities

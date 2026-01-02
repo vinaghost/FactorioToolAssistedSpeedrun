@@ -34,11 +34,21 @@
             </Grid.RowDefinitions>
             <views:MenuBar Grid.Row="0" DataContext="{Binding MenuBarViewModel}" />
             <!--  Toolbar area  -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <views:StepTypePanel DataContext="{Binding StepTypePanelViewModel}" />
-                <views:StepDetailPanel DataContext="{Binding StepDetailPanelViewModel}" />
-            </StackPanel>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
 
+                <views:StepTypePanel Grid.Column="0" DataContext="{Binding StepTypePanelViewModel}" />
+                <GridSplitter
+                    Grid.Column="1"
+                    Width="5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch" />
+                <views:StepDetailPanel Grid.Column="2" DataContext="{Binding StepDetailPanelViewModel}" />
+            </Grid>
             <!--  Data panel  -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -46,8 +56,6 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="6*" />
                 </Grid.ColumnDefinitions>
-
-                <!--  Tabs in the first column  -->
                 <TabControl Grid.Column="0">
                     <TabItem Header="Imports">
                         <views:ImportTab DataContext="{Binding ImportTabViewModel}" />
@@ -62,6 +70,7 @@
                     Width="5"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Stretch" />
+
                 <views:StepPanel Grid.Column="2" DataContext="{Binding StepPanelViewModel}" />
             </Grid>
         </Grid>

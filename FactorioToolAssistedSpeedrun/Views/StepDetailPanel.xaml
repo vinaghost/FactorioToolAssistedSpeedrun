@@ -2,7 +2,9 @@
     x:Class="FactorioToolAssistedSpeedrun.Views.StepDetailPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:FactorioToolAssistedSpeedrun.Conventers"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="clr-namespace:FactorioToolAssistedSpeedrun.Enums"
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
@@ -10,6 +12,8 @@
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <UserControl.Resources>
+        <converters:RadioButtonCheckedConverter x:Key="RadioButtonCheckedConverter" />
+        <converters:CheckboxCheckedConverter x:Key="CheckboxCheckedConverter" />
         <Thickness x:Key="StepDetailMargin">2</Thickness>
         <Thickness x:Key="PriorityMargin">5,0,5,0</Thickness>
     </UserControl.Resources>
@@ -44,13 +48,14 @@
                         Text="X:"
                         TextAlignment="Right" />
                     <TextBox
-                        x:Name="XTextBox"
                         Grid.Row="0"
                         Grid.Column="1"
                         Height="22"
                         MinWidth="50"
                         HorizontalContentAlignment="Right"
-                        VerticalContentAlignment="Center" />
+                        VerticalContentAlignment="Center"
+                        IsEnabled="{Binding XEnabled}"
+                        Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
@@ -58,13 +63,14 @@
                         Text="Y:"
                         TextAlignment="Right" />
                     <TextBox
-                        x:Name="YTextBox"
                         Grid.Row="1"
                         Grid.Column="1"
                         Height="22"
                         MinWidth="50"
                         HorizontalContentAlignment="Right"
-                        VerticalContentAlignment="Center" />
+                        VerticalContentAlignment="Center"
+                        IsEnabled="{Binding YEnabled}"
+                        Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
@@ -72,13 +78,14 @@
                         Text="Amount:"
                         TextAlignment="Right" />
                     <TextBox
-                        x:Name="AmountTextBox"
                         Grid.Row="2"
                         Grid.Column="1"
                         Height="22"
                         MinWidth="50"
                         HorizontalContentAlignment="Right"
-                        VerticalContentAlignment="Center" />
+                        VerticalContentAlignment="Center"
+                        IsEnabled="{Binding AmountEnabled}"
+                        Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock
                         Grid.Row="3"
                         Grid.Column="0"
@@ -86,12 +93,12 @@
                         Text="Comment:"
                         TextAlignment="Right" />
                     <TextBox
-                        x:Name="CommentTextBox"
                         Grid.Row="3"
                         Grid.Column="1"
                         Height="22"
                         MinWidth="50"
-                        VerticalContentAlignment="Center" />
+                        VerticalContentAlignment="Center"
+                        Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </Border>
             <Border
@@ -117,21 +124,30 @@
                         Text="Item:"
                         TextAlignment="Right" />
                     <ComboBox
-                        x:Name="ItemComboBox"
                         Grid.Row="0"
-                        Grid.Column="1">
-                        <ComboBoxItem>Personal roboport equipment</ComboBoxItem>
-                    </ComboBox>
+                        Grid.Column="1"
+                        DisplayMemberPath="Value"
+                        IsEditable="True"
+                        IsEnabled="{Binding ItemEnabled}"
+                        IsTextSearchCaseSensitive="False"
+                        IsTextSearchEnabled="True"
+                        ItemsSource="{Binding Items, Mode=OneTime}"
+                        SelectedItem="{Binding SelectedItem}"
+                        SelectedValuePath="Key"
+                        StaysOpenOnEdit="True"
+                        TextSearch.TextPath="Value" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
                         VerticalAlignment="Center"
-                        Text="Into:"
+                        Text="Inventory:"
                         TextAlignment="Right" />
                     <ComboBox
-                        x:Name="IntoComboBox"
                         Grid.Row="1"
-                        Grid.Column="1" />
+                        Grid.Column="1"
+                        IsEnabled="{Binding InventoryEnabled}"
+                        ItemsSource="{Binding Inventories, Mode=OneTime}"
+                        SelectedItem="{Binding Inventory}" />
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
@@ -141,37 +157,20 @@
                     <StackPanel
                         Grid.Row="2"
                         Grid.Column="1"
+                        IsEnabled="{Binding InputPriorityEnabled}"
                         Orientation="Horizontal">
                         <RadioButton
-                            x:Name="InputLeftRadio"
                             VerticalAlignment="Center"
-                            Content="Left">
-                            <RadioButton.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
-                                </TransformGroup>
-                            </RadioButton.RenderTransform>
-                        </RadioButton>
+                            Content="Left"
+                            IsChecked="{Binding InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Left}}" />
                         <RadioButton
-                            x:Name="InputNoneRadio"
                             VerticalAlignment="Center"
-                            Content="None">
-                            <RadioButton.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
-                                </TransformGroup>
-                            </RadioButton.RenderTransform>
-                        </RadioButton>
+                            Content="None"
+                            IsChecked="{Binding InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.None}}" />
                         <RadioButton
-                            x:Name="InputRightRadio"
                             VerticalAlignment="Center"
-                            Content="Right">
-                            <RadioButton.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
-                                </TransformGroup>
-                            </RadioButton.RenderTransform>
-                        </RadioButton>
+                            Content="Right"
+                            IsChecked="{Binding InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Right}}" />
                     </StackPanel>
                     <TextBlock
                         Grid.Row="3"
@@ -182,37 +181,20 @@
                     <StackPanel
                         Grid.Row="3"
                         Grid.Column="1"
+                        IsEnabled="{Binding OutputPriorityEnabled}"
                         Orientation="Horizontal">
                         <RadioButton
-                            x:Name="OutputLeftRadio"
                             VerticalAlignment="Center"
-                            Content="Left">
-                            <RadioButton.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
-                                </TransformGroup>
-                            </RadioButton.RenderTransform>
-                        </RadioButton>
+                            Content="Left"
+                            IsChecked="{Binding OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Left}}" />
                         <RadioButton
-                            x:Name="OutputNoneRadio"
                             VerticalAlignment="Center"
-                            Content="None">
-                            <RadioButton.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
-                                </TransformGroup>
-                            </RadioButton.RenderTransform>
-                        </RadioButton>
+                            Content="None"
+                            IsChecked="{Binding OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.None}}" />
                         <RadioButton
-                            x:Name="OutputRightRadio"
                             VerticalAlignment="Center"
-                            Content="Right">
-                            <RadioButton.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
-                                </TransformGroup>
-                            </RadioButton.RenderTransform>
-                        </RadioButton>
+                            Content="Right"
+                            IsChecked="{Binding OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Right}}" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -223,6 +205,8 @@
                 BorderThickness="1">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
@@ -237,23 +221,46 @@
                         Text="Orientation:"
                         TextAlignment="Right" />
                     <ComboBox
-                        x:Name="OrientationComboBox"
                         Grid.Row="0"
-                        Grid.Column="1">
-                        <ComboBoxItem>Modules</ComboBoxItem>
-                    </ComboBox>
+                        Grid.Column="1"
+                        IsEnabled="{Binding OrientationEnabled}"
+                        ItemsSource="{Binding Orientations, Mode=OneTime}"
+                        SelectedItem="{Binding Orientation}" />
+
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
                         VerticalAlignment="Center"
-                        Text="Modifier:"
+                        Text="Take all:"
                         TextAlignment="Right" />
-                    <ComboBox
-                        x:Name="ModifierComboBox"
+                    <CheckBox
                         Grid.Row="1"
-                        Grid.Column="1">
-                        <ComboBoxItem>Split</ComboBoxItem>
-                    </ComboBox>
+                        Grid.Column="1"
+                        IsChecked="{Binding Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.All}}"
+                        IsEnabled="{Binding TakeAllEnabled}" />
+
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Text="Mine split:"
+                        TextAlignment="Right" />
+                    <CheckBox
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        IsChecked="{Binding Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.Split}}"
+                        IsEnabled="{Binding MineSplitEnabled}" />
+                    <TextBlock
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Text="Walk towards:"
+                        TextAlignment="Right" />
+                    <CheckBox
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        IsChecked="{Binding Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.WalkTowards}}"
+                        IsEnabled="{Binding WalkTowardsEnabled}" />
                 </Grid>
             </Border>
         </Grid>

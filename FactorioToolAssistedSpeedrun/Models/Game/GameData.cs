@@ -26,10 +26,6 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
 
         public static GameData Create(PrototypeData prototypeData, LocalePrototype technologyLocale, LocalePrototype itemLocale, LocalePrototype recipeLocale)
         {
-            var techLocaleDict = technologyLocale.Names.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
-            var itemLocaleDict = itemLocale.Names.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
-            var recipeLocaleDict = recipeLocale.Names.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
-
             var technoLogiesDict = prototypeData.Technologies
                 .Select(static t => new TechnologyGame(t.Value))
                 .ToFrozenDictionary(x => x.Name!, x => x, StringComparer.OrdinalIgnoreCase);
@@ -67,6 +63,10 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
                 .Where(r => !r.Value.Hidden)
                 .Select(r => new RecipeGame(r.Value))
                 .ToFrozenDictionary(x => x.Name!, x => x, StringComparer.OrdinalIgnoreCase);
+
+            var techLocaleDict = technologyLocale.Names.Where(x => technoLogiesDict.ContainsKey(x.Key)).ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+            var itemLocaleDict = itemLocale.Names.Where(x => itemsDict.ContainsKey(x.Key)).ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+            var recipeLocaleDict = recipeLocale.Names.Where(x => recipesDict.ContainsKey(x.Key)).ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
             var gameData = new GameData()
             {

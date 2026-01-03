@@ -1,8 +1,11 @@
-﻿using System.Windows.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows.Data;
 
 namespace FactorioToolAssistedSpeedrun.Conventers
 {
-    public class RadioButtonCheckedConverter : IValueConverter
+    public class CheckboxCheckedConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -12,7 +15,9 @@ namespace FactorioToolAssistedSpeedrun.Conventers
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return value.Equals(true) ? parameter : Binding.DoNothing;
+#pragma warning disable CS8603 // Possible null reference return.
+            return value.Equals(true) ? parameter : null;
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 }

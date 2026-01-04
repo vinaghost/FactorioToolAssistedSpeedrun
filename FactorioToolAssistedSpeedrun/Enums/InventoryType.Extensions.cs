@@ -18,6 +18,11 @@ namespace FactorioToolAssistedSpeedrun.Enums
 
         private static readonly FrozenDictionary<InventoryType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
 
+        public static bool TryGetValue(string str, out InventoryType inventory)
+        {
+            return _lookup.TryGetValue(str, out inventory);
+        }
+
         public static InventoryType? FromString(string type)
         {
             if (_lookup.TryGetValue(type.Trim(), out var inventory))

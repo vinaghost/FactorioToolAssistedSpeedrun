@@ -2,6 +2,7 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
+using System.Collections.Frozen;
 using System.Net.Http.Headers;
 using System.Windows;
 
@@ -26,10 +27,19 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         {
             if (!_loaded) return;
             if (_lock) return;
-            if (double.TryParse(newValue, out _)) return;
-
             _lock = true;
-            X = oldValue ?? "";
+            if (Type.ContainFlag(ParameterFlag.Point))
+            {
+                if (!double.TryParse(newValue, out _))
+                {
+                    X = oldValue ?? "";
+                }
+            }
+            else
+            {
+                X = "";
+            }
+
             _lock = false;
         }
 
@@ -40,10 +50,19 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         {
             if (!_loaded) return;
             if (_lock) return;
-            if (double.TryParse(newValue, out _)) return;
 
             _lock = true;
-            Y = oldValue ?? "";
+            if (Type.ContainFlag(ParameterFlag.Point))
+            {
+                if (!double.TryParse(newValue, out _))
+                {
+                    X = oldValue ?? "";
+                }
+            }
+            else
+            {
+                Y = "";
+            }
             _lock = false;
         }
 
@@ -55,20 +74,149 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             if (!_loaded) return;
             if (_lock) return;
             if (newValue == "All") newValue = "0";
-            if (int.TryParse(newValue, out _)) return;
+
             _lock = true;
-            Amount = oldValue ?? "";
+            if (Type.ContainFlag(ParameterFlag.Amount))
+            {
+                if (!double.TryParse(newValue, out var value))
+                {
+                    Amount = oldValue ?? "";
+                }
+                else
+                {
+                    if (value == 0)
+                    {
+                        Amount = "All";
+                    }
+                    else if (value < 0)
+                    {
+                        Amount = oldValue ?? "";
+                    }
+                }
+            }
+            else
+            {
+                Amount = "";
+            }
+
             _lock = false;
         }
 
         [ObservableProperty]
         private string _item = "";
 
+        partial void OnItemChanged(string? oldValue, string newValue)
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+
+            _lock = true;
+
+            if (Type.ContainFlag(ParameterFlag.Item))
+            {
+                if (Type == StepType.Tech)
+                {
+                    if (!App.Current.GameData!.Technologies.ContainsKey(newValue))
+                    {
+                        Item = oldValue ?? "";
+                    }
+                }
+                else if (Type == StepType.Recipe)
+                {
+                    if (!App.Current.GameData!.Recipes.ContainsKey(newValue))
+                    {
+                        Item = oldValue ?? "";
+                    }
+                }
+                else
+                {
+                    if (!App.Current.GameData!.Items.ContainsKey(newValue))
+                    {
+                        Item = oldValue ?? "";
+                    }
+                }
+            }
+            else
+            {
+                Item = "";
+            }
+
+            _lock = false;
+        }
+
         [ObservableProperty]
         private string _orientation = "";
 
+        partial void OnOrientationChanged(string? oldValue, string newValue)
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+            _lock = true;
+            if (Type.ContainFlag(ParameterFlag.Orientation))
+            {
+                if (!OrientationTypeExtensions.TryGetValue(newValue, out _))
+                {
+                    Orientation = oldValue ?? "";
+                }
+            }
+            else if (Type.ContainFlag(ParameterFlag.Inventory))
+            {
+                if (!InventoryTypeExtensions.TryGetValue(newValue, out _))
+                {
+                    Orientation = oldValue ?? "";
+                }
+            }
+            else if (Type.ContainFlag(ParameterFlag.Priority))
+            {
+                if (Priority.FromString(newValue) is null)
+                {
+                    Orientation = oldValue ?? "";
+                }
+            }
+            else
+            {
+                Orientation = "";
+            }
+            _lock = false;
+        }
+
         [ObservableProperty]
         private string _modifier = "";
+
+        partial void OnModifierChanged(string? oldValue, string newValue)
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+            if (string.IsNullOrEmpty(newValue)) return;
+            _lock = true;
+            if (Type.ContainFlag(ParameterFlag.Modifier))
+            {
+                if (!ModifierTypeExtensions.TryGetValue(newValue, out var value))
+                {
+                    Modifier = oldValue ?? "";
+                }
+                else
+                {
+                    if (Type == StepType.Mine && value != ModifierType.Split)
+                    {
+                        Modifier = oldValue ?? "";
+                    }
+                    else if (Type == StepType.Take && value != ModifierType.All)
+                    {
+                        Modifier = oldValue ?? "";
+                    }
+                    else if (Type == StepType.Wait && value != ModifierType.WalkTowards)
+                    {
+                        Modifier = oldValue ?? "";
+                    }
+                }
+            }
+            else
+            {
+                Modifier = "";
+            }
+            _lock = false;
+        }
 
         [ObservableProperty]
         private string _color = "";

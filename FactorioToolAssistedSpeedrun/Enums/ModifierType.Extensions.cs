@@ -4,18 +4,23 @@ namespace FactorioToolAssistedSpeedrun.Enums
 {
     public static class ModifierTypeExtensions
     {
-        public static readonly FrozenDictionary<string, ModifierType> Lookup = new Dictionary<string, ModifierType>()
+        private static readonly FrozenDictionary<string, ModifierType> _lookup = new Dictionary<string, ModifierType>()
         {
             { "all", ModifierType.All },
             { "walk_towards", ModifierType.WalkTowards},
             { "split", ModifierType.Split},
         }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
-        public static readonly FrozenDictionary<ModifierType, string> ReverseLookup = Lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
+        private static readonly FrozenDictionary<ModifierType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
+
+        public static bool TryGetValue(string str, out ModifierType modifier)
+        {
+            return _lookup.TryGetValue(str, out modifier);
+        }
 
         public static string ToLuaString(ModifierType modifier)
         {
-            if (ReverseLookup.TryGetValue(modifier, out var str))
+            if (_reverseLookup.TryGetValue(modifier, out var str))
             {
                 return $"{str} = true";
             }
@@ -26,7 +31,7 @@ namespace FactorioToolAssistedSpeedrun.Enums
         {
             if (!modifier.HasValue)
                 return "";
-            if (ReverseLookup.TryGetValue(modifier.Value, out var str))
+            if (_reverseLookup.TryGetValue(modifier.Value, out var str))
             {
                 return str;
             }
@@ -35,7 +40,7 @@ namespace FactorioToolAssistedSpeedrun.Enums
 
         public static ModifierType? FromString(string str)
         {
-            if (Lookup.TryGetValue(str, out var modifier))
+            if (_lookup.TryGetValue(str, out var modifier))
             {
                 return modifier;
             }

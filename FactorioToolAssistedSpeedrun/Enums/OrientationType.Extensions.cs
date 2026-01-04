@@ -16,6 +16,11 @@ namespace FactorioToolAssistedSpeedrun.Enums
 
         private static readonly FrozenDictionary<OrientationType, string> _reverseLookup = _lookup.ToFrozenDictionary(x => x.Value, x => x.Key);
 
+        public static bool TryGetValue(string str, out OrientationType orientation)
+        {
+            return _lookup.TryGetValue(str, out orientation);
+        }
+
         public static OrientationType? FromString(string str)
         {
             if (_lookup.TryGetValue(str, out var orientation))

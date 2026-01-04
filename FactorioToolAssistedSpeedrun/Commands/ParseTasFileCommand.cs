@@ -219,7 +219,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 var modifierSegments = segments[8].Split(',');
                 foreach (var modifierStr in modifierSegments.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()))
                 {
-                    if (ModifierTypeExtensions.Lookup.TryGetValue(modifierStr, out ModifierType modifierValue))
+                    if (ModifierTypeExtensions.TryGetValue(modifierStr, out ModifierType modifierValue))
                     {
                         return modifierValue;
                     }

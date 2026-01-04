@@ -3,8 +3,6 @@ using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using System.Collections.ObjectModel;
-using System.Net.Http.Headers;
-using System.Windows.Controls;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {

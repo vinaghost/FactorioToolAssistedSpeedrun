@@ -1,13 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {
@@ -30,6 +28,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         public ObservableCollection<StepModel> StepCollection { get; set; } = [];
+        public List<string> ItemCollection { get; set; } = [];
 
         public Action? StepsChangeStarted;
 
@@ -43,6 +42,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             _stepTypePanelViewModel.SelectedStepType = step.Type;
             _stepDetailPanelViewModel.Load(step);
+        }
+
+        public void LoadItems(GameData gameData)
+        {
+            ItemCollection.Clear();
+
+            ItemCollection.AddRange(gameData.Items.Select(x => x.Key));
+            ItemCollection.AddRange(gameData.Recipes.Select(x => x.Key));
+            ItemCollection.AddRange(gameData.Technologies.Select(x => x.Key));
         }
 
         public void LoadSteps(List<Step> steps)

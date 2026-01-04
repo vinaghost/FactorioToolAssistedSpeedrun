@@ -2,9 +2,6 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
-using System.Collections.Frozen;
-using System.Net.Http.Headers;
-using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {

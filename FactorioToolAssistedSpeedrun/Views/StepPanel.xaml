@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:misc="clr-namespace:FactorioToolAssistedSpeedrun.Misc"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
     d:DataContext="{d:DesignInstance vm:StepPanelViewModel,
                                      IsDesignTimeCreatable=True}"
@@ -17,27 +18,6 @@
         <conventers:ItemNameToStringConverter x:Key="ItemNameToStringConverter" />
         <Style TargetType="{x:Type DataGridRow}">
             <Setter Property="attachedBehaviours:DataGridRowExtensions.MouseRightButtonUpCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.MouseRightButtonUpCommand}" />
-            <!--<Style.Triggers>
-                <EventTrigger RoutedEvent="MouseRightButtonUp">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation
-                                AutoReverse="True"
-                                FillBehavior="Stop"
-                                RepeatBehavior="1x"
-                                Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)"
-                                To="LimeGreen"
-                                Duration="0:0:0.0" />
-                            <ColorAnimation
-                                AutoReverse="True"
-                                FillBehavior="Stop"
-                                Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)"
-                                To="LimeGreen"
-                                Duration="0:0:0.5" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Style.Triggers>-->
         </Style>
     </UserControl.Resources>
 
@@ -95,6 +75,9 @@
             ScrollViewer.IsDeferredScrollingEnabled="True"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">
+            <DataGrid.Resources>
+                <misc:BindingProxy x:Key="proxy" Data="{Binding ItemCollection}" />
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="*"
@@ -119,7 +102,13 @@
                 <DataGridTextColumn
                     Width="2*"
                     Binding="{Binding Item}"
-                    Header="Item" />
+                    Header="Item">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="attachedBehaviours:AutoCompleteBehavior.AutoCompleteItemsSource" Value="{Binding Data, Source={StaticResource proxy}}" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn
                     Width="*"
                     Binding="{Binding Orientation}"

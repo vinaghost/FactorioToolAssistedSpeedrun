@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -24,7 +21,7 @@ namespace FactorioToolAssistedSpeedrun.AttachedBehaviours
             target.SetValue(MouseRightButtonUpCommandProperty, value);
 
         private static void OnSet(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {            
+        {
             if (d is DataGridRow row)
             {
                 row.MouseRightButtonUp += Row_MouseRightButtonUp;

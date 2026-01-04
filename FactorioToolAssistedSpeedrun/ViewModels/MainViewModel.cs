@@ -81,6 +81,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var fileContent = File.ReadAllText(gameDataFile);
             App.Current.GameData = JsonSerializer.Deserialize<GameData>(fileContent);
+
+            StepPanelViewModel.LoadItems(App.Current.GameData!);
         }
 
         private async Task LoadProjectDataFile()

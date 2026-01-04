@@ -10,8 +10,10 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
         public DataBase(PrototypeBase prototype)
         {
             Name = prototype.Name;
+            Type = prototype.Type;
         }
 
         public string? Name { get; set; }
+        public string? Type { get; set; }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Models.Database;
+using FactorioToolAssistedSpeedrun.Models.UI;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Windows.Controls;
@@ -35,7 +37,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [ObservableProperty]
         private bool _itemEnabled;
 
-        public ObservableCollection<KeyValuePair<string, string>> Items { get; } = [];
+        public ObservableCollection<string> Items { get; } = [];
 
         [ObservableProperty]
         private InventoryType? _inventory;
@@ -84,6 +86,51 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             Modifier = null;
         }
 
+        public void Load(StepModel step)
+        {
+            if (step.Type.ContainFlag(ParameterFlag.Point))
+            {
+                X = double.Parse(step.X);
+                Y = double.Parse(step.Y);
+            }
+            if (step.Type.ContainFlag(ParameterFlag.Amount))
+            {
+                if (step.Amount == "All")
+                {
+                    Amount = 0;
+                }
+                else
+                {
+                    Amount = int.Parse(step.Amount);
+                }
+            }
+            if (step.Type.ContainFlag(ParameterFlag.Item))
+            {
+                SelectedItem = step.Item;
+            }
+
+            if (step.Type.ContainFlag(ParameterFlag.Inventory))
+            {
+                Inventory = InventoryTypeExtensions.FromString(step.Orientation);
+            }
+            if (step.Type.ContainFlag(ParameterFlag.Priority))
+            {
+                var priority = Priority.FromString(step.Orientation);
+                InputPriority = priority!.In;
+                OutputPriority = priority!.Out;
+            }
+            if (step.Type.ContainFlag(ParameterFlag.Orientation))
+            {
+                Orientation = OrientationTypeExtensions.FromString(step.Orientation) ?? OrientationType.North;
+            }
+            if (step.Type.ContainFlag(ParameterFlag.Modifier) && !string.IsNullOrEmpty(step.Modifier))
+            {
+                Modifier = ModifierTypeExtensions.FromString(step.Modifier);
+            }
+
+            Comment = step.Comment;
+        }
+
         private void Enable(StepType stepType)
         {
             XEnabled = stepType.ContainFlag(ParameterFlag.Point);
@@ -102,15 +149,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         private void LoadItem(StepType stepType)
         {
-            var items = new List<KeyValuePair<string, string>>();
+            var items = new List<string>();
             switch (stepType)
             {
                 case StepType.Build:
-                    {
-                        var buildings = App.Current.GameData!.Items.Where(x => x.Value.IsBuilable).Select(x => x.Key).ToList();
-                        items.AddRange(App.Current.GameData!.ItemsLocale.Where(x => buildings.Contains(x.Key)).OrderBy(x => x.Key).Select(x => KeyValuePair.Create(x.Key, x.Value)));
-                        break;
-                    }
+                    items.AddRange(App.Current.GameData!.Items
+                                        .Where(x => x.Value.IsBuilable)
+                                        .Select(x => x.Key));
+                    break;
 
                 case StepType.Craft:
                 case StepType.Filter:
@@ -118,17 +164,39 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 case StepType.Take:
                 case StepType.Drop:
                 case StepType.CancelCrafting:
+                    items.AddRange(App.Current.GameData!.Items
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
+                    break;
+
                 case StepType.Equip:
+                    items.AddRange(App.Current.GameData!.Items
+                                        .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
+                                                    (x.Value.Type.StartsWith("armor") ||
+                                                    x.Value.Type.StartsWith("gun") ||
+                                                    x.Value.Type.StartsWith("ammo")))
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
+                    break;
+
                 case StepType.Throw:
-                    items.AddRange(App.Current.GameData!.ItemsLocale.OrderBy(x => x.Key).Select(x => KeyValuePair.Create(x.Key, x.Value)));
+                    items.AddRange(App.Current.GameData!.Items
+                                        .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
+                                                    x.Value.Type.StartsWith("capsule"))
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
                     break;
 
                 case StepType.Recipe:
-                    items.AddRange(App.Current.GameData!.RecipesLocale.OrderBy(x => x.Key).Select(x => KeyValuePair.Create(x.Key, x.Value)));
+                    items.AddRange(App.Current.GameData!.Recipes
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
                     break;
 
                 case StepType.Tech:
-                    items.AddRange(App.Current.GameData!.TechnologiesLocale.OrderBy(x => x.Key).Select(x => KeyValuePair.Create(x.Key, x.Value)));
+                    items.AddRange(App.Current.GameData!.Technologies
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
                     break;
 
                 default:

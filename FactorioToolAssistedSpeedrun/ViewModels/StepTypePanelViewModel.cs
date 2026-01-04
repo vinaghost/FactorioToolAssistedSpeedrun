@@ -13,7 +13,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         public StepTypePanelViewModel()
         {
-            _stepDetailPanelViewModel = new();
+            _stepDetailPanelViewModel = App.Current.Services.GetRequiredService<StepDetailPanelViewModel>();
             SelectedStepType = StepType.Walk;
         }
 

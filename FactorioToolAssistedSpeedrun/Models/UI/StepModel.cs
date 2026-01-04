@@ -2,12 +2,16 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
+using System.Net.Http.Headers;
+using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class StepModel : ObservableObject
     {
         public Guid Id { get; private set; }
+        private bool _loaded = false;
+        private bool _lock = false;
 
         [ObservableProperty]
         private int _location;
@@ -18,11 +22,44 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         private string _x = "";
 
+        partial void OnXChanged(string? oldValue, string newValue)
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+            if (double.TryParse(newValue, out _)) return;
+
+            _lock = true;
+            X = oldValue ?? "";
+            _lock = false;
+        }
+
         [ObservableProperty]
         private string _y = "";
 
+        partial void OnYChanged(string? oldValue, string newValue)
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+            if (double.TryParse(newValue, out _)) return;
+
+            _lock = true;
+            Y = oldValue ?? "";
+            _lock = false;
+        }
+
         [ObservableProperty]
         private string _amount = "";
+
+        partial void OnAmountChanged(string? oldValue, string newValue)
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+            if (newValue == "All") newValue = "0";
+            if (int.TryParse(newValue, out _)) return;
+            _lock = true;
+            Amount = oldValue ?? "";
+            _lock = false;
+        }
 
         [ObservableProperty]
         private string _item = "";
@@ -106,6 +143,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             Color = step.Color;
             Comment = step.Comment;
             IsSkip = step.IsSkip;
+
+            _loaded = true;
         }
     }
 }

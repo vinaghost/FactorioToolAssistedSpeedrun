@@ -47,6 +47,32 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
+        private async Task GoToLine()
+        {
+            var dialogViewModel = App.Current.Services.GetRequiredService<DialogViewModel>();
+            dialogViewModel.MinLine = 1;
+            dialogViewModel.MaxLine = StepPanelViewModel.StepCollection.Count;
+            var dialog = new Views.Dialog
+            {
+                DataContext = dialogViewModel,
+                Owner = Application.Current.MainWindow
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                var line = dialogViewModel.Line;
+                if (line > 0 && line < StepPanelViewModel.StepCollection.Count - 1)
+                {
+                    var center = Math.Min(StepPanelViewModel.StepCollection.Count - 1, line + 20);
+
+                    StepPanelViewModel.SelectedItem = StepPanelViewModel.StepCollection[center];
+                    StepPanelViewModel.ScrollToSelected?.Invoke();
+                    if (center != line - 1)
+                        StepPanelViewModel.SelectedItem = StepPanelViewModel.StepCollection[line - 1];
+                }
+            }
+        }
+
+        [RelayCommand]
         private async Task LoadSettings()
         {
             LoadingViewModel.IsShown = true;

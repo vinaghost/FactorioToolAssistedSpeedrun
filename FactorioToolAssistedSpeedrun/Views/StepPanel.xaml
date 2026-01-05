@@ -12,6 +12,7 @@
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
     d:DataContext="{d:DesignInstance vm:StepPanelViewModel,
                                      IsDesignTimeCreatable=True}"
+    Loaded="LoadHandler"
     mc:Ignorable="d">
     <UserControl.Resources>
         <conventers:StepTypeToStringConverter x:Key="StepTypeToStringConverter" />
@@ -73,6 +74,8 @@
             EnableRowVirtualization="True"
             ItemsSource="{Binding StepCollection, Mode=OneWay}"
             ScrollViewer.IsDeferredScrollingEnabled="True"
+            SelectedItem="{Binding SelectedItem}"
+            SelectionMode="Extended"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">
             <DataGrid.Resources>

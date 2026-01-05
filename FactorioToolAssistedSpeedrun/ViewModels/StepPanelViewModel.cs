@@ -27,12 +27,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             _stepDetailPanelViewModel = stepDetailPanelViewModel;
         }
 
+        [ObservableProperty]
+        private StepModel? _selectedItem;
+
         public ObservableCollection<StepModel> StepCollection { get; set; } = [];
         public List<string> ItemCollection { get; set; } = [];
 
         public Action? StepsChangeStarted;
 
         public Action? StepsChangeCompleted;
+        public Action? ScrollToSelected;
 
         [RelayCommand]
         public async Task MouseRightButtonUp(DataGridRow row)

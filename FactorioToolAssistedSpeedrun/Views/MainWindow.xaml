@@ -22,6 +22,12 @@
             <behaviors:InvokeCommandAction Command="{Binding LoadSettingsCommand}" />
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
+    <Window.InputBindings>
+        <KeyBinding
+            Key="G"
+            Command="{Binding GoToLineCommand}"
+            Modifiers="Control" />
+    </Window.InputBindings>
     <Grid>
         <Grid x:Name="LayoutRoot">
             <Grid.RowDefinitions>

@@ -2,7 +2,7 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace FactorioToolAssistedSpeedrun.Commands
+namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
     public class LoadStepsCommand : ICommand, ICommandResult<List<Step>>
     {

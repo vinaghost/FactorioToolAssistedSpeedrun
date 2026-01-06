@@ -2,7 +2,7 @@
 using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
 
-namespace FactorioToolAssistedSpeedrun.Commands
+namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
     public class SettingsResult
     {

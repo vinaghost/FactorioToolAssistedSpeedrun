@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Text;
 
-namespace FactorioToolAssistedSpeedrun.Commands
+namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
     public class AddStepsFileCommand : IAsyncCommand
     {

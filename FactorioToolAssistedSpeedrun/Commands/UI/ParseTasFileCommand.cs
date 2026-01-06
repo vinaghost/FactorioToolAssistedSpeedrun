@@ -6,7 +6,7 @@ using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using System.IO;
 
-namespace FactorioToolAssistedSpeedrun.Commands
+namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
     public class TasFileResult
     {

@@ -1,4 +1,4 @@
-﻿namespace FactorioToolAssistedSpeedrun.Commands
+﻿namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
     public interface ICommandResult<T> where T : class
     {

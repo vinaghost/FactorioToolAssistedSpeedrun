@@ -1,7 +1,7 @@
 ﻿using FactorioToolAssistedSpeedrun.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace FactorioToolAssistedSpeedrun.Commands
+namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
     public class UpdateSettingCommand : ICommand
     {

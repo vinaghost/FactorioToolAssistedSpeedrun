@@ -1,15 +1,21 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using FactorioToolAssistedSpeedrun.Commands.Steps;
+using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
+using FactorioToolAssistedSpeedrun.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class StepModel : ObservableObject
     {
+        private readonly CommandStack _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
         public Guid Id { get; private set; }
         private bool _loaded = false;
         private bool _lock = false;
+        private Step? _cached = null;
 
         [ObservableProperty]
         private int _location;
@@ -19,6 +25,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _x = "";
+
+        partial void OnXChanging(string value) => UpdateCache();
 
         partial void OnXChanged(string? oldValue, string newValue)
         {
@@ -30,6 +38,10 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 if (!double.TryParse(newValue, out _))
                 {
                     X = oldValue ?? "";
+                }
+                else
+                {
+                    UpdateProperty();
                 }
             }
             else
@@ -43,6 +55,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         private string _y = "";
 
+        partial void OnYChanging(string value) => UpdateCache();
+
         partial void OnYChanged(string? oldValue, string newValue)
         {
             if (!_loaded) return;
@@ -53,7 +67,11 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             {
                 if (!double.TryParse(newValue, out _))
                 {
-                    X = oldValue ?? "";
+                    Y = oldValue ?? "";
+                }
+                else
+                {
+                    UpdateProperty();
                 }
             }
             else
@@ -65,6 +83,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _amount = "";
+
+        partial void OnAmountChanging(string value) => UpdateCache();
 
         partial void OnAmountChanged(string? oldValue, string newValue)
         {
@@ -89,6 +109,10 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     {
                         Amount = oldValue ?? "";
                     }
+                    else
+                    {
+                        UpdateProperty();
+                    }
                 }
             }
             else
@@ -101,6 +125,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _item = "";
+
+        partial void OnItemChanging(string value) => UpdateCache();
 
         partial void OnItemChanged(string? oldValue, string newValue)
         {
@@ -117,6 +143,10 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     {
                         Item = oldValue ?? "";
                     }
+                    else
+                    {
+                        UpdateProperty();
+                    }
                 }
                 else if (Type == StepType.Recipe)
                 {
@@ -124,12 +154,20 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     {
                         Item = oldValue ?? "";
                     }
+                    else
+                    {
+                        UpdateProperty();
+                    }
                 }
                 else
                 {
                     if (!App.Current.GameData!.Items.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
+                    }
+                    else
+                    {
+                        UpdateProperty();
                     }
                 }
             }
@@ -144,6 +182,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         private string _orientation = "";
 
+        partial void OnOrientationChanging(string value) => UpdateCache();
+
         partial void OnOrientationChanged(string? oldValue, string newValue)
         {
             if (!_loaded) return;
@@ -155,6 +195,10 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 {
                     Orientation = oldValue ?? "";
                 }
+                else
+                {
+                    UpdateProperty();
+                }
             }
             else if (Type.ContainFlag(ParameterFlag.Inventory))
             {
@@ -162,12 +206,20 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 {
                     Orientation = oldValue ?? "";
                 }
+                else
+                {
+                    UpdateProperty();
+                }
             }
             else if (Type.ContainFlag(ParameterFlag.Priority))
             {
                 if (Priority.FromString(newValue) is null)
                 {
                     Orientation = oldValue ?? "";
+                }
+                else
+                {
+                    UpdateProperty();
                 }
             }
             else
@@ -179,6 +231,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _modifier = "";
+
+        partial void OnModifierChanging(string value) => UpdateCache();
 
         partial void OnModifierChanged(string? oldValue, string newValue)
         {
@@ -206,6 +260,10 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     {
                         Modifier = oldValue ?? "";
                     }
+                    else
+                    {
+                        UpdateProperty();
+                    }
                 }
             }
             else
@@ -218,14 +276,75 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         private string _color = "";
 
+        partial void OnColorChanging(string value) => UpdateCache();
+
+        partial void OnColorChanged(string? oldValue, string newValue) => UpdateProperty();
+
         [ObservableProperty]
         private string _comment = "";
+
+        partial void OnCommentChanging(string value) => UpdateCache();
+
+        partial void OnCommentChanged(string? oldValue, string newValue) => UpdateProperty();
 
         [ObservableProperty]
         private bool _isSkip;
 
+        partial void OnIsSkipChanging(bool value) => UpdateCache();
+
+        partial void OnIsSkipChanged(bool oldValue, bool newValue) => UpdateProperty();
+
+        public Step ToEntity()
+        {
+            var step = new Step
+            {
+                Id = Id,
+                Location = Location,
+                Type = Type,
+                Color = Color,
+                Comment = Comment,
+                IsSkip = IsSkip
+            };
+            if (Type.ContainFlag(ParameterFlag.Point))
+            {
+                step.X = double.Parse(X);
+                step.Y = double.Parse(Y);
+            }
+            if (Type.ContainFlag(ParameterFlag.Amount))
+            {
+                if (Amount == "All")
+                {
+                    step.Amount = 0;
+                }
+                else
+                {
+                    step.Amount = int.Parse(Amount);
+                }
+            }
+            step.Item = Item;
+            if (Type.ContainFlag(ParameterFlag.Orientation))
+            {
+                step.Orientation = OrientationTypeExtensions.FromString(Orientation)!;
+            }
+            else if (Type.ContainFlag(ParameterFlag.Inventory))
+            {
+                step.Inventory = InventoryTypeExtensions.FromString(Orientation)!;
+            }
+            else if (Type.ContainFlag(ParameterFlag.Priority))
+            {
+                step.Priority = Priority.FromString(Orientation)!;
+            }
+            if (Type.ContainFlag(ParameterFlag.Modifier))
+            {
+                step.Modifier = ModifierTypeExtensions.FromString(Modifier)!;
+            }
+            return step;
+        }
+
         public void FromEntity(Step step)
         {
+            _loaded = false;
+
             Id = step.Id;
             Location = step.Location;
             Type = step.Type;
@@ -290,6 +409,28 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             IsSkip = step.IsSkip;
 
             _loaded = true;
+        }
+
+        private void UpdateCache()
+        {
+            if (!_loaded) return;
+            if (_lock) return;
+            _cached = ToEntity();
+        }
+
+        private void UpdateProperty()
+        {
+            if (_cached is null) return;
+
+            var newStep = ToEntity();
+            var command = new UpdateStepPropertyCommand
+            {
+                OldSteps = _cached,
+                NewSteps = newStep
+            };
+            command.Commit();
+            _commandStack.Push(command);
+            _cached = null;
         }
     }
 }

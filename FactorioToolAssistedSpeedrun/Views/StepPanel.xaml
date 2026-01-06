@@ -84,7 +84,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="*"
-                    Binding="{Binding Location}"
+                    Binding="{Binding Location, Mode=OneWay}"
                     Header="" />
                 <DataGridTextColumn
                     Width="*"

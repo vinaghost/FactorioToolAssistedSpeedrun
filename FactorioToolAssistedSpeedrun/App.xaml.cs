@@ -1,4 +1,6 @@
-﻿using FactorioToolAssistedSpeedrun.Models.Game;
+﻿using FactorioToolAssistedSpeedrun.DbContexts;
+using FactorioToolAssistedSpeedrun.Models.Game;
+using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
@@ -36,6 +38,8 @@ namespace FactorioToolAssistedSpeedrun
 
             services.AddSingleton<ImportTabViewModel>();
             services.AddSingleton<TemplatesTabViewModel>();
+
+            services.AddSingleton<CommandStack>();
 
             return services.BuildServiceProvider();
         }

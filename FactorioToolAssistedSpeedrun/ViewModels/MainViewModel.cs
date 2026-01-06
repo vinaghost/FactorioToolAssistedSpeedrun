@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.UI;
 using FactorioToolAssistedSpeedrun.Models.Game;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
@@ -70,6 +71,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         StepPanelViewModel.SelectedItem = StepPanelViewModel.StepCollection[line - 1];
                 }
             }
+        }
+
+        [RelayCommand]
+        private async Task Undo()
+        {
+            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            if (!commandStack.CanUndo) return;
+            var command = commandStack.Pop();
+
+            command.Rollback(StepPanelViewModel.StepCollection);
         }
 
         [RelayCommand]

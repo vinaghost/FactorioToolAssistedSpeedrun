@@ -26,6 +26,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         {
             using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             context.Steps.Update(OldSteps);
+            context.Entry(OldSteps).Property(x => x.Type).IsModified = false;
             context.SaveChanges();
 
             var currentStepModel = steps.FirstOrDefault(s => s.Id == OldSteps.Id);

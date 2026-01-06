@@ -27,6 +27,10 @@
             Key="G"
             Command="{Binding GoToLineCommand}"
             Modifiers="Control" />
+        <KeyBinding
+            Key="Z"
+            Command="{Binding UndoCommand}"
+            Modifiers="Control" />
     </Window.InputBindings>
     <Grid>
         <Grid x:Name="LayoutRoot">

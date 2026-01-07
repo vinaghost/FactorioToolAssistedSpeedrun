@@ -1,5 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Models.Game;
+﻿using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;

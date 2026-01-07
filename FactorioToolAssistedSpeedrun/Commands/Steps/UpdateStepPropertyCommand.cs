@@ -1,11 +1,8 @@
 ﻿using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
-using FactorioToolAssistedSpeedrun.Models.UI;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {

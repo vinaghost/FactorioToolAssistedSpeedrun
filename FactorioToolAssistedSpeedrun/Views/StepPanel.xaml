@@ -51,11 +51,34 @@
         <Button
             Grid.Column="3"
             Margin="2"
-            Content="Move Up" />
+            Content="Move Up">
+
+            <Button.InputBindings>
+                <MouseBinding
+                    Command="{Binding MoveUpOneCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="LeftClick" />
+                <MouseBinding
+                    Command="{Binding MoveUpFiveCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="RightClick" />
+            </Button.InputBindings>
+        </Button>
         <Button
             Grid.Column="4"
             Margin="2"
-            Content="Move Down" />
+            Content="Move Down">
+            <Button.InputBindings>
+                <MouseBinding
+                    Command="{Binding MoveDownOneCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="LeftClick" />
+                <MouseBinding
+                    Command="{Binding MoveDownFiveCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="RightClick" />
+            </Button.InputBindings>
+        </Button>
         <Button
             Grid.Column="6"
             Margin="2"

@@ -1,7 +1,4 @@
 ﻿using FactorioToolAssistedSpeedrun.Commands.Steps;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
@@ -9,6 +6,12 @@ namespace FactorioToolAssistedSpeedrun.Services
     {
         private readonly Stack<IStepCommand> _undoStack = new();
         private readonly Stack<IStepCommand> _redoStack = new();
+
+        public void Clear()
+        {
+            _undoStack.Clear();
+            _redoStack.Clear();
+        }
 
         public IStepCommand UndoPop()
         {

@@ -22,13 +22,25 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             context.SaveChanges();
         }
 
-        public void Rollback(ObservableCollection<StepModel> steps)
+        public void Commit(ObservableCollection<StepModel> steps)
+        {
+            Commit();
+
+            var currentStepModel = steps.FirstOrDefault(s => s.Id == NewSteps.Id);
+            currentStepModel?.FromEntity(NewSteps);
+        }
+
+        public void Rollback()
         {
             using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             context.Steps.Update(OldSteps);
             context.Entry(OldSteps).Property(x => x.Type).IsModified = false;
             context.SaveChanges();
+        }
 
+        public void Rollback(ObservableCollection<StepModel> steps)
+        {
+            Rollback();
             var currentStepModel = steps.FirstOrDefault(s => s.Id == OldSteps.Id);
             currentStepModel?.FromEntity(OldSteps);
         }

@@ -78,9 +78,19 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
             if (!commandStack.CanUndo) return;
-            var command = commandStack.Pop();
+            var command = commandStack.UndoPop();
 
             command.Rollback(StepPanelViewModel.StepCollection);
+        }
+
+        [RelayCommand]
+        private async Task Redo()
+        {
+            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            if (!commandStack.CanRedo) return;
+            var command = commandStack.RedoPop();
+
+            command.Commit(StepPanelViewModel.StepCollection);
         }
 
         [RelayCommand]

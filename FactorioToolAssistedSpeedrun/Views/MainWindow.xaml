@@ -31,6 +31,10 @@
             Key="Z"
             Command="{Binding UndoCommand}"
             Modifiers="Control" />
+        <KeyBinding
+            Key="Y"
+            Command="{Binding RedoCommand}"
+            Modifiers="Control" />
     </Window.InputBindings>
     <Grid>
         <Grid x:Name="LayoutRoot">

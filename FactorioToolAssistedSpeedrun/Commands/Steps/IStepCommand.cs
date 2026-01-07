@@ -9,6 +9,10 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
     {
         void Commit();
 
+        void Commit(ObservableCollection<StepModel> steps);
+
+        void Rollback();
+
         void Rollback(ObservableCollection<StepModel> steps);
     }
 }

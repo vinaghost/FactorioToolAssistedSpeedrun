@@ -36,6 +36,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [ObservableProperty]
         private StepModel? _selectedItem;
 
+        [ObservableProperty]
+        private int _selectedIndex;
+
         public ObservableCollection<StepModel> StepCollection { get; set; } = [];
         public List<string> ItemCollection { get; set; } = [];
 
@@ -52,6 +55,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             _stepTypePanelViewModel.SelectedStepType = step.Type;
             _stepDetailPanelViewModel.Load(step);
+        }
+
+        [RelayCommand]
+        public async Task Add(bool rightClick)
+        {
+            var step = _stepDetailPanelViewModel.ToStep(_stepTypePanelViewModel.SelectedStepType);
+            var index = rightClick ? SelectedIndex + 1 : SelectedIndex;
+            step.Location = index + 1;
+            var command = new AddStepCommand
+            {
+                Steps = [step.ToEntity()],
+            };
+            command.Commit(StepCollection);
+            _commandStack.Push(command);
+
+            SelectedIndex = index;
         }
 
         [RelayCommand]

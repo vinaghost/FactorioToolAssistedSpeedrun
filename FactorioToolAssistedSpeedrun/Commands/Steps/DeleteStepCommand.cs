@@ -2,10 +2,7 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
@@ -26,6 +23,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public void Commit(ObservableCollection<StepModel> steps)
         {
+            Commit();
             foreach (var location in Steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
             {
                 steps.RemoveAt(location);
@@ -50,6 +48,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public void Rollback(ObservableCollection<StepModel> steps)
         {
+            Rollback();
             var minLocation = Steps.Min(x => x.Location);
             foreach (var step in steps.Where(x => x.Location >= minLocation))
             {

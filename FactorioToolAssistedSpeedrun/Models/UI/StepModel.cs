@@ -11,7 +11,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
     public partial class StepModel : ObservableObject
     {
         private readonly CommandStack _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
-        public Guid Id { get; private set; }
+        public Guid Id { get; private set; } = Guid.NewGuid();
         private bool _loaded = false;
         private bool _lock = false;
         private Step? _cached = null;

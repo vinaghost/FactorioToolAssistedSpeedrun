@@ -129,6 +129,51 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             Comment = step.Comment;
         }
 
+        public StepModel ToStep(StepType type)
+        {
+            var stepModel = new StepModel
+            {
+                Type = type,
+                Comment = Comment
+            };
+            if (type.ContainFlag(ParameterFlag.Point))
+            {
+                stepModel.X = $"{X}";
+                stepModel.Y = $"{Y}";
+            }
+            if (type.ContainFlag(ParameterFlag.Amount))
+            {
+                stepModel.Amount = Amount == 0 ? "All" : $"{Amount}";
+            }
+            if (type.ContainFlag(ParameterFlag.Item))
+            {
+                stepModel.Item = SelectedItem;
+            }
+            if (type.ContainFlag(ParameterFlag.Inventory) && Inventory.HasValue)
+            {
+                stepModel.Orientation = Inventory.Value.ToString();
+            }
+            if (type.ContainFlag(ParameterFlag.Priority))
+            {
+                var priority = new Priority()
+                {
+                    In = InputPriority,
+                    Out = OutputPriority
+                };
+                stepModel.Orientation = $"{priority}";
+            }
+            if (type.ContainFlag(ParameterFlag.Orientation))
+            {
+                stepModel.Orientation = Orientation.ToString();
+            }
+            if (type.ContainFlag(ParameterFlag.Modifier) && Modifier.HasValue)
+            {
+                stepModel.Modifier = Modifier.Value.ToString();
+            }
+
+            return stepModel;
+        }
+
         private void Enable(StepType stepType)
         {
             XEnabled = stepType.ContainFlag(ParameterFlag.Point);

@@ -41,7 +41,18 @@
         <Button
             Grid.Column="0"
             Margin="2"
-            Content="Add" />
+            Content="Add">
+            <Button.InputBindings>
+                <MouseBinding
+                    Command="{Binding AddCommand}"
+                    CommandParameter="{StaticResource False}"
+                    Gesture="LeftClick" />
+                <MouseBinding
+                    Command="{Binding AddCommand}"
+                    CommandParameter="{StaticResource True}"
+                    Gesture="RightClick" />
+            </Button.InputBindings>
+        </Button>
         <Button
             Grid.Column="1"
             Margin="2"
@@ -96,6 +107,7 @@
             EnableRowVirtualization="True"
             ItemsSource="{Binding StepCollection, Mode=OneWay}"
             ScrollViewer.IsDeferredScrollingEnabled="True"
+            SelectedIndex="{Binding SelectedIndex}"
             SelectedItem="{Binding SelectedItem}"
             SelectionMode="Extended"
             VirtualizingPanel.IsVirtualizing="True"

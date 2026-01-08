@@ -18,7 +18,10 @@
         <conventers:StepTypeToStringConverter x:Key="StepTypeToStringConverter" />
         <conventers:ItemNameToStringConverter x:Key="ItemNameToStringConverter" />
         <Style TargetType="{x:Type DataGridRow}">
-            <Setter Property="attachedBehaviours:DataGridRowExtensions.MouseRightButtonUpCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.MouseRightButtonUpCommand}" />
+            <Setter Property="attachedBehaviours:MouseRightButtonUpBehavior.MouseRightButtonUpCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.MouseRightButtonUpCommand}" />
+        </Style>
+        <Style TargetType="{x:Type DataGrid}">
+            <Setter Property="attachedBehaviours:DeleteRowBehavior.DeleteRowCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCommand}" />
         </Style>
     </UserControl.Resources>
 
@@ -34,7 +37,6 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Button
             Grid.Column="0"
@@ -43,16 +45,13 @@
         <Button
             Grid.Column="1"
             Margin="2"
-            Content="Change" />
+            Command="{Binding DeleteCommand}"
+            CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+            Content="Delete" />
         <Button
             Grid.Column="2"
             Margin="2"
-            Content="Delete" />
-        <Button
-            Grid.Column="3"
-            Margin="2"
             Content="Move Up">
-
             <Button.InputBindings>
                 <MouseBinding
                     Command="{Binding MoveUpOneCommand}"
@@ -65,7 +64,7 @@
             </Button.InputBindings>
         </Button>
         <Button
-            Grid.Column="4"
+            Grid.Column="3"
             Margin="2"
             Content="Move Down">
             <Button.InputBindings>
@@ -80,7 +79,7 @@
             </Button.InputBindings>
         </Button>
         <Button
-            Grid.Column="6"
+            Grid.Column="5"
             Margin="2"
             Content="Skip" />
         <DataGrid

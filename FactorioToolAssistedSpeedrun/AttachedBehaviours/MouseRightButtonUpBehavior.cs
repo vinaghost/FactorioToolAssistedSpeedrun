@@ -4,13 +4,13 @@ using System.Windows.Input;
 
 namespace FactorioToolAssistedSpeedrun.AttachedBehaviours
 {
-    public static class DataGridRowExtensions
+    public static class MouseRightButtonUpBehavior
     {
         public static readonly DependencyProperty MouseRightButtonUpCommandProperty =
             DependencyProperty.RegisterAttached(
                 "MouseRightButtonUpCommand",
                 typeof(ICommand),
-                typeof(DataGridRowExtensions),
+                typeof(MouseRightButtonUpBehavior),
                 new FrameworkPropertyMetadata(default(ICommand), new PropertyChangedCallback(OnSet))
         );
 

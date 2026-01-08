@@ -7,6 +7,7 @@ using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
@@ -51,6 +52,21 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             _stepTypePanelViewModel.SelectedStepType = step.Type;
             _stepDetailPanelViewModel.Load(step);
+        }
+
+        [RelayCommand]
+        public async Task Delete(System.Collections.IList selectedItems)
+        {
+            var result = MessageBox.Show("Are you sure want to delete these steps?", "Warning", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes) return;
+
+            var items = selectedItems.OfType<StepModel>().ToList();
+            var command = new DeleteStepCommand
+            {
+                Steps = [.. items.Select(x => x.ToEntity())],
+            };
+            command.Commit(StepCollection);
+            _commandStack.Push(command);
         }
 
         [RelayCommand]

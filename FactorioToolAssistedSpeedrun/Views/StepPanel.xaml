@@ -16,6 +16,7 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <conventers:StepTypeToStringConverter x:Key="StepTypeToStringConverter" />
+        <conventers:StepToColorConverter x:Key="StepToColorConverter" />
         <conventers:ItemNameToStringConverter x:Key="ItemNameToStringConverter" />
         <Style TargetType="{x:Type DataGridRow}">
             <Setter Property="attachedBehaviours:MouseRightButtonUpBehavior.MouseRightButtonUpCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.MouseRightButtonUpCommand}" />
@@ -123,7 +124,22 @@
                 <DataGridTextColumn
                     Width="*"
                     Binding="{Binding Type, Mode=OneWay, Converter={StaticResource StepTypeToStringConverter}}"
-                    Header="Step" />
+                    Header="Step">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Setter Property="Background" Value="{Binding ., Converter={StaticResource StepToColorConverter}}" />
+                            <Style.Triggers>
+                                <!--  Trigger for when the cell is selected  -->
+                                <Trigger Property="IsSelected" Value="True">
+                                    <!--  Change the Foreground to a color that contrasts well with the default selection background (or your custom selection background)  -->
+                                    <Setter Property="Foreground" Value="White" />
+                                    <!--  Optionally, change the selection background color here if needed  -->
+                                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn
                     Width="Auto"
                     Binding="{Binding X}"

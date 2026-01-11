@@ -1,4 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -15,6 +16,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public StepPanel()
         {
             InitializeComponent();
+            DataContext = App.Current.Services.GetRequiredService<StepPanelViewModel>();
         }
 
         public void ScrollToSelected()

@@ -56,7 +56,7 @@
                         HorizontalContentAlignment="Right"
                         VerticalContentAlignment="Center"
                         IsEnabled="{Binding XEnabled}"
-                        Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.X, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
@@ -71,7 +71,7 @@
                         HorizontalContentAlignment="Right"
                         VerticalContentAlignment="Center"
                         IsEnabled="{Binding YEnabled}"
-                        Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.Y, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
@@ -86,7 +86,7 @@
                         HorizontalContentAlignment="Right"
                         VerticalContentAlignment="Center"
                         IsEnabled="{Binding AmountEnabled}"
-                        Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.Amount, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock
                         Grid.Row="3"
                         Grid.Column="0"
@@ -99,7 +99,7 @@
                         Height="22"
                         MinWidth="50"
                         VerticalContentAlignment="Center"
-                        Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.Comment, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </Border>
             <Border
@@ -132,7 +132,7 @@
                         IsTextSearchCaseSensitive="False"
                         IsTextSearchEnabled="True"
                         ItemsSource="{Binding Items, Mode=OneTime}"
-                        SelectedItem="{Binding SelectedItem}"
+                        SelectedItem="{Binding StepService.SelectedItem}"
                         StaysOpenOnEdit="True" />
 
                     <TextBlock
@@ -146,7 +146,7 @@
                         Grid.Column="1"
                         IsEnabled="{Binding InventoryEnabled}"
                         ItemsSource="{Binding Inventories, Mode=OneTime}"
-                        SelectedItem="{Binding Inventory}" />
+                        SelectedItem="{Binding StepService.Inventory}" />
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
@@ -161,15 +161,15 @@
                         <RadioButton
                             VerticalAlignment="Center"
                             Content="Left"
-                            IsChecked="{Binding InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Left}}" />
+                            IsChecked="{Binding StepService.InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Left}}" />
                         <RadioButton
                             VerticalAlignment="Center"
                             Content="None"
-                            IsChecked="{Binding InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.None}}" />
+                            IsChecked="{Binding StepService.InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.None}}" />
                         <RadioButton
                             VerticalAlignment="Center"
                             Content="Right"
-                            IsChecked="{Binding InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Right}}" />
+                            IsChecked="{Binding StepService.InputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Right}}" />
                     </StackPanel>
                     <TextBlock
                         Grid.Row="3"
@@ -185,15 +185,15 @@
                         <RadioButton
                             VerticalAlignment="Center"
                             Content="Left"
-                            IsChecked="{Binding OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Left}}" />
+                            IsChecked="{Binding StepService.OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Left}}" />
                         <RadioButton
                             VerticalAlignment="Center"
                             Content="None"
-                            IsChecked="{Binding OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.None}}" />
+                            IsChecked="{Binding StepService.OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.None}}" />
                         <RadioButton
                             VerticalAlignment="Center"
                             Content="Right"
-                            IsChecked="{Binding OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Right}}" />
+                            IsChecked="{Binding StepService.OutputPriority, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:PriorityType.Right}}" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -224,7 +224,7 @@
                         Grid.Column="1"
                         IsEnabled="{Binding OrientationEnabled}"
                         ItemsSource="{Binding Orientations, Mode=OneTime}"
-                        SelectedItem="{Binding Orientation}" />
+                        SelectedItem="{Binding StepService.Orientation}" />
 
                     <TextBlock
                         Grid.Row="1"
@@ -235,7 +235,7 @@
                     <CheckBox
                         Grid.Row="1"
                         Grid.Column="1"
-                        IsChecked="{Binding Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.All}}"
+                        IsChecked="{Binding StepService.Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.All}}"
                         IsEnabled="{Binding TakeAllEnabled}" />
 
                     <TextBlock
@@ -247,7 +247,7 @@
                     <CheckBox
                         Grid.Row="2"
                         Grid.Column="1"
-                        IsChecked="{Binding Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.Split}}"
+                        IsChecked="{Binding StepService.Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.Split}}"
                         IsEnabled="{Binding MineSplitEnabled}" />
                     <TextBlock
                         Grid.Row="3"
@@ -258,7 +258,7 @@
                     <CheckBox
                         Grid.Row="3"
                         Grid.Column="1"
-                        IsChecked="{Binding Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.WalkTowards}}"
+                        IsChecked="{Binding StepService.Modifier, Converter={StaticResource CheckboxCheckedConverter}, ConverterParameter={x:Static enums:ModifierType.WalkTowards}}"
                         IsEnabled="{Binding WalkTowardsEnabled}" />
                 </Grid>
             </Border>

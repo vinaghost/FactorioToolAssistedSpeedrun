@@ -5,13 +5,17 @@ using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class StepModel : ObservableObject
     {
         private readonly CommandStack _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+        private readonly StartupService _startupService = App.Current.Services.GetRequiredService<StartupService>();
+        public required ObservableCollection<StepModel> Collection { get; init; }
         public Guid Id { get; private set; } = Guid.NewGuid();
+        public string Name { get; private set; } = "";
         private bool _loaded = false;
         private bool _lock = false;
         private Step? _cached = null;
@@ -138,7 +142,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             {
                 if (Type == StepType.Tech)
                 {
-                    if (!App.Current.GameData!.Technologies.ContainsKey(newValue))
+                    if (!_startupService.GameData!.Technologies.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
                     }
@@ -149,7 +153,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else if (Type == StepType.Recipe)
                 {
-                    if (!App.Current.GameData!.Recipes.ContainsKey(newValue))
+                    if (!_startupService.GameData!.Recipes.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
                     }
@@ -160,7 +164,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!App.Current.GameData!.Items.ContainsKey(newValue))
+                    if (!_startupService.GameData!.Items.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
                     }
@@ -298,6 +302,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             var step = new Step
             {
                 Id = Id,
+                Name = Name,
                 Location = Location,
                 Type = Type,
                 Color = Color,
@@ -345,6 +350,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             _loaded = false;
 
             Id = step.Id;
+            Name = step.Name;
             Location = step.Location;
             Type = step.Type;
 
@@ -424,6 +430,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             var newStep = ToEntity();
             var command = new UpdateStepPropertyCommand
             {
+                Collection = Collection,
                 OldSteps = _cached,
                 NewSteps = newStep
             };

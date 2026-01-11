@@ -6,39 +6,34 @@ using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class UpdateStepPropertyCommand : IStepCommand
+    public class UpdateStepPropertyCommand : UndoCommand
     {
         public required Step OldSteps { get; init; }
         public required Step NewSteps { get; init; }
 
-        public void Commit()
+        protected override void DatabaseCommit(ProjectDbContext context)
         {
-            using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             context.Steps.Update(NewSteps);
             context.Entry(NewSteps).Property(x => x.Type).IsModified = false;
             context.SaveChanges();
         }
 
-        public void Commit(ObservableCollection<StepModel> steps)
+        protected override void UICommit(ObservableCollection<StepModel> collection)
         {
-            Commit();
-
-            var currentStepModel = steps.FirstOrDefault(s => s.Id == NewSteps.Id);
+            var currentStepModel = collection.FirstOrDefault(s => s.Id == NewSteps.Id);
             currentStepModel?.FromEntity(NewSteps);
         }
 
-        public void Rollback()
+        protected override void DatabaseRollback(ProjectDbContext context)
         {
-            using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             context.Steps.Update(OldSteps);
             context.Entry(OldSteps).Property(x => x.Type).IsModified = false;
             context.SaveChanges();
         }
 
-        public void Rollback(ObservableCollection<StepModel> steps)
+        protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            Rollback();
-            var currentStepModel = steps.FirstOrDefault(s => s.Id == OldSteps.Id);
+            var currentStepModel = Collection.FirstOrDefault(s => s.Id == OldSteps.Id);
             currentStepModel?.FromEntity(OldSteps);
         }
     }

@@ -11,8 +11,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
     public class TasFileResult
     {
         public List<Step> StepCollection { get; } = [];
-        public List<Template> TemplateCollection { get; } = [];
-
         public string Goal { get; set; } = "";
         public string ScriptFolder { get; set; } = "";
 
@@ -69,6 +67,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
 
                     var step = ReadStep(segments);
                     step.Location = Result.StepCollection.Count + 1;
+                    step.Name = "";
                     Result.StepCollection.Add(step);
                     line = sr.ReadLine();
                 }
@@ -93,10 +92,9 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                     }
                     var name = segments[0];
                     var step = ReadStep(segments[1..10]);
-                    var template = Template.FromStep(name, step);
-
-                    step.Location = Result.TemplateCollection.Count(x => x.Name == name);
-                    Result.TemplateCollection.Add(template);
+                    step.Location = Result.StepCollection.Count(x => x.Name == name) + 1;
+                    step.Name = "";
+                    Result.StepCollection.Add(step);
                     line = sr.ReadLine();
                 }
             }

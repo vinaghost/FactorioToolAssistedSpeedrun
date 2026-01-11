@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 namespace FactorioToolAssistedSpeedrun.Entities
 {
     [PrimaryKey(nameof(Id))]
-    [Index(nameof(Type))]
-    [Index(nameof(Location))]
     public class Step
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = "";
 
         public int Location { get; set; }
         public StepType Type { get; set; }

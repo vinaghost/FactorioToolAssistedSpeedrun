@@ -1,32 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class StepTypePanelViewModel : ObservableObject
     {
-        private readonly StepDetailPanelViewModel _stepDetailPanelViewModel;
+        private readonly StepService _stepService;
 
-        [ObservableProperty]
-        private StepType _selectedStepType;
+        public StepService StepService => _stepService;
 
         public StepTypePanelViewModel()
         {
-            _stepDetailPanelViewModel = App.Current.Services.GetRequiredService<StepDetailPanelViewModel>();
-            SelectedStepType = StepType.Walk;
+            _stepService = App.Current.Services.GetRequiredService<StepService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepTypePanelViewModel(StepDetailPanelViewModel stepDetailPanelViewModel)
+        public StepTypePanelViewModel(StepService stepService)
         {
-            _stepDetailPanelViewModel = stepDetailPanelViewModel;
-            SelectedStepType = StepType.Walk;
-        }
-
-        partial void OnSelectedStepTypeChanged(StepType value)
-        {
-            _stepDetailPanelViewModel.Load(value);
+            _stepService = stepService;
         }
     }
 }

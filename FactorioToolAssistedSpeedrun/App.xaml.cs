@@ -1,5 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.Models.Game;
-using FactorioToolAssistedSpeedrun.Services;
+﻿using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
@@ -18,27 +17,27 @@ namespace FactorioToolAssistedSpeedrun
         }
 
         public new static App Current => (App)Application.Current;
-        public GameData? GameData { get; set; }
-        public string? ProjectDataFile { get; set; }
         public IServiceProvider Services { get; }
 
         private static ServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
+            services.AddSingleton<StartupService>();
+            services.AddSingleton<StepService>();
+            services.AddSingleton<LoadingService>();
 
-            services.AddSingleton<MainViewModel>();
-            services.AddSingleton<DialogViewModel>();
+            services.AddTransient<CommandStack>();
 
-            services.AddSingleton<LoadingViewModel>();
-            services.AddSingleton<MenuBarViewModel>();
-            services.AddSingleton<StepTypePanelViewModel>();
-            services.AddSingleton<StepDetailPanelViewModel>();
-            services.AddSingleton<StepPanelViewModel>();
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<DialogViewModel>();
 
-            services.AddSingleton<ImportTabViewModel>();
-            services.AddSingleton<TemplatesTabViewModel>();
+            services.AddTransient<MenuBarViewModel>();
+            services.AddTransient<StepTypePanelViewModel>();
+            services.AddTransient<StepDetailPanelViewModel>();
+            services.AddTransient<StepPanelViewModel>();
 
-            services.AddSingleton<CommandStack>();
+            services.AddTransient<ImportTabViewModel>();
+            services.AddTransient<TemplatesTabViewModel>();
 
             return services.BuildServiceProvider();
         }

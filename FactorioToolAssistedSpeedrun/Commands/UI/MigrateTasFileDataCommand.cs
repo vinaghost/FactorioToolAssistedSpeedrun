@@ -18,7 +18,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
             context.SetupTriggers();
 
             context.Steps.AddRange(TasFileResult.StepCollection);
-            context.Templates.AddRange(TasFileResult.TemplateCollection);
             context.Settings.Add(new Setting
             {
                 Key = SettingConstants.ScriptFolder,

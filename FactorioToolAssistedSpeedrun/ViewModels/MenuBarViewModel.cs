@@ -6,6 +6,8 @@ using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
+using FactorioToolAssistedSpeedrun.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.IO;
 using System.Text.Json;
@@ -15,19 +17,38 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class MenuBarViewModel : ObservableObject
     {
-        public LoadingViewModel LoadingViewModel { get; }
+        private readonly StartupService _startupService;
+        private readonly LoadingService _loadingService;
 
-        public MenuBarViewModel(LoadingViewModel loadingViewModel)
-        {
-            LoadingViewModel = loadingViewModel;
-        }
+        public StartupService StartupService => _startupService;
+        public LoadingService LoadingService => _loadingService;
 
         public MenuBarViewModel()
         {
-            LoadingViewModel = new LoadingViewModel();
+            _startupService = App.Current.Services.GetRequiredService<StartupService>();
+            _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
         }
 
-        public void UpdateSetting(SettingsResult settingsResult)
+        [ActivatorUtilitiesConstructor]
+        public MenuBarViewModel(StartupService startupService, LoadingService loadingService)
+        {
+            _startupService = startupService;
+            _loadingService = loadingService;
+
+            _startupService.OnProjectDataLoaded += OnProjectDataLoaded;
+        }
+
+        private void OnProjectDataLoaded()
+        {
+            var loadSettingsCommand = new LoadSettingsCommand
+            {
+                ProjectDataFile = _startupService.ProjectDataFile
+            };
+            loadSettingsCommand.Execute();
+            UpdateSetting(loadSettingsCommand.Result);
+        }
+
+        private void UpdateSetting(SettingsResult settingsResult)
         {
             PrintComments = settingsResult.PrintComments;
             PrintSavegame = settingsResult.PrintSavegame;
@@ -40,18 +61,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [ObservableProperty]
-        private string _version = "Not loaded";
-
-        [ObservableProperty]
-        private string _projectName = "No project loaded";
-
-        [ObservableProperty]
         private string _scriptFolder = "";
 
         [RelayCommand]
         private async Task SetScriptLocation()
         {
-            if (string.IsNullOrEmpty(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
             {
                 MessageBox.Show("No project loaded. Please open project first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -65,19 +80,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (string.IsNullOrEmpty(folderName))
                 return;
 
-            LoadingViewModel.Show();
-
             try
             {
-                await SetScriptLocationTask(App.Current.ProjectDataFile, folderName);
+                await SetScriptLocationTask(_startupService.ProjectDataFile, folderName);
                 MessageBox.Show("Script location set successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to set script location. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            LoadingViewModel.Hide();
         }
 
         private async Task SetScriptLocationTask(string projectDataFile, string folderName)
@@ -95,13 +106,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task GenerateScript()
         {
-            if (string.IsNullOrEmpty(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
             {
                 MessageBox.Show("No project loaded.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (App.Current.GameData is null)
+            if (!_startupService.IsGameDataLoaded)
             {
                 MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -121,7 +132,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
                     var updateSettingCommand = new UpdateSettingCommand
                     {
-                        ProjectDataFile = App.Current.ProjectDataFile,
+                        ProjectDataFile = _startupService.ProjectDataFile,
                         Setting = SettingConstants.ScriptFolder,
                         Value = folderName
                     };
@@ -137,16 +148,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 }
             }
 
-            LoadingViewModel.Show();
+            LoadingService.Show();
             try
             {
-                await GenerateScriptTask(App.Current.ProjectDataFile);
+                await GenerateScriptTask(_startupService.ProjectDataFile);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to generate script. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            LoadingViewModel.Hide();
+            LoadingService.Hide();
         }
 
         private async Task GenerateScriptTask(string projectDataFile)
@@ -202,29 +213,28 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task NewProject()
         {
-            LoadingViewModel.Show();
             var dialog = new SaveFileDialog
             {
                 Filter = "Tas database (*.db)|*.db",
                 FileName = "NewProject.db"
             };
-            if (dialog.ShowDialog() == true)
-            {
-                var filename = dialog.FileName;
-                if (string.IsNullOrEmpty(filename))
-                    return;
+            if (dialog.ShowDialog() != true)
+                return;
 
-                using var context = new ProjectDbContext(filename);
-                await context.Database.EnsureCreatedAsync();
-                context.SetupTriggers();
+            var filename = dialog.FileName;
+            if (string.IsNullOrEmpty(filename))
+                return;
 
-                Properties.Settings.Default.ProjectDataFile = filename;
-                Properties.Settings.Default.Save();
-                ProjectName = Path.GetFileNameWithoutExtension(filename);
+            using var context = new ProjectDbContext(filename);
+            await context.Database.EnsureCreatedAsync();
+            context.SetupTriggers();
 
-                MessageBox.Show("New project database created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            LoadingViewModel.Hide();
+            Properties.Settings.Default.ProjectDataFile = filename;
+            Properties.Settings.Default.Save();
+
+            _startupService.LoadProjectDataFile();
+
+            MessageBox.Show("New project database created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         [RelayCommand]
@@ -241,13 +251,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!File.Exists(filename))
                 return;
 
-            LoadingViewModel.Show();
+            LoadingService.Show();
+
             if (filename.EndsWith("factorio.exe"))
             {
                 try
                 {
                     await DumpFactorioDataTask(filename);
-                    MessageBox.Show($"Game data dumped successfully. Version: {Version}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"Game data dumped successfully. Version: {_startupService.Version}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
@@ -267,7 +278,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 }
             }
 
-            LoadingViewModel.Hide();
+            LoadingService.Hide();
         }
 
         private async Task DumpFactorioDataTask(string filename)
@@ -277,7 +288,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 FileName = filename
             };
             await Task.Run(dumpFactorioDataCommand.Execute);
-            Version = dumpFactorioDataCommand.Result;
+            var version = dumpFactorioDataCommand.Result;
 
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var scriptOutputDir = Path.Combine(appData, "Factorio", "script-output");
@@ -299,13 +310,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var gameData = GameData.Create(prototypeData!, technologyLocaleData!, itemLocaleData!, recipeLocaleData!);
 
-            App.Current.GameData = gameData;
-
-            var gameDataFile = $"{Version}.json";
+            var gameDataFile = $"{version}.json";
             await File.WriteAllTextAsync(gameDataFile, JsonSerializer.Serialize(gameData));
 
             Properties.Settings.Default.GameDataFile = gameDataFile;
             Properties.Settings.Default.Save();
+
+            _startupService.LoadGameDataFile();
         }
 
         private async Task LoadFactorioDataTask(string filename)
@@ -314,17 +325,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var gameData = await JsonSerializer.DeserializeAsync<GameData>(fileContent);
 
-            App.Current.GameData = gameData;
-            Version = Path.GetFileNameWithoutExtension(filename);
-
             Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
             Properties.Settings.Default.Save();
+
+            _startupService.LoadGameDataFile();
         }
 
         [RelayCommand]
         private async Task OpenFile()
         {
-            if (App.Current.GameData is null)
+            if (_startupService.IsGameDataLoaded)
             {
                 MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -342,7 +352,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!File.Exists(filename))
                 return;
 
-            LoadingViewModel.Show();
+            LoadingService.Show();
             if (filename.EndsWith(".txt"))
             {
                 try
@@ -369,7 +379,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     MessageBox.Show($"Failed to open project database file. {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            LoadingViewModel.Hide();
+            LoadingService.Hide();
         }
 
         private async Task MigrateTasFile(string filename)
@@ -377,7 +387,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var parseTasFileCommand = new ParseTasFileCommand
             {
                 FileName = filename,
-                GameData = App.Current.GameData!
+                GameData = _startupService.GameData!
             };
 
             await Task.Run(parseTasFileCommand.Execute);
@@ -408,7 +418,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             Properties.Settings.Default.ProjectDataFile = dbFile;
             Properties.Settings.Default.Save();
 
-            ProjectName = Path.GetFileNameWithoutExtension(dbFile);
+            _startupService.LoadProjectDataFile();
         }
 
         private async Task OpenFileTask(string filename)
@@ -418,7 +428,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 Properties.Settings.Default.ProjectDataFile = filename;
                 Properties.Settings.Default.Save();
-                ProjectName = Path.GetFileNameWithoutExtension(filename);
+
+                _startupService.LoadProjectDataFile();
             }
             else
             {
@@ -431,12 +442,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         partial void OnPrintCommentsChanged(bool value)
         {
-            if (!File.Exists(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
                 return;
 
             var updateSettingCommand = new UpdateSettingCommand
             {
-                ProjectDataFile = App.Current.ProjectDataFile,
+                ProjectDataFile = _startupService.ProjectDataFile,
                 Setting = SettingConstants.PrintMessage,
                 Value = value ? "1" : "0"
             };
@@ -449,12 +460,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         partial void OnPrintSavegameChanged(bool value)
         {
-            if (!File.Exists(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
                 return;
 
             var updateSettingCommand = new UpdateSettingCommand
             {
-                ProjectDataFile = App.Current.ProjectDataFile,
+                ProjectDataFile = _startupService.ProjectDataFile,
                 Setting = SettingConstants.PrintSavegame,
                 Value = value ? "1" : "0"
             };
@@ -466,12 +477,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         partial void OnPrintTechChanged(bool value)
         {
-            if (!File.Exists(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
                 return;
 
             var updateSettingCommand = new UpdateSettingCommand
             {
-                ProjectDataFile = App.Current.ProjectDataFile,
+                ProjectDataFile = _startupService.ProjectDataFile,
                 Setting = SettingConstants.PrintTech,
                 Value = value ? "1" : "0"
             };
@@ -485,12 +496,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             if (!value)
                 return;
-            if (!File.Exists(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
                 return;
 
             var updateSettingCommand = new UpdateSettingCommand
             {
-                ProjectDataFile = App.Current.ProjectDataFile,
+                ProjectDataFile = _startupService.ProjectDataFile,
                 Setting = SettingConstants.Environment,
                 Value = "0"
             };
@@ -504,12 +515,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             if (!value)
                 return;
-            if (!File.Exists(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
                 return;
 
             var updateSettingCommand = new UpdateSettingCommand
             {
-                ProjectDataFile = App.Current.ProjectDataFile,
+                ProjectDataFile = _startupService.ProjectDataFile,
                 Setting = SettingConstants.Environment,
                 Value = "1"
             };
@@ -523,12 +534,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             if (!value)
                 return;
-            if (!File.Exists(App.Current.ProjectDataFile))
+            if (!_startupService.IsProjectDataLoaded)
                 return;
 
             var updateSettingCommand = new UpdateSettingCommand
             {
-                ProjectDataFile = App.Current.ProjectDataFile,
+                ProjectDataFile = _startupService.ProjectDataFile,
                 Setting = SettingConstants.Environment,
                 Value = "2"
             };

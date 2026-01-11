@@ -17,7 +17,7 @@
             <MenuItem
                 Command="{Binding DumpFactorioDataCommand}"
                 Header="Factorio"
-                InputGestureText="{Binding Version}" />
+                InputGestureText="{Binding StartupService.Version}" />
         </MenuItem>
         <MenuItem Header="_Output">
             <MenuItem

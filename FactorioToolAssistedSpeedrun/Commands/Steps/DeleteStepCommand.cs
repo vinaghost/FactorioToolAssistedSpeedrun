@@ -6,13 +6,12 @@ using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class DeleteStepCommand : IStepCommand
+    public class DeleteStepCommand : UndoCommand
     {
         public required List<Step> Steps { get; init; }
 
-        public void Commit()
+        protected override void DatabaseCommit(ProjectDbContext context)
         {
-            using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             context.Steps
                 .Where(x => Steps.Select(s => s.Id).Contains(x.Id))
                 .ExecuteDelete();
@@ -21,24 +20,22 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location - Steps.Count));
         }
 
-        public void Commit(ObservableCollection<StepModel> steps)
+        protected override void UICommit(ObservableCollection<StepModel> collection)
         {
-            Commit();
             foreach (var location in Steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
             {
-                steps.RemoveAt(location);
+                collection.RemoveAt(location);
             }
 
             var maxLocation = Steps.Max(x => x.Location);
-            foreach (var step in steps.Where(x => x.Location > maxLocation))
+            foreach (var step in collection.Where(x => x.Location > maxLocation))
             {
                 step.Location -= Steps.Count;
             }
         }
 
-        public void Rollback()
+        protected override void DatabaseRollback(ProjectDbContext context)
         {
-            using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             context.Steps
                 .Where(x => x.Location >= Steps.Min(s => s.Location))
                 .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location + Steps.Count));
@@ -46,19 +43,18 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             context.SaveChanges();
         }
 
-        public void Rollback(ObservableCollection<StepModel> steps)
+        protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            Rollback();
             var minLocation = Steps.Min(x => x.Location);
-            foreach (var step in steps.Where(x => x.Location >= minLocation))
+            foreach (var step in collection.Where(x => x.Location >= minLocation))
             {
                 step.Location += Steps.Count;
             }
             foreach (var step in Steps.OrderByDescending(x => x.Location))
             {
-                var model = new StepModel();
+                var model = new StepModel() { Collection = collection };
                 model.FromEntity(step);
-                steps.Insert(minLocation - 1, model);
+                collection.Insert(minLocation - 1, model);
             }
         }
     }

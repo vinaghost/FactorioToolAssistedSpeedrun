@@ -1,177 +1,78 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Models.Database;
-using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class StepDetailPanelViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private double _x;
+        private readonly StepService _stepService;
+        private readonly StartupService _startupService;
 
-        [ObservableProperty]
-        private bool _xEnabled;
+        public StepService StepService => _stepService;
 
-        [ObservableProperty]
-        private double _y;
+        public StepDetailPanelViewModel()
+        {
+            _stepService = App.Current.Services.GetRequiredService<StepService>();
+            _startupService = App.Current.Services.GetRequiredService<StartupService>();
+        }
 
-        [ObservableProperty]
-        private bool _yEnabled;
+        [ActivatorUtilitiesConstructor]
+        public StepDetailPanelViewModel(StepService stepService, StartupService startupService)
+        {
+            _stepService = stepService;
+            _startupService = startupService;
+            _startupService.OnGameDataLoaded += LoadItemData;
+            _stepService.TypeChanged += LoadDetail;
+        }
 
-        [ObservableProperty]
-        private int _amount;
+        private readonly List<string> _buildableItems = [];
+        private readonly List<string> _craftableItems = [];
+        private readonly List<string> _equipableItems = [];
+        private readonly List<string> _throwableItems = [];
+        private readonly List<string> _recipes = [];
+        private readonly List<string> _technologies = [];
 
-        [ObservableProperty]
-        private bool _amountEnabled;
+        private void LoadItemData()
+        {
+            _buildableItems.Clear();
+            _buildableItems.AddRange(_startupService.GameData!.Items
+                                        .Where(x => x.Value.IsBuilable)
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
+            _craftableItems.Clear();
+            _craftableItems.AddRange(_startupService.GameData!.Items
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
 
-        [ObservableProperty]
-        private string _comment = "";
+            _equipableItems.Clear();
+            _equipableItems.AddRange(_startupService.GameData!.Items
+                                        .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
+                                                    (x.Value.Type.StartsWith("armor") ||
+                                                    x.Value.Type.StartsWith("gun") ||
+                                                    x.Value.Type.StartsWith("ammo")))
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
 
-        [ObservableProperty]
-        private string _selectedItem = "";
+            _throwableItems.Clear();
+            _throwableItems.AddRange(_startupService.GameData!.Items
+                                        .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
+                                                    x.Value.Type.StartsWith("capsule"))
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
 
-        [ObservableProperty]
-        private bool _itemEnabled;
+            _recipes.Clear();
+            _recipes.AddRange(_startupService.GameData!.Recipes
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
+        }
 
-        public ObservableCollection<string> Items { get; } = [];
-
-        [ObservableProperty]
-        private InventoryType? _inventory;
-
-        public ObservableCollection<InventoryType> Inventories { get; } = [.. Enum.GetValues<InventoryType>()];
-
-        [ObservableProperty]
-        private bool _inventoryEnabled;
-
-        [ObservableProperty]
-        private PriorityType _inputPriority;
-
-        [ObservableProperty]
-        private bool _inputPriorityEnabled;
-
-        [ObservableProperty]
-        private PriorityType _outputPriority;
-
-        [ObservableProperty]
-        private bool _outputPriorityEnabled;
-
-        [ObservableProperty]
-        private OrientationType _orientation = OrientationType.North;
-
-        public ObservableCollection<OrientationType> Orientations { get; } = [.. Enum.GetValues<OrientationType>()];
-
-        [ObservableProperty]
-        private bool _orientationEnabled;
-
-        [ObservableProperty]
-        private ModifierType? _modifier;
-
-        [ObservableProperty]
-        private bool _takeAllEnabled;
-
-        [ObservableProperty]
-        private bool _mineSplitEnabled;
-
-        [ObservableProperty]
-        private bool _walkTowardsEnabled;
-
-        public void Load(StepType stepType)
+        private void LoadDetail(StepType stepType)
         {
             Enable(stepType);
             LoadItem(stepType);
-            Modifier = null;
-        }
-
-        public void Load(StepModel step)
-        {
-            if (step.Type.ContainFlag(ParameterFlag.Point))
-            {
-                X = double.Parse(step.X);
-                Y = double.Parse(step.Y);
-            }
-            if (step.Type.ContainFlag(ParameterFlag.Amount))
-            {
-                if (step.Amount == "All")
-                {
-                    Amount = 0;
-                }
-                else
-                {
-                    Amount = int.Parse(step.Amount);
-                }
-            }
-            if (step.Type.ContainFlag(ParameterFlag.Item))
-            {
-                SelectedItem = step.Item;
-            }
-
-            if (step.Type.ContainFlag(ParameterFlag.Inventory))
-            {
-                Inventory = InventoryTypeExtensions.FromString(step.Orientation);
-            }
-            if (step.Type.ContainFlag(ParameterFlag.Priority))
-            {
-                var priority = Priority.FromString(step.Orientation);
-                InputPriority = priority!.In;
-                OutputPriority = priority!.Out;
-            }
-            if (step.Type.ContainFlag(ParameterFlag.Orientation))
-            {
-                Orientation = OrientationTypeExtensions.FromString(step.Orientation) ?? OrientationType.North;
-            }
-            if (step.Type.ContainFlag(ParameterFlag.Modifier) && !string.IsNullOrEmpty(step.Modifier))
-            {
-                Modifier = ModifierTypeExtensions.FromString(step.Modifier);
-            }
-
-            Comment = step.Comment;
-        }
-
-        public StepModel ToStep(StepType type)
-        {
-            var stepModel = new StepModel
-            {
-                Type = type,
-                Comment = Comment
-            };
-            if (type.ContainFlag(ParameterFlag.Point))
-            {
-                stepModel.X = $"{X}";
-                stepModel.Y = $"{Y}";
-            }
-            if (type.ContainFlag(ParameterFlag.Amount))
-            {
-                stepModel.Amount = Amount == 0 ? "All" : $"{Amount}";
-            }
-            if (type.ContainFlag(ParameterFlag.Item))
-            {
-                stepModel.Item = SelectedItem;
-            }
-            if (type.ContainFlag(ParameterFlag.Inventory) && Inventory.HasValue)
-            {
-                stepModel.Orientation = Inventory.Value.ToString();
-            }
-            if (type.ContainFlag(ParameterFlag.Priority))
-            {
-                var priority = new Priority()
-                {
-                    In = InputPriority,
-                    Out = OutputPriority
-                };
-                stepModel.Orientation = $"{priority}";
-            }
-            if (type.ContainFlag(ParameterFlag.Orientation))
-            {
-                stepModel.Orientation = Orientation.ToString();
-            }
-            if (type.ContainFlag(ParameterFlag.Modifier) && Modifier.HasValue)
-            {
-                stepModel.Modifier = Modifier.Value.ToString();
-            }
-
-            return stepModel;
         }
 
         private void Enable(StepType stepType)
@@ -192,13 +93,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         private void LoadItem(StepType stepType)
         {
-            var items = new List<string>();
+            Items.Clear();
             switch (stepType)
             {
                 case StepType.Build:
-                    items.AddRange(App.Current.GameData!.Items
-                                        .Where(x => x.Value.IsBuilable)
-                                        .Select(x => x.Key));
+                    foreach (var item in _buildableItems)
+                    {
+                        Items.Add(item);
+                    }
                     break;
 
                 case StepType.Craft:
@@ -207,50 +109,81 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 case StepType.Take:
                 case StepType.Drop:
                 case StepType.CancelCrafting:
-                    items.AddRange(App.Current.GameData!.Items
-                                        .OrderBy(x => x.Key)
-                                        .Select(x => x.Key));
+                    foreach (var item in _craftableItems)
+                    {
+                        Items.Add(item);
+                    }
                     break;
 
                 case StepType.Equip:
-                    items.AddRange(App.Current.GameData!.Items
-                                        .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
-                                                    (x.Value.Type.StartsWith("armor") ||
-                                                    x.Value.Type.StartsWith("gun") ||
-                                                    x.Value.Type.StartsWith("ammo")))
-                                        .OrderBy(x => x.Key)
-                                        .Select(x => x.Key));
+                    foreach (var item in _equipableItems)
+                    {
+                        Items.Add(item);
+                    }
                     break;
 
                 case StepType.Throw:
-                    items.AddRange(App.Current.GameData!.Items
-                                        .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
-                                                    x.Value.Type.StartsWith("capsule"))
-                                        .OrderBy(x => x.Key)
-                                        .Select(x => x.Key));
+                    foreach (var item in _throwableItems)
+                    {
+                        Items.Add(item);
+                    }
                     break;
 
                 case StepType.Recipe:
-                    items.AddRange(App.Current.GameData!.Recipes
-                                        .OrderBy(x => x.Key)
-                                        .Select(x => x.Key));
+                    foreach (var item in _recipes)
+                    {
+                        Items.Add(item);
+                    }
                     break;
 
                 case StepType.Tech:
-                    items.AddRange(App.Current.GameData!.Technologies
-                                        .OrderBy(x => x.Key)
-                                        .Select(x => x.Key));
+                    foreach (var item in _technologies)
+                    {
+                        Items.Add(item);
+                    }
                     break;
 
                 default:
                     break;
             }
-
-            Items.Clear();
-            foreach (var item in items)
-            {
-                Items.Add(item);
-            }
         }
+
+        [ObservableProperty]
+        private bool _xEnabled;
+
+        [ObservableProperty]
+        private bool _yEnabled;
+
+        [ObservableProperty]
+        private bool _amountEnabled;
+
+        [ObservableProperty]
+        private bool _itemEnabled;
+
+        [ObservableProperty]
+        private bool _inventoryEnabled;
+
+        [ObservableProperty]
+        private bool _inputPriorityEnabled;
+
+        [ObservableProperty]
+        private bool _outputPriorityEnabled;
+
+        [ObservableProperty]
+        private bool _orientationEnabled;
+
+        [ObservableProperty]
+        private bool _takeAllEnabled;
+
+        [ObservableProperty]
+        private bool _mineSplitEnabled;
+
+        [ObservableProperty]
+        private bool _walkTowardsEnabled;
+
+        public ObservableCollection<string> Items { get; } = [];
+        public ObservableCollection<InventoryType> Inventories { get; } = [.. Enum.GetValues<InventoryType>()];
+
+        public ObservableCollection<OrientationType> Orientations { get; } = [.. Enum.GetValues<OrientationType>()];
     }
 }

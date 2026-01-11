@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
+using FactorioToolAssistedSpeedrun.Commands.UI;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.UI;
@@ -14,23 +15,41 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class StepPanelViewModel : ObservableObject
     {
-        private readonly StepTypePanelViewModel _stepTypePanelViewModel;
-        private readonly StepDetailPanelViewModel _stepDetailPanelViewModel;
         private readonly CommandStack _commandStack;
+        private readonly StartupService _startupService;
+        private readonly StepService _stepService;
 
         public StepPanelViewModel()
         {
-            _stepDetailPanelViewModel = App.Current.Services.GetRequiredService<StepDetailPanelViewModel>();
-            _stepTypePanelViewModel = App.Current.Services.GetRequiredService<StepTypePanelViewModel>();
             _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            _startupService = App.Current.Services.GetRequiredService<StartupService>();
+            _stepService = App.Current.Services.GetRequiredService<StepService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepPanelViewModel(StepTypePanelViewModel stepTypePanelViewModel, StepDetailPanelViewModel stepDetailPanelViewModel, CommandStack commandStack)
+        public StepPanelViewModel(CommandStack commandStack, StartupService startupService, StepService stepService)
         {
-            _stepTypePanelViewModel = stepTypePanelViewModel;
-            _stepDetailPanelViewModel = stepDetailPanelViewModel;
             _commandStack = commandStack;
+            _startupService = startupService;
+            _stepService = stepService;
+
+            _startupService.OnProjectDataLoaded += OnProjectDataLoaded;
+            _startupService.OnGameDataLoaded += OnGameDataLoaded;
+        }
+
+        private void OnGameDataLoaded()
+        {
+            LoadItems(_startupService.GameData!);
+        }
+
+        private void OnProjectDataLoaded()
+        {
+            var loadStepsCommand = new LoadStepsCommand
+            {
+                ProjectDataFile = _startupService.ProjectDataFile,
+            };
+            loadStepsCommand.Execute();
+            LoadSteps(loadStepsCommand.Result);
         }
 
         [ObservableProperty]
@@ -52,22 +71,21 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             var index = row.GetIndex();
             var step = StepCollection[index];
-
-            _stepTypePanelViewModel.SelectedStepType = step.Type;
-            _stepDetailPanelViewModel.Load(step);
+            _stepService.FromStep(step);
         }
 
         [RelayCommand]
         public async Task Add(bool rightClick)
         {
-            var step = _stepDetailPanelViewModel.ToStep(_stepTypePanelViewModel.SelectedStepType);
+            var step = _stepService.ToStep();
             var index = rightClick ? SelectedIndex + 1 : SelectedIndex;
             step.Location = index + 1;
             var command = new AddStepCommand
             {
-                Steps = [step.ToEntity()],
+                Collection = StepCollection,
+                Steps = [step],
             };
-            command.Commit(StepCollection);
+            command.Commit();
             _commandStack.Push(command);
 
             SelectedIndex = index;
@@ -82,9 +100,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new DeleteStepCommand
             {
+                Collection = StepCollection,
                 Steps = [.. items.Select(x => x.ToEntity())],
             };
-            command.Commit(StepCollection);
+            command.Commit();
             _commandStack.Push(command);
         }
 
@@ -95,10 +114,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var command = new MoveStepCommand
             {
+                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = -1,
             };
-            command.Commit(StepCollection);
+            command.Commit();
             _commandStack.Push(command);
         }
 
@@ -108,10 +128,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new MoveStepCommand
             {
+                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = -5,
             };
-            command.Commit(StepCollection);
+            command.Commit();
             _commandStack.Push(command);
         }
 
@@ -121,10 +142,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new MoveStepCommand
             {
+                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = 1,
             };
-            command.Commit(StepCollection);
+            command.Commit();
             _commandStack.Push(command);
         }
 
@@ -134,14 +156,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new MoveStepCommand
             {
+                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = 5,
             };
-            command.Commit(StepCollection);
+            command.Commit();
             _commandStack.Push(command);
         }
 
-        public void LoadItems(GameData gameData)
+        private void LoadItems(GameData gameData)
         {
             ItemCollection.Clear();
 
@@ -150,7 +173,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             ItemCollection.AddRange(gameData.Technologies.Select(x => x.Key));
         }
 
-        public void LoadSteps(List<Step> steps)
+        private void LoadSteps(List<Step> steps)
         {
             StepsChangeStarted?.Invoke();
 
@@ -173,7 +196,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 }
                 for (int i = StepCollection.Count; i < steps.Count; i++)
                 {
-                    StepModel model = new();
+                    StepModel model = new() { Collection = StepCollection };
                     model.FromEntity(steps[i]);
                     StepCollection.Add(model);
                 }

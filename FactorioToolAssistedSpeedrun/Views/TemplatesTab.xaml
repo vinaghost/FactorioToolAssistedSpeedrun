@@ -24,6 +24,11 @@
             <Setter Property="attachedBehaviours:DeleteRowBehavior.DeleteRowCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCommand}" />
         </Style>
     </UserControl.Resources>
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded" SourceObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
+            <behaviors:InvokeCommandAction Command="{Binding LoadCommand}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -46,16 +51,31 @@
             Grid.Row="0"
             Grid.Column="0"
             Grid.ColumnSpan="2"
-            Margin="2" />
+            Margin="2"
+            ItemsSource="{Binding TemplateCollection, Mode=OneWay}"
+            SelectedValue="{Binding SelectedTemplate}" />
         <Button
             Grid.Row="1"
             Grid.Column="0"
             Margin="2"
-            Content="Add" />
+            Content="Add">
+            <Button.InputBindings>
+                <MouseBinding
+                    Command="{Binding AddCommand}"
+                    CommandParameter="{StaticResource False}"
+                    Gesture="LeftClick" />
+                <MouseBinding
+                    Command="{Binding AddCommand}"
+                    CommandParameter="{StaticResource True}"
+                    Gesture="RightClick" />
+            </Button.InputBindings>
+        </Button>
         <Button
             Grid.Row="1"
             Grid.Column="1"
             Margin="2"
+            Command="{Binding DeleteCommand}"
+            CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
             Content="Delete" />
 
         <Button
@@ -73,12 +93,34 @@
             Grid.Row="1"
             Grid.Column="2"
             Margin="2"
-            Content="Up" />
+            Content="Up">
+            <Button.InputBindings>
+                <MouseBinding
+                    Command="{Binding MoveUpOneCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="LeftClick" />
+                <MouseBinding
+                    Command="{Binding MoveUpFiveCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="RightClick" />
+            </Button.InputBindings>
+        </Button>
         <Button
             Grid.Row="1"
             Grid.Column="3"
             Margin="2"
-            Content="Down" />
+            Content="Down">
+            <Button.InputBindings>
+                <MouseBinding
+                    Command="{Binding MoveDownOneCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="LeftClick" />
+                <MouseBinding
+                    Command="{Binding MoveDownFiveCommand}"
+                    CommandParameter="{Binding ElementName=Steps, Path=SelectedItems}"
+                    Gesture="RightClick" />
+            </Button.InputBindings>
+        </Button>
         <Button
             Grid.Row="0"
             Grid.Column="4"
@@ -154,6 +196,7 @@
 
         <!--  DataGrid/Table area  -->
         <DataGrid
+            x:Name="Steps"
             Grid.Row="2"
             Grid.ColumnSpan="12"
             Margin="0,5,0,0"
@@ -171,10 +214,6 @@
                 <misc:BindingProxy x:Key="proxy" Data="{Binding ItemCollection}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn
-                    Width="*"
-                    Binding="{Binding Location, Mode=OneWay}"
-                    Header="" />
                 <DataGridTextColumn
                     Width="*"
                     Binding="{Binding Type, Mode=OneWay, Converter={StaticResource StepTypeToStringConverter}}"

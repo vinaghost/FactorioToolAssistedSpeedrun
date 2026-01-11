@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    Title="{Binding MenuBarViewModel.ProjectName, StringFormat={}{0} - Factorio Tool Assisted Speedrun}"
+    Title="{Binding StartupService.ProjectName, StringFormat={}{0} - Factorio Tool Assisted Speedrun}"
     Width="1200"
     Height="900"
     d:DataContext="{d:DesignInstance vm:MainViewModel,
@@ -26,6 +26,7 @@
         <KeyBinding
             Key="G"
             Command="{Binding GoToLineCommand}"
+            CommandParameter="{Binding ElementName=StepPanel, Path=DataContext}"
             Modifiers="Control" />
         <KeyBinding
             Key="Z"
@@ -43,7 +44,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <views:MenuBar Grid.Row="0" DataContext="{Binding MenuBarViewModel}" />
+            <views:MenuBar Grid.Row="0" />
             <!--  Toolbar area  -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -52,13 +53,13 @@
                     <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
 
-                <views:StepTypePanel Grid.Column="0" DataContext="{Binding StepTypePanelViewModel}" />
+                <views:StepTypePanel Grid.Column="0" />
                 <GridSplitter
                     Grid.Column="1"
                     Width="5"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Stretch" />
-                <views:StepDetailPanel Grid.Column="2" DataContext="{Binding StepDetailPanelViewModel}" />
+                <views:StepDetailPanel Grid.Column="2" />
             </Grid>
             <!--  Data panel  -->
             <Grid Grid.Row="2">
@@ -69,10 +70,10 @@
                 </Grid.ColumnDefinitions>
                 <TabControl Grid.Column="0">
                     <TabItem Header="Imports">
-                        <views:ImportTab DataContext="{Binding ImportTabViewModel}" />
+                        <views:ImportTab />
                     </TabItem>
                     <TabItem Header="Templates">
-                        <views:TemplatesTab DataContext="{Binding TemplatesTabViewModel}" />
+                        <views:TemplatesTab />
                     </TabItem>
                 </TabControl>
 
@@ -82,10 +83,10 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Stretch" />
 
-                <views:StepPanel Grid.Column="2" DataContext="{Binding StepPanelViewModel}" />
+                <views:StepPanel x:Name="StepPanel" Grid.Column="2" />
             </Grid>
         </Grid>
-        <Grid Visibility="{Binding LoadingViewModel.IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid Visibility="{Binding LoadingService.IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Style="{DynamicResource Background}" />
             <Border Style="{DynamicResource Content}">
                 <ProgressBar

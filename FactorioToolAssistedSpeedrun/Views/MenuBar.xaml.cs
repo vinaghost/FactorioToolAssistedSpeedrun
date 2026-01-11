@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using FactorioToolAssistedSpeedrun.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Controls;
 
 namespace FactorioToolAssistedSpeedrun.Views
 {
@@ -10,6 +12,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public MenuBar()
         {
             InitializeComponent();
+            DataContext = App.Current.Services.GetRequiredService<MenuBarViewModel>();
         }
     }
 }

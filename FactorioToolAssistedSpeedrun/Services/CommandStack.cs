@@ -4,8 +4,8 @@ namespace FactorioToolAssistedSpeedrun.Services
 {
     public class CommandStack
     {
-        private readonly Stack<IStepCommand> _undoStack = new();
-        private readonly Stack<IStepCommand> _redoStack = new();
+        private readonly Stack<IUndoCommand> _undoStack = new();
+        private readonly Stack<IUndoCommand> _redoStack = new();
 
         public void Clear()
         {
@@ -13,21 +13,21 @@ namespace FactorioToolAssistedSpeedrun.Services
             _redoStack.Clear();
         }
 
-        public IStepCommand UndoPop()
+        public IUndoCommand UndoPop()
         {
             var command = _undoStack.Pop();
             _redoStack.Push(command);
             return command;
         }
 
-        public IStepCommand RedoPop()
+        public IUndoCommand RedoPop()
         {
             var command = _redoStack.Pop();
             _undoStack.Push(command);
             return command;
         }
 
-        public void Push(IStepCommand command)
+        public void Push(IUndoCommand command)
         {
             _undoStack.Push(command);
             _redoStack.Clear();

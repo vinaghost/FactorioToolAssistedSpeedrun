@@ -5,15 +5,14 @@ using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class MoveStepCommand : IStepCommand
+    public class MoveStepCommand : UndoCommand
     {
-        public required List<Guid> StepIds { get; init; } //selected blocks
+        public required List<Guid> StepIds { get; init; }
 
         public required int MoveOffset { get; init; }
 
-        public void Commit()
+        protected override void DatabaseCommit(ProjectDbContext context)
         {
-            using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
             var chosenSteps = context.Steps
                 .Where(x => StepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
@@ -43,11 +42,9 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                     .SetProperty(b => b.Location, b => b.Location + MoveOffset));
         }
 
-        public void Commit(ObservableCollection<StepModel> steps)
+        protected override void UICommit(ObservableCollection<StepModel> collection)
         {
-            Commit();
-
-            var chosenSteps = steps
+            var chosenSteps = collection
                 .Where(x => StepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
@@ -57,7 +54,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             if (MoveOffset > 0)
             {
                 // go down
-                var sadSteps = steps
+                var sadSteps = collection
                     .Select((step, index) => (index, step))
                     .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + MoveOffset)
                     .OrderByDescending(x => x.index)
@@ -65,19 +62,19 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
                 foreach (var (index, step) in sadSteps)
                 {
-                    steps.RemoveAt(index);
+                    collection.RemoveAt(index);
                 }
 
                 foreach (var (_, step) in sadSteps)
                 {
                     step.Location -= chosenSteps.Count;
-                    steps.Insert(firstLocation - 1, step);
+                    collection.Insert(firstLocation - 1, step);
                 }
             }
             else
             {
                 // go up
-                var sadSteps = steps
+                var sadSteps = collection
                     .Select((step, index) => (index, step))
                     .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + MoveOffset)
                     .OrderByDescending(x => x.index)
@@ -86,12 +83,12 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 foreach (var (_, step) in sadSteps)
                 {
                     step.Location += chosenSteps.Count;
-                    steps.Insert(lastLocation, step);
+                    collection.Insert(lastLocation, step);
                 }
 
                 foreach (var (index, step) in sadSteps)
                 {
-                    steps.RemoveAt(index);
+                    collection.RemoveAt(index);
                 }
             }
             foreach (var step in chosenSteps)
@@ -100,10 +97,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             }
         }
 
-        public void Rollback()
+        protected override void DatabaseRollback(ProjectDbContext context)
         {
-            using var context = new ProjectDbContext(App.Current.ProjectDataFile!);
-
             var rollbackOffset = -MoveOffset;
             var chosenSteps = context.Steps
                 .Where(x => StepIds.Contains(x.Id))
@@ -135,12 +130,10 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                     .SetProperty(b => b.Location, b => b.Location + rollbackOffset));
         }
 
-        public void Rollback(ObservableCollection<StepModel> steps)
+        protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            Rollback();
-
             var rollbackOffset = -MoveOffset;
-            var chosenSteps = steps
+            var chosenSteps = collection
                 .Where(x => StepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
@@ -150,7 +143,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             if (rollbackOffset > 0)
             {
                 // go down
-                var sadSteps = steps
+                var sadSteps = collection
                     .Select((step, index) => (index, step))
                     .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + rollbackOffset)
                     .OrderByDescending(x => x.index)
@@ -158,19 +151,19 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
                 foreach (var (index, step) in sadSteps)
                 {
-                    steps.RemoveAt(index);
+                    collection.RemoveAt(index);
                 }
 
                 foreach (var (_, step) in sadSteps)
                 {
                     step.Location -= chosenSteps.Count;
-                    steps.Insert(firstLocation - 1, step);
+                    collection.Insert(firstLocation - 1, step);
                 }
             }
             else
             {
                 // go up
-                var sadSteps = steps
+                var sadSteps = collection
                     .Select((step, index) => (index, step))
                     .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + rollbackOffset)
                     .OrderByDescending(x => x.index)
@@ -179,12 +172,12 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 foreach (var (_, step) in sadSteps)
                 {
                     step.Location += chosenSteps.Count;
-                    steps.Insert(lastLocation, step);
+                    collection.Insert(lastLocation, step);
                 }
 
                 foreach (var (index, step) in sadSteps)
                 {
-                    steps.RemoveAt(index);
+                    collection.RemoveAt(index);
                 }
             }
             foreach (var step in chosenSteps)

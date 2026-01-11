@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FactorioToolAssistedSpeedrun.ViewModels
+namespace FactorioToolAssistedSpeedrun.Services
 {
-    public partial class LoadingViewModel : ObservableObject
+    public partial class LoadingService : ObservableObject
     {
         [ObservableProperty]
         private bool _isShown;

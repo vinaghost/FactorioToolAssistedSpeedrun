@@ -65,7 +65,7 @@ END;
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS insert_building_buildstep_after_build_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'build' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
+WHEN NEW.Type = 'build' AND NEW.Name = '' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location
@@ -88,7 +88,7 @@ END;
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS update_building_destroystep_after_mine_step
 AFTER INSERT ON Steps
-WHEN NEW.Type = 'mine' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
+WHEN NEW.Type = 'mine' AND NEW.Name = '' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
 BEGIN
     UPDATE Buildings
     SET DestroyStep = NEW.Location
@@ -100,6 +100,7 @@ END;
             Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS decrement_step_location_after_delete
 AFTER DELETE ON Steps
+WHEN OLD.Name = ''
 BEGIN
     UPDATE Steps
     SET Location = Location - 1

@@ -93,7 +93,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                     var name = segments[0];
                     var step = ReadStep(segments[1..10]);
                     step.Location = Result.StepCollection.Count(x => x.Name == name) + 1;
-                    step.Name = "";
+                    step.Name = name;
                     Result.StepCollection.Add(step);
                     line = sr.ReadLine();
                 }

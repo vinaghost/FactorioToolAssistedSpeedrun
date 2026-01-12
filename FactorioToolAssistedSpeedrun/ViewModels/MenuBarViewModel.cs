@@ -214,6 +214,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task NewProject()
         {
+            if (!_startupService.IsGameDataLoaded)
+            {
+                MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             var dialog = new SaveFileDialog
             {
                 Filter = "Tas database (*.db)|*.db",
@@ -335,7 +340,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private async Task OpenFile()
         {
-            if (_startupService.IsGameDataLoaded)
+            if (!_startupService.IsGameDataLoaded)
             {
                 MessageBox.Show("No game data loaded. Please dump or load game data first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;

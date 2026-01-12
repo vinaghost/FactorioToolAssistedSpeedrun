@@ -13,26 +13,20 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class TemplatesTabViewModel : ObservableObject
     {
-        private readonly StepTypePanelViewModel _stepTypePanelViewModel;
-        private readonly StepDetailPanelViewModel _stepDetailPanelViewModel;
         private readonly CommandStack _commandStack;
         private readonly StartupService _startupService;
         private readonly StepService _stepService;
 
         public TemplatesTabViewModel()
         {
-            _stepDetailPanelViewModel = App.Current.Services.GetRequiredService<StepDetailPanelViewModel>();
-            _stepTypePanelViewModel = App.Current.Services.GetRequiredService<StepTypePanelViewModel>();
             _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
             _startupService = App.Current.Services.GetRequiredService<StartupService>();
             _stepService = App.Current.Services.GetRequiredService<StepService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public TemplatesTabViewModel(StepTypePanelViewModel stepTypePanelViewModel, StepDetailPanelViewModel stepDetailPanelViewModel, CommandStack commandStack, StartupService startupService, StepService stepService)
+        public TemplatesTabViewModel(CommandStack commandStack, StartupService startupService, StepService stepService)
         {
-            _stepTypePanelViewModel = stepTypePanelViewModel;
-            _stepDetailPanelViewModel = stepDetailPanelViewModel;
             _commandStack = commandStack;
             _startupService = startupService;
             _stepService = stepService;

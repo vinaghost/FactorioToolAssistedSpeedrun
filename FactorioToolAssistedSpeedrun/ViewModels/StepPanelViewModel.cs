@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
-using FactorioToolAssistedSpeedrun.Commands.UI;
 using FactorioToolAssistedSpeedrun.Entities;
-using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -39,17 +38,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         private void OnGameDataLoaded()
         {
-            LoadItems(_startupService.GameData!);
+            ItemCollection.Clear();
+
+            ItemCollection.AddRange(_startupService.GameData!.Items.Select(x => x.Key));
+            ItemCollection.AddRange(_startupService.GameData!.Recipes.Select(x => x.Key));
+            ItemCollection.AddRange(_startupService.GameData!.Technologies.Select(x => x.Key));
         }
 
         private void OnProjectDataLoaded()
         {
-            var loadStepsCommand = new LoadStepsCommand
+            var getStepsQuery = new GetStepsQuery
             {
                 ProjectDataFile = _startupService.ProjectDataFile,
+                Name = "",
             };
-            loadStepsCommand.Execute();
-            LoadSteps(loadStepsCommand.Result);
+            var result = getStepsQuery.Execute();
+            App.Current.Dispatcher.Invoke(() => LoadSteps(result));
         }
 
         [ObservableProperty]
@@ -162,15 +166,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             };
             command.Commit();
             _commandStack.Push(command);
-        }
-
-        private void LoadItems(GameData gameData)
-        {
-            ItemCollection.Clear();
-
-            ItemCollection.AddRange(gameData.Items.Select(x => x.Key));
-            ItemCollection.AddRange(gameData.Recipes.Select(x => x.Key));
-            ItemCollection.AddRange(gameData.Technologies.Select(x => x.Key));
         }
 
         private void LoadSteps(List<Step> steps)

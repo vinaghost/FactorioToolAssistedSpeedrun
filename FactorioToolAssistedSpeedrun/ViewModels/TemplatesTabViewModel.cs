@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
-using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -76,8 +76,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (string.IsNullOrEmpty(value))
                 return;
 
-            using var context = new ProjectDbContext(_startupService.ProjectDataFile!);
-            foreach (var step in context.Steps.Where(x => x.Name == value).OrderBy(x => x.Location))
+            var getStepsQuery = new GetStepsQuery()
+            {
+                Name = value,
+                ProjectDataFile = _startupService.ProjectDataFile!,
+            };
+
+            var steps = getStepsQuery.Execute();
+            foreach (var step in steps)
             {
                 StepModel model = new() { Collection = StepCollection };
                 model.FromEntity(step);
@@ -102,10 +108,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             if (!_startupService.IsProjectDataLoaded)
                 return;
+            var getTemplatesQuery = new GetTemplatesQuery()
+            {
+                ProjectDataFile = _startupService.ProjectDataFile!,
+            };
+            var templates = getTemplatesQuery.Execute();
 
-            using var context = new ProjectDbContext(_startupService.ProjectDataFile!);
             TemplateCollection.Clear();
-            foreach (var template in context.Steps.Select(x => x.Name).Distinct().OrderBy(x => x))
+            foreach (var template in templates)
             {
                 TemplateCollection.Add(template);
             }

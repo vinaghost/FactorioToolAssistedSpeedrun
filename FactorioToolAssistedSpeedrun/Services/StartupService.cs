@@ -33,7 +33,9 @@ namespace FactorioToolAssistedSpeedrun.Services
 
             var fileContent = File.ReadAllText(gameDataFile);
             GameData = JsonSerializer.Deserialize<GameData>(fileContent);
-            Version = Path.GetFileNameWithoutExtension(gameDataFile);
+
+            App.Current.Dispatcher.Invoke(() => Version = Path.GetFileNameWithoutExtension(gameDataFile));
+
             IsGameDataLoaded = true;
             OnGameDataLoaded?.Invoke();
             return true;
@@ -47,7 +49,7 @@ namespace FactorioToolAssistedSpeedrun.Services
                 return false;
 
             ProjectDataFile = projectDataFile;
-            ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
+            App.Current.Dispatcher.Invoke(() => ProjectName = Path.GetFileNameWithoutExtension(projectDataFile));
             OnProjectDataLoaded?.Invoke();
             return true;
         }

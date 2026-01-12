@@ -6,6 +6,7 @@ using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
+using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
@@ -40,12 +41,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         private void OnProjectDataLoaded()
         {
-            var loadSettingsCommand = new LoadSettingsCommand
+            var getSettingsQuery = new GetSettingsQuery
             {
                 ProjectDataFile = _startupService.ProjectDataFile
             };
-            loadSettingsCommand.Execute();
-            UpdateSetting(loadSettingsCommand.Result);
+            var result = getSettingsQuery.Execute();
+            App.Current.Dispatcher.Invoke(() => UpdateSetting(result));
         }
 
         private void UpdateSetting(SettingsResult settingsResult)

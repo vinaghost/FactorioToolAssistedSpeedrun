@@ -2,7 +2,7 @@
 using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
 
-namespace FactorioToolAssistedSpeedrun.Commands.UI
+namespace FactorioToolAssistedSpeedrun.Queries
 {
     public class SettingsResult
     {
@@ -15,20 +15,19 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
         public string ScriptFolder { get; set; } = "";
     }
 
-    public class LoadSettingsCommand : ICommand, ICommandResult<SettingsResult>
+    public class GetSettingsQuery
     {
         public required string ProjectDataFile { get; init; }
 
-        public SettingsResult Result { get; } = new();
-
-        public void Execute()
+        public SettingsResult Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
 
+            var printComments = false;
             var printMessageSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintMessage);
             if (printMessageSetting is not null)
             {
-                Result.PrintComments = printMessageSetting.Value == "1";
+                printComments = printMessageSetting.Value == "1";
             }
             else
             {
@@ -38,11 +37,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                     Value = "0"
                 });
             }
-
+            var printSavegame = false;
             var printSavegameSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintSavegame);
             if (printSavegameSetting is not null)
             {
-                Result.PrintSavegame = printSavegameSetting.Value == "1";
+                printSavegame = printSavegameSetting.Value == "1";
             }
             else
             {
@@ -53,10 +52,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 });
             }
 
+            var printTech = false;
             var printTechSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintTech);
             if (printTechSetting is not null)
             {
-                Result.PrintTech = printTechSetting.Value == "1";
+                printTech = printTechSetting.Value == "1";
             }
             else
             {
@@ -67,25 +67,28 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 });
             }
 
+            var debugMode = false;
+            var developmentMode = false;
+            var productionMode = false;
             var environmentSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.Environment);
             if (environmentSetting is not null)
             {
                 switch (environmentSetting.Value)
                 {
                     case "0":
-                        Result.DebugMode = true;
+                        debugMode = true;
                         break;
 
                     case "1":
-                        Result.DevelopmentMode = true;
+                        developmentMode = true;
                         break;
 
                     case "2":
-                        Result.ProductionMode = true;
+                        productionMode = true;
                         break;
 
                     default:
-                        Result.DevelopmentMode = true;
+                        developmentMode = true;
                         break;
                 }
             }
@@ -98,10 +101,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 });
             }
 
+            var scriptFolder = "";
             var modsFolderSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.ScriptFolder);
             if (modsFolderSetting is not null)
             {
-                Result.ScriptFolder = modsFolderSetting.Value;
+                scriptFolder = modsFolderSetting.Value;
             }
             else
             {
@@ -111,6 +115,17 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                     Value = ""
                 });
             }
+
+            return new SettingsResult
+            {
+                PrintComments = printComments,
+                PrintSavegame = printSavegame,
+                PrintTech = printTech,
+                DebugMode = debugMode,
+                DevelopmentMode = developmentMode,
+                ProductionMode = productionMode,
+                ScriptFolder = scriptFolder
+            };
         }
     }
 }

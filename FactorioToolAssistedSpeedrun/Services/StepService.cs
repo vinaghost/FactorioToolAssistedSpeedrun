@@ -27,7 +27,7 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         private void OnGameDataLoaded()
         {
-            Type = StepType.Walk;
+            App.Current.Dispatcher.Invoke(() => Type = StepType.Walk);
         }
 
         [ObservableProperty]

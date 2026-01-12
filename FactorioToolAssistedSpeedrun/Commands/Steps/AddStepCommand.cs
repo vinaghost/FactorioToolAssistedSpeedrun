@@ -8,12 +8,14 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
     internal class AddStepCommand : UndoCommand
     {
+        public required string Name { get; init; }
         public required List<Step> Steps { get; init; }
 
         protected override void DatabaseCommit(ProjectDbContext context)
         {
+            var minLocation = Steps.Min(x => x.Location);
             context.Steps
-                .Where(x => x.Location >= Steps.Min(s => s.Location))
+                .Where(x => x.Location >= minLocation && x.Name == Name)
                 .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location + Steps.Count));
             context.Steps.AddRange(Steps);
             context.SaveChanges();
@@ -37,15 +39,21 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         protected override void DatabaseRollback(ProjectDbContext context)
         {
             context.Steps
-                .Where(x => Steps.Select(s => s.Id).Contains(x.Id))
+                .Where(x => Steps.Select(s => s.Id).Contains(x.Id) && x.Name == Name)
                 .ExecuteDelete();
+            var maxLocation = Steps.Max(x => x.Location);
             context.Steps
-                .Where(x => x.Location > Steps.Max(s => s.Location))
+                .Where(x => x.Location > maxLocation && x.Name == Name)
                 .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location - Steps.Count));
         }
 
         protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
+            if (collection.Count == 0) return;
+            var name = collection.First().Name;
+            if (!string.IsNullOrEmpty(name) && name != Name)
+                return;
+
             foreach (var location in Steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
             {
                 collection.RemoveAt(location);

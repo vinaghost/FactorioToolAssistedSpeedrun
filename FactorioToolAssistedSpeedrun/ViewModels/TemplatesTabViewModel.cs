@@ -143,6 +143,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             step.Location = index + 1;
             var command = new AddStepCommand
             {
+                Name = SelectedTemplate,
                 Collection = StepCollection,
                 Steps = [step],
             };
@@ -166,6 +167,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new DeleteStepCommand
             {
+                Name = SelectedTemplate,
                 Collection = StepCollection,
                 Steps = [.. items.Select(x => x.ToEntity())],
             };
@@ -185,6 +187,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var command = new MoveStepCommand
             {
+                Name = SelectedTemplate,
                 Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = -1,
@@ -204,6 +207,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new MoveStepCommand
             {
+                Name = SelectedTemplate,
                 Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = -5,
@@ -223,6 +227,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new MoveStepCommand
             {
+                Name = SelectedTemplate,
                 Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = 1,
@@ -242,6 +247,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var items = selectedItems.OfType<StepModel>().ToList();
             var command = new MoveStepCommand
             {
+                Name = SelectedTemplate,
                 Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = 5,

@@ -24,12 +24,12 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         public event Action? OnProjectDataLoaded;
 
-        public bool LoadGameDataFile()
+        public void LoadGameDataFile()
         {
             IsGameDataLoaded = false;
             var gameDataFile = Properties.Settings.Default.GameDataFile;
             if (!File.Exists(gameDataFile))
-                return false;
+                return;
 
             var fileContent = File.ReadAllText(gameDataFile);
             GameData = JsonSerializer.Deserialize<GameData>(fileContent);
@@ -38,20 +38,19 @@ namespace FactorioToolAssistedSpeedrun.Services
 
             IsGameDataLoaded = true;
             OnGameDataLoaded?.Invoke();
-            return true;
         }
 
-        public bool LoadProjectDataFile()
+        public void LoadProjectDataFile()
         {
             IsProjectDataLoaded = false;
             var projectDataFile = Properties.Settings.Default.ProjectDataFile;
             if (!File.Exists(projectDataFile))
-                return false;
+                return;
 
             ProjectDataFile = projectDataFile;
             App.Current.Dispatcher.Invoke(() => ProjectName = Path.GetFileNameWithoutExtension(projectDataFile));
             OnProjectDataLoaded?.Invoke();
-            return true;
+            IsProjectDataLoaded = true;
         }
     }
 }

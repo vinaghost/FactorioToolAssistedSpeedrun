@@ -38,7 +38,7 @@
             Modifiers="Control" />
         <KeyBinding
             Key="N"
-            Command="{Binding ElementName=MenuBar, Path=DataContext.NewFileCommand}"
+            Command="{Binding ElementName=MenuBar, Path=DataContext.NewProjectCommand}"
             Modifiers="Control" />
         <KeyBinding
             Key="O"

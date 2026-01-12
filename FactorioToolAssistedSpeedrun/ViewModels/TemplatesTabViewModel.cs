@@ -31,7 +31,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             _startupService = startupService;
             _stepService = stepService;
 
-            _startupService.OnProjectDataLoaded += OnProjectDataLoaded;
             _startupService.OnGameDataLoaded += OnGameDataLoaded;
         }
 
@@ -42,10 +41,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             ItemCollection.AddRange(_startupService.GameData!.Items.Select(x => x.Key));
             ItemCollection.AddRange(_startupService.GameData!.Recipes.Select(x => x.Key));
             ItemCollection.AddRange(_startupService.GameData!.Technologies.Select(x => x.Key));
-        }
-
-        private void OnProjectDataLoaded()
-        {
         }
 
         [ObservableProperty]

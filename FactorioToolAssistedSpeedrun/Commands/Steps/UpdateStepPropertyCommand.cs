@@ -2,39 +2,95 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Formats.Asn1;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class UpdateStepPropertyCommand : UndoCommand
+    public static class ExpressionHelper
     {
-        public required Step OldSteps { get; init; }
-        public required Step NewSteps { get; init; }
+        private static readonly ConcurrentDictionary<MemberInfo, Delegate> _setterCache = new();
+
+        public static Action<TClass, TValue> GetSetter<TClass, TValue>(Expression<Func<TClass, TValue>> propertySelector)
+        {
+            // 1. Get the MemberInfo from the selector expression
+            if (propertySelector.Body is not MemberExpression memberExpression)
+            {
+                throw new ArgumentException("Selector must be a member access expression (e.g., x => x.Property).", nameof(propertySelector));
+            }
+
+            var member = memberExpression.Member;
+            if (_setterCache.TryGetValue(member, out var cachedSetter))
+            {
+                return (Action<TClass, TValue>)cachedSetter;
+            }
+
+            // 2. Define the parameter for the new value
+            var valueParameter = Expression.Parameter(typeof(TValue), "value");
+
+            // 3. Create the assignment expression: instance.Property = value
+            var assignmentExpression = Expression.Assign(memberExpression, valueParameter);
+
+            // 4. Create the lambda expression (an Action delegate) that takes the instance and the new value
+            // The parameters are the original selector's parameter (the instance) and our new value parameter
+            var setterLambda = Expression.Lambda<Action<TClass, TValue>>(
+                assignmentExpression,
+                propertySelector.Parameters[0], // the instance parameter
+                valueParameter
+            );
+            var setter = setterLambda.Compile();
+
+            _setterCache.TryAdd(member, setter);
+
+            return setter;
+        }
+    }
+
+    public class UpdateStepPropertyCommand<T, TStep> : UndoCommand
+    {
+        public required Guid StepId { get; init; }
+        public required T OldValue { get; init; }
+        public required T NewValue { get; init; }
+
+        public required Func<T, TStep> StepPropertyTransformer { get; init; }
+        public required Expression<Func<Step, TStep>> StepPropertySelector { get; init; }
+        public required Expression<Func<StepModel, T>> StepModelPropertySelector { get; init; }
 
         protected override void DatabaseCommit(ProjectDbContext context)
         {
-            context.Steps.Update(NewSteps);
-            context.Entry(NewSteps).Property(x => x.Type).IsModified = false;
-            context.SaveChanges();
+            var stepValue = StepPropertyTransformer(NewValue);
+            context.Steps
+                .Where(x => x.Id == StepId)
+                .ExecuteUpdate(setters => setters
+                    .SetProperty(StepPropertySelector, stepValue));
         }
 
         protected override void UICommit(ObservableCollection<StepModel> collection)
         {
-            var currentStepModel = collection.FirstOrDefault(s => s.Id == NewSteps.Id);
-            currentStepModel?.FromEntity(NewSteps);
+            var currentStepModel = collection.FirstOrDefault(s => s.Id == StepId);
+            if (currentStepModel is null) return;
+            var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
+            setter(currentStepModel, NewValue);
         }
 
         protected override void DatabaseRollback(ProjectDbContext context)
         {
-            context.Steps.Update(OldSteps);
-            context.Entry(OldSteps).Property(x => x.Type).IsModified = false;
-            context.SaveChanges();
+            var stepValue = StepPropertyTransformer(OldValue);
+            context.Steps
+               .Where(x => x.Id == StepId)
+               .ExecuteUpdate(setters => setters
+                   .SetProperty(StepPropertySelector, stepValue));
         }
 
         protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var currentStepModel = Collection.FirstOrDefault(s => s.Id == OldSteps.Id);
-            currentStepModel?.FromEntity(OldSteps);
+            var currentStepModel = Collection.FirstOrDefault(s => s.Id == StepId);
+            if (currentStepModel is null) return;
+            var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
+            setter(currentStepModel, OldValue);
         }
     }
 }

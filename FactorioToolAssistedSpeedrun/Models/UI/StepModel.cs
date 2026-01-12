@@ -6,6 +6,7 @@ using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Security;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
@@ -18,7 +19,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         public string Name { get; private set; } = "";
         private bool _loaded = false;
         private bool _lock = false;
-        private Step? _cached = null;
 
         [ObservableProperty]
         private int _location;
@@ -28,8 +28,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _x = "";
-
-        partial void OnXChanging(string value) => UpdateCache();
 
         partial void OnXChanged(string? oldValue, string newValue)
         {
@@ -44,7 +42,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    UpdateProperty();
+                    var command = new UpdateStepPropertyCommand<string, double>()
+                    {
+                        StepId = Id,
+                        OldValue = oldValue ?? "",
+                        NewValue = newValue,
+                        Collection = Collection,
+                        StepPropertySelector = step => step.X,
+                        StepModelPropertySelector = model => model.X,
+                        StepPropertyTransformer = str => double.Parse(str)
+                    };
+                    command.Commit();
+                    _commandStack.Push(command);
                 }
             }
             else
@@ -57,8 +66,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _y = "";
-
-        partial void OnYChanging(string value) => UpdateCache();
 
         partial void OnYChanged(string? oldValue, string newValue)
         {
@@ -74,7 +81,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    UpdateProperty();
+                    var command = new UpdateStepPropertyCommand<string, double>()
+                    {
+                        StepId = Id,
+                        OldValue = oldValue ?? "",
+                        NewValue = newValue,
+                        Collection = Collection,
+                        StepPropertySelector = step => step.Y,
+                        StepModelPropertySelector = model => model.Y,
+                        StepPropertyTransformer = str => double.Parse(str)
+                    };
+                    command.Commit();
+                    _commandStack.Push(command);
                 }
             }
             else
@@ -86,8 +104,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _amount = "";
-
-        partial void OnAmountChanging(string value) => UpdateCache();
 
         partial void OnAmountChanged(string? oldValue, string newValue)
         {
@@ -114,7 +130,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        UpdateProperty();
+                        var command = new UpdateStepPropertyCommand<string, int>()
+                        {
+                            StepId = Id,
+                            OldValue = oldValue ?? "",
+                            NewValue = newValue,
+                            Collection = Collection,
+                            StepPropertySelector = step => step.Amount,
+                            StepModelPropertySelector = model => model.Amount,
+                            StepPropertyTransformer = str => int.Parse(str)
+                        };
+                        command.Commit();
+                        _commandStack.Push(command);
                     }
                 }
             }
@@ -128,8 +155,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _item = "";
-
-        partial void OnItemChanging(string value) => UpdateCache();
 
         partial void OnItemChanged(string? oldValue, string newValue)
         {
@@ -148,7 +173,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        UpdateProperty();
+                        var command = new UpdateStepPropertyCommand<string, string>()
+                        {
+                            StepId = Id,
+                            OldValue = oldValue ?? "",
+                            NewValue = newValue,
+                            Collection = Collection,
+                            StepPropertySelector = step => step.Item,
+                            StepModelPropertySelector = model => model.Item,
+                            StepPropertyTransformer = str => str
+                        };
+                        command.Commit();
+                        _commandStack.Push(command);
                     }
                 }
                 else if (Type == StepType.Recipe)
@@ -159,7 +195,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        UpdateProperty();
+                        var command = new UpdateStepPropertyCommand<string, string>()
+                        {
+                            StepId = Id,
+                            OldValue = oldValue ?? "",
+                            NewValue = newValue,
+                            Collection = Collection,
+                            StepPropertySelector = step => step.Item,
+                            StepModelPropertySelector = model => model.Item,
+                            StepPropertyTransformer = str => str
+                        };
+                        command.Commit();
+                        _commandStack.Push(command);
                     }
                 }
                 else
@@ -170,7 +217,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        UpdateProperty();
+                        var command = new UpdateStepPropertyCommand<string, string>()
+                        {
+                            StepId = Id,
+                            OldValue = oldValue ?? "",
+                            NewValue = newValue,
+                            Collection = Collection,
+                            StepPropertySelector = step => step.Item,
+                            StepModelPropertySelector = model => model.Item,
+                            StepPropertyTransformer = str => str
+                        };
+                        command.Commit();
+                        _commandStack.Push(command);
                     }
                 }
             }
@@ -185,8 +243,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         private string _orientation = "";
 
-        partial void OnOrientationChanging(string value) => UpdateCache();
-
         partial void OnOrientationChanged(string? oldValue, string newValue)
         {
             if (!_loaded) return;
@@ -200,7 +256,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    UpdateProperty();
+                    var command = new UpdateStepPropertyCommand<string, OrientationType?>()
+                    {
+                        StepId = Id,
+                        OldValue = oldValue ?? "",
+                        NewValue = newValue,
+                        Collection = Collection,
+                        StepPropertySelector = step => step.Orientation,
+                        StepModelPropertySelector = model => model.Orientation,
+                        StepPropertyTransformer = str => OrientationTypeExtensions.FromString(str)
+                    };
+                    command.Commit();
+                    _commandStack.Push(command);
                 }
             }
             else if (Type.ContainFlag(ParameterFlag.Inventory))
@@ -211,7 +278,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    UpdateProperty();
+                    var command = new UpdateStepPropertyCommand<string, InventoryType?>()
+                    {
+                        StepId = Id,
+                        OldValue = oldValue ?? "",
+                        NewValue = newValue,
+                        Collection = Collection,
+                        StepPropertySelector = step => step.Inventory,
+                        StepModelPropertySelector = model => model.Orientation,
+                        StepPropertyTransformer = str => InventoryTypeExtensions.FromString(str)
+                    };
+                    command.Commit();
+                    _commandStack.Push(command);
                 }
             }
             else if (Type.ContainFlag(ParameterFlag.Priority))
@@ -222,7 +300,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    UpdateProperty();
+                    var command = new UpdateStepPropertyCommand<string, Priority?>()
+                    {
+                        StepId = Id,
+                        OldValue = oldValue ?? "",
+                        NewValue = newValue,
+                        Collection = Collection,
+                        StepPropertySelector = step => step.Priority,
+                        StepModelPropertySelector = model => model.Orientation,
+                        StepPropertyTransformer = str => Priority.FromString(str)
+                    };
+                    command.Commit();
+                    _commandStack.Push(command);
                 }
             }
             else
@@ -234,8 +323,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         [ObservableProperty]
         private string _modifier = "";
-
-        partial void OnModifierChanging(string value) => UpdateCache();
 
         partial void OnModifierChanged(string? oldValue, string newValue)
         {
@@ -265,7 +352,18 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        UpdateProperty();
+                        var command = new UpdateStepPropertyCommand<string, ModifierType?>()
+                        {
+                            StepId = Id,
+                            OldValue = oldValue ?? "",
+                            NewValue = newValue,
+                            Collection = Collection,
+                            StepPropertySelector = step => step.Modifier,
+                            StepModelPropertySelector = model => model.Modifier,
+                            StepPropertyTransformer = str => ModifierTypeExtensions.FromString(str)
+                        };
+                        command.Commit();
+                        _commandStack.Push(command);
                     }
                 }
             }
@@ -279,23 +377,59 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         private string _color = "";
 
-        partial void OnColorChanging(string value) => UpdateCache();
-
-        partial void OnColorChanged(string? oldValue, string newValue) => UpdateProperty();
+        partial void OnColorChanged(string? oldValue, string newValue)
+        {
+            var command = new UpdateStepPropertyCommand<string, string>()
+            {
+                StepId = Id,
+                OldValue = oldValue ?? "",
+                NewValue = newValue,
+                Collection = Collection,
+                StepPropertySelector = step => step.Color,
+                StepModelPropertySelector = model => model.Color,
+                StepPropertyTransformer = str => str
+            };
+            command.Commit();
+            _commandStack.Push(command);
+        }
 
         [ObservableProperty]
         private string _comment = "";
 
-        partial void OnCommentChanging(string value) => UpdateCache();
-
-        partial void OnCommentChanged(string? oldValue, string newValue) => UpdateProperty();
+        partial void OnCommentChanged(string? oldValue, string newValue)
+        {
+            var command = new UpdateStepPropertyCommand<string, string>()
+            {
+                StepId = Id,
+                OldValue = oldValue ?? "",
+                NewValue = newValue,
+                Collection = Collection,
+                StepPropertySelector = step => step.Comment,
+                StepModelPropertySelector = model => model.Comment,
+                StepPropertyTransformer = str => str
+            };
+            command.Commit();
+            _commandStack.Push(command);
+        }
 
         [ObservableProperty]
         private bool _isSkip;
 
-        partial void OnIsSkipChanging(bool value) => UpdateCache();
-
-        partial void OnIsSkipChanged(bool oldValue, bool newValue) => UpdateProperty();
+        partial void OnIsSkipChanged(bool oldValue, bool newValue)
+        {
+            var command = new UpdateStepPropertyCommand<bool, bool>()
+            {
+                StepId = Id,
+                OldValue = oldValue,
+                NewValue = newValue,
+                Collection = Collection,
+                StepPropertySelector = step => step.IsSkip,
+                StepModelPropertySelector = model => model.IsSkip,
+                StepPropertyTransformer = str => str
+            };
+            command.Commit();
+            _commandStack.Push(command);
+        }
 
         public Step ToEntity()
         {
@@ -414,29 +548,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             IsSkip = step.IsSkip;
 
             _loaded = true;
-        }
-
-        private void UpdateCache()
-        {
-            if (!_loaded) return;
-            if (_lock) return;
-            _cached = ToEntity();
-        }
-
-        private void UpdateProperty()
-        {
-            if (_cached is null) return;
-
-            var newStep = ToEntity();
-            var command = new UpdateStepPropertyCommand
-            {
-                Collection = Collection,
-                OldSteps = _cached,
-                NewSteps = newStep
-            };
-            command.Commit();
-            _commandStack.Push(command);
-            _cached = null;
         }
     }
 }

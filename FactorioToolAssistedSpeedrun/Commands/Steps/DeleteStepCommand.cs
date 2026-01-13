@@ -2,14 +2,12 @@
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
     public class DeleteStepCommand : UndoCommand
     {
-        public required string Name { get; init; }
         public required List<Step> Steps { get; init; }
 
         protected override void DatabaseCommit(ProjectDbContext context)
@@ -67,7 +65,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             }
             foreach (var step in Steps.OrderByDescending(x => x.Location))
             {
-                var model = new StepModel() { Collection = collection };
+                var model = new StepModel();
                 model.FromEntity(step);
                 collection.Insert(minLocation - 1, model);
             }

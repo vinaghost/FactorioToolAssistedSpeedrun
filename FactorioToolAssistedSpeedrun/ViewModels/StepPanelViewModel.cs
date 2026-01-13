@@ -1,12 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
-using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
-using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,64 +14,33 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private readonly CommandStack _commandStack;
         private readonly StartupService _startupService;
         private readonly StepService _stepService;
+        private readonly PanelService _panelService;
+
+        public PanelService PanelService => _panelService;
+        public StartupService StartupService => _startupService;
 
         public StepPanelViewModel()
         {
             _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
             _startupService = App.Current.Services.GetRequiredService<StartupService>();
             _stepService = App.Current.Services.GetRequiredService<StepService>();
+            _panelService = App.Current.Services.GetRequiredService<PanelService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepPanelViewModel(CommandStack commandStack, StartupService startupService, StepService stepService)
+        public StepPanelViewModel(CommandStack commandStack, StartupService startupService, StepService stepService, PanelService panelService)
         {
             _commandStack = commandStack;
             _startupService = startupService;
             _stepService = stepService;
-
-            _startupService.OnProjectDataLoaded += OnProjectDataLoaded;
-            _startupService.OnGameDataLoaded += OnGameDataLoaded;
+            _panelService = panelService;
         }
-
-        private void OnGameDataLoaded()
-        {
-            ItemCollection.Clear();
-
-            ItemCollection.AddRange(_startupService.GameData!.Items.Select(x => x.Key));
-            ItemCollection.AddRange(_startupService.GameData!.Recipes.Select(x => x.Key));
-            ItemCollection.AddRange(_startupService.GameData!.Technologies.Select(x => x.Key));
-        }
-
-        private void OnProjectDataLoaded()
-        {
-            var getStepsQuery = new GetStepsQuery
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Name = "",
-            };
-            var result = getStepsQuery.Execute();
-            App.Current.Dispatcher.Invoke(() => LoadSteps(result));
-        }
-
-        [ObservableProperty]
-        private StepModel? _selectedItem;
-
-        [ObservableProperty]
-        private int _selectedIndex;
-
-        public ObservableCollection<StepModel> StepCollection { get; set; } = [];
-        public List<string> ItemCollection { get; set; } = [];
-
-        public Action? StepsChangeStarted;
-
-        public Action? StepsChangeCompleted;
-        public Action? ScrollToSelected;
 
         [RelayCommand]
         public async Task MouseRightButtonUp(DataGridRow row)
         {
             var index = row.GetIndex();
-            var step = StepCollection[index];
+            var step = _panelService.StepCollection[index];
             _stepService.FromStep(step);
         }
 
@@ -82,18 +48,17 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public async Task Add(bool rightClick)
         {
             var step = _stepService.ToStep();
-            var index = rightClick ? SelectedIndex + 1 : SelectedIndex;
+            var index = rightClick ? PanelService.SelectedStepIndex + 1 : PanelService.SelectedStepIndex;
             step.Location = index + 1;
             var command = new AddStepCommand
             {
                 Name = "",
-                Collection = StepCollection,
                 Steps = [step],
             };
             command.Commit();
             _commandStack.Push(command);
 
-            SelectedIndex = index;
+            PanelService.SelectedStepIndex = index;
         }
 
         [RelayCommand]
@@ -106,7 +71,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var command = new DeleteStepCommand
             {
                 Name = "",
-                Collection = StepCollection,
                 Steps = [.. items.Select(x => x.ToEntity())],
             };
             command.Commit();
@@ -121,7 +85,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var command = new MoveStepCommand
             {
                 Name = "",
-                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = -1,
             };
@@ -136,7 +99,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var command = new MoveStepCommand
             {
                 Name = "",
-                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = -5,
             };
@@ -151,7 +113,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var command = new MoveStepCommand
             {
                 Name = "",
-                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = 1,
             };
@@ -166,50 +127,11 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var command = new MoveStepCommand
             {
                 Name = "",
-                Collection = StepCollection,
                 StepIds = [.. items.Select(x => x.Id)],
                 MoveOffset = 5,
             };
             command.Commit();
             _commandStack.Push(command);
-        }
-
-        private void LoadSteps(List<Step> steps)
-        {
-            StepsChangeStarted?.Invoke();
-
-            if (steps.Count < StepCollection.Count)
-            {
-                for (int i = 0; i < steps.Count; i++)
-                {
-                    StepCollection[i].FromEntity(steps[i]);
-                }
-                while (StepCollection.Count > steps.Count)
-                {
-                    StepCollection.RemoveAt(StepCollection.Count - 1);
-                }
-            }
-            else if (steps.Count > StepCollection.Count)
-            {
-                for (int i = 0; i < StepCollection.Count; i++)
-                {
-                    StepCollection[i].FromEntity(steps[i]);
-                }
-                for (int i = StepCollection.Count; i < steps.Count; i++)
-                {
-                    StepModel model = new() { Collection = StepCollection };
-                    model.FromEntity(steps[i]);
-                    StepCollection.Add(model);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < steps.Count; i++)
-                {
-                    StepCollection[i].FromEntity(steps[i]);
-                }
-            }
-            StepsChangeCompleted?.Invoke();
         }
     }
 }

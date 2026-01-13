@@ -4,7 +4,6 @@ using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Formats.Asn1;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -87,7 +86,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var currentStepModel = Collection.FirstOrDefault(s => s.Id == StepId);
+            var currentStepModel = collection.FirstOrDefault(s => s.Id == StepId);
             if (currentStepModel is null) return;
             var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
             setter(currentStepModel, OldValue);

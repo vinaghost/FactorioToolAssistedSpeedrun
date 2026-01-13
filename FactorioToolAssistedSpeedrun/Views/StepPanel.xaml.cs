@@ -1,4 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.ViewModels;
+﻿using FactorioToolAssistedSpeedrun.Services;
+using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Controls;
@@ -49,11 +50,11 @@ namespace FactorioToolAssistedSpeedrun.Views
         {
             if (sender is not StepPanel panel)
                 return;
-            if (panel.DataContext is not StepPanelViewModel vm)
-                return;
-            vm.StepsChangeStarted = Steps.BeginInit;
-            vm.StepsChangeCompleted = Steps.EndInit;
-            vm.ScrollToSelected = ScrollToSelected;
+
+            //vm.StepsChangeStarted = Steps.BeginInit;
+            //vm.StepsChangeCompleted = Steps.EndInit;
+            var panelService = App.Current.Services.GetRequiredService<PanelService>();
+            panelService.ScrollToSelectedStep = ScrollToSelected;
 
             _scrollViewer = GetScrollViewer(Steps);
         }

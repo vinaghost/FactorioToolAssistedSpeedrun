@@ -24,6 +24,7 @@ namespace FactorioToolAssistedSpeedrun
             var services = new ServiceCollection();
             services.AddSingleton<StartupService>();
             services.AddSingleton<StepService>();
+            services.AddSingleton<PanelService>();
             services.AddSingleton<LoadingService>();
 
             services.AddSingleton<CommandStack>();

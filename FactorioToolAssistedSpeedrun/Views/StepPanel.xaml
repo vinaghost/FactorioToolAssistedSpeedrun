@@ -106,15 +106,15 @@
             CanUserResizeRows="False"
             CanUserSortColumns="False"
             EnableRowVirtualization="True"
-            ItemsSource="{Binding StepCollection, Mode=OneWay}"
+            ItemsSource="{Binding PanelService.StepCollection, Mode=OneWay}"
             ScrollViewer.IsDeferredScrollingEnabled="True"
-            SelectedIndex="{Binding SelectedIndex}"
-            SelectedItem="{Binding SelectedItem}"
+            SelectedIndex="{Binding PanelService.SelectedStepIndex}"
+            SelectedItem="{Binding PanelService.SelectedStep}"
             SelectionMode="Extended"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">
             <DataGrid.Resources>
-                <misc:BindingProxy x:Key="proxy" Data="{Binding ItemCollection}" />
+                <misc:BindingProxy x:Key="proxy" Data="{Binding StartupService.ItemsCollection, Mode=OneWay}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn

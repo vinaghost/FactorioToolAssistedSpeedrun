@@ -5,8 +5,6 @@ using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
-using System.Security;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
@@ -14,7 +12,6 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
     {
         private readonly CommandStack _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
         private readonly StartupService _startupService = App.Current.Services.GetRequiredService<StartupService>();
-        public required ObservableCollection<StepModel> Collection { get; init; }
         public Guid Id { get; private set; } = Guid.NewGuid();
         public string Name { get; private set; } = "";
         private bool _loaded = false;
@@ -45,9 +42,9 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     var command = new UpdateStepPropertyCommand<string, double>()
                     {
                         StepId = Id,
+                        Name = Name,
                         OldValue = oldValue ?? "",
                         NewValue = newValue,
-                        Collection = Collection,
                         StepPropertySelector = step => step.X,
                         StepModelPropertySelector = model => model.X,
                         StepPropertyTransformer = str => double.Parse(str)
@@ -86,7 +83,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                         StepId = Id,
                         OldValue = oldValue ?? "",
                         NewValue = newValue,
-                        Collection = Collection,
+                        Name = Name,
                         StepPropertySelector = step => step.Y,
                         StepModelPropertySelector = model => model.Y,
                         StepPropertyTransformer = str => double.Parse(str)
@@ -135,7 +132,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                             StepId = Id,
                             OldValue = oldValue ?? "",
                             NewValue = newValue,
-                            Collection = Collection,
+                            Name = Name,
                             StepPropertySelector = step => step.Amount,
                             StepModelPropertySelector = model => model.Amount,
                             StepPropertyTransformer = str => int.Parse(str)
@@ -178,7 +175,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                             StepId = Id,
                             OldValue = oldValue ?? "",
                             NewValue = newValue,
-                            Collection = Collection,
+                            Name = Name,
                             StepPropertySelector = step => step.Item,
                             StepModelPropertySelector = model => model.Item,
                             StepPropertyTransformer = str => str
@@ -200,7 +197,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                             StepId = Id,
                             OldValue = oldValue ?? "",
                             NewValue = newValue,
-                            Collection = Collection,
+                            Name = Name,
                             StepPropertySelector = step => step.Item,
                             StepModelPropertySelector = model => model.Item,
                             StepPropertyTransformer = str => str
@@ -222,7 +219,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                             StepId = Id,
                             OldValue = oldValue ?? "",
                             NewValue = newValue,
-                            Collection = Collection,
+                            Name = Name,
                             StepPropertySelector = step => step.Item,
                             StepModelPropertySelector = model => model.Item,
                             StepPropertyTransformer = str => str
@@ -261,7 +258,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                         StepId = Id,
                         OldValue = oldValue ?? "",
                         NewValue = newValue,
-                        Collection = Collection,
+                        Name = Name,
                         StepPropertySelector = step => step.Orientation,
                         StepModelPropertySelector = model => model.Orientation,
                         StepPropertyTransformer = str => OrientationTypeExtensions.FromString(str)
@@ -283,7 +280,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                         StepId = Id,
                         OldValue = oldValue ?? "",
                         NewValue = newValue,
-                        Collection = Collection,
+                        Name = Name,
                         StepPropertySelector = step => step.Inventory,
                         StepModelPropertySelector = model => model.Orientation,
                         StepPropertyTransformer = str => InventoryTypeExtensions.FromString(str)
@@ -305,7 +302,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                         StepId = Id,
                         OldValue = oldValue ?? "",
                         NewValue = newValue,
-                        Collection = Collection,
+                        Name = Name,
                         StepPropertySelector = step => step.Priority,
                         StepModelPropertySelector = model => model.Orientation,
                         StepPropertyTransformer = str => Priority.FromString(str)
@@ -357,7 +354,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                             StepId = Id,
                             OldValue = oldValue ?? "",
                             NewValue = newValue,
-                            Collection = Collection,
+                            Name = Name,
                             StepPropertySelector = step => step.Modifier,
                             StepModelPropertySelector = model => model.Modifier,
                             StepPropertyTransformer = str => ModifierTypeExtensions.FromString(str)
@@ -384,7 +381,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 StepId = Id,
                 OldValue = oldValue ?? "",
                 NewValue = newValue,
-                Collection = Collection,
+                Name = Name,
                 StepPropertySelector = step => step.Color,
                 StepModelPropertySelector = model => model.Color,
                 StepPropertyTransformer = str => str
@@ -403,7 +400,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 StepId = Id,
                 OldValue = oldValue ?? "",
                 NewValue = newValue,
-                Collection = Collection,
+                Name = Name,
                 StepPropertySelector = step => step.Comment,
                 StepModelPropertySelector = model => model.Comment,
                 StepPropertyTransformer = str => str
@@ -422,7 +419,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 StepId = Id,
                 OldValue = oldValue,
                 NewValue = newValue,
-                Collection = Collection,
+                Name = Name,
                 StepPropertySelector = step => step.IsSkip,
                 StepModelPropertySelector = model => model.IsSkip,
                 StepPropertyTransformer = str => str

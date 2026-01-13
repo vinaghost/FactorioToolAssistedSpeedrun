@@ -8,7 +8,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
     public abstract class UndoCommand : IUndoCommand
     {
-        public required ObservableCollection<StepModel> Collection { get; init; }
+        public required string Name { get; init; }
 
         protected abstract void DatabaseCommit(ProjectDbContext context);
 
@@ -26,7 +26,18 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 DatabaseCommit(context);
             }
 
-            UICommit(Collection);
+            var panelService = App.Current.Services.GetRequiredService<PanelService>();
+            if (Name == "")
+            {
+                UICommit(panelService.StepCollection);
+            }
+            else
+            {
+                if (Name == panelService.SelectedTemplate)
+                {
+                    UICommit(panelService.TemplateStepCollection);
+                }
+            }
         }
 
         protected abstract void DatabaseRollback(ProjectDbContext context);
@@ -45,7 +56,18 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 DatabaseRollback(context);
             }
 
-            UIRollback(Collection);
+            var panelService = App.Current.Services.GetRequiredService<PanelService>();
+            if (Name == "")
+            {
+                UIRollback(panelService.StepCollection);
+            }
+            else
+            {
+                if (Name == panelService.SelectedTemplate)
+                {
+                    UIRollback(panelService.TemplateStepCollection);
+                }
+            }
         }
     }
 }

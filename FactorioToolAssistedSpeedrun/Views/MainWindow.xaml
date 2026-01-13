@@ -47,7 +47,7 @@
         <KeyBinding
             Key="G"
             Command="{Binding ElementName=MenuBar, Path=DataContext.GenerateScriptCommand}"
-            Modifiers="Control" />
+            Modifiers="Alt" />
     </Window.InputBindings>
     <Grid>
         <Grid x:Name="LayoutRoot">

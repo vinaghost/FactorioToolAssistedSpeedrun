@@ -11,6 +11,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     {
         private readonly StartupService _startupService;
         private readonly LoadingService _loadingService;
+        private readonly PanelService _panelService;
         public StartupService StartupService => _startupService;
         public LoadingService LoadingService => _loadingService;
 
@@ -23,15 +24,17 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
             _dialogViewModel = App.Current.Services.GetRequiredService<DialogViewModel>();
             _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
+            _panelService = App.Current.Services.GetRequiredService<PanelService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(CommandStack commandStack, DialogViewModel dialogViewModel, StartupService startupService, LoadingService loadingService)
+        public MainViewModel(CommandStack commandStack, DialogViewModel dialogViewModel, StartupService startupService, LoadingService loadingService, PanelService panelService)
         {
             _commandStack = commandStack;
             _dialogViewModel = dialogViewModel;
             _startupService = startupService;
             _loadingService = loadingService;
+            _panelService = panelService;
         }
 
         [RelayCommand]
@@ -40,7 +43,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (dataContext is not StepPanelViewModel StepPanelViewModel) return;
 
             _dialogViewModel.MinLine = 1;
-            _dialogViewModel.MaxLine = StepPanelViewModel.StepCollection.Count;
+            _dialogViewModel.MaxLine = _panelService.StepCollection.Count;
 
             var dialog = new Views.Dialog
             {
@@ -48,19 +51,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 Owner = Application.Current.MainWindow
             };
 
-            if (dialog.ShowDialog() == true)
-            {
-                var line = _dialogViewModel.Line;
-                if (line > 0 && line < StepPanelViewModel.StepCollection.Count - 1)
-                {
-                    var center = Math.Min(StepPanelViewModel.StepCollection.Count - 1, line + 20);
-
-                    StepPanelViewModel.SelectedItem = StepPanelViewModel.StepCollection[center];
-                    StepPanelViewModel.ScrollToSelected?.Invoke();
-                    if (center != line - 1)
-                        StepPanelViewModel.SelectedItem = StepPanelViewModel.StepCollection[line - 1];
-                }
-            }
+            if (dialog.ShowDialog() != true)
+                return;
+            var line = _dialogViewModel.Line;
+            _panelService.ScrollTo(line);
         }
 
         [RelayCommand]

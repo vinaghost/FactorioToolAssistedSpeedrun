@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FactorioToolAssistedSpeedrun.Models.Game;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 
@@ -12,6 +13,8 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         [ObservableProperty]
         private string _projectName = "Not loaded";
+
+        public ObservableCollection<string> ItemsCollection { get; set; } = [];
 
         public GameData? GameData { get; private set; }
         public string ProjectDataFile { get; private set; } = "";
@@ -35,6 +38,17 @@ namespace FactorioToolAssistedSpeedrun.Services
             GameData = JsonSerializer.Deserialize<GameData>(fileContent);
 
             App.Current.Dispatcher.Invoke(() => Version = Path.GetFileNameWithoutExtension(gameDataFile));
+
+            ItemsCollection.Clear();
+
+            var items = GameData!.Items.Select(x => x.Key)
+                .Concat(GameData!.Recipes.Select(x => x.Key))
+                .Concat(GameData!.Technologies.Select(x => x.Key));
+
+            foreach (var item in items)
+            {
+                ItemsCollection.Add(item);
+            }
 
             IsGameDataLoaded = true;
             OnGameDataLoaded?.Invoke();

@@ -7,7 +7,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
     public class MoveStepCommand : UndoCommand
     {
-        public required string Name { get; init; }
         public required List<Guid> StepIds { get; init; }
 
         public required int MoveOffset { get; init; }

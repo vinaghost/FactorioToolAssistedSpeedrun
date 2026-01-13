@@ -77,23 +77,21 @@
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition MinWidth="100" />
                     <ColumnDefinition Width="6*" />
                 </Grid.ColumnDefinitions>
-                <TabControl Grid.Column="0">
-                    <TabItem Header="Imports">
-                        <views:ImportTab />
-                    </TabItem>
-                    <TabItem Header="Templates">
-                        <views:TemplatesTab />
-                    </TabItem>
-                </TabControl>
+                <views:TemplatePanel Grid.Column="0" />
 
-                <GridSplitter
+                <StackPanel Grid.Column="1" Margin="5">
+                    <Button Margin="0,80,0,0" Content="←" />
+                    <Button Margin="0,5,0,0" Content="→" />
+                    <Button Margin="0,5,0,0" Content="Import string" />
+                </StackPanel>
+                <!--<GridSplitter
                     Grid.Column="1"
                     Width="5"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Stretch" />
+                    VerticalAlignment="Stretch" />-->
 
                 <views:StepPanel x:Name="StepPanel" Grid.Column="2" />
             </Grid>

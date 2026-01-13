@@ -9,7 +9,7 @@ using System.Windows.Controls;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {
-    public partial class TemplatesTabViewModel : ObservableObject
+    public partial class TemplatePanelViewModel : ObservableObject
     {
         private readonly CommandStack _commandStack;
         private readonly StartupService _startupService;
@@ -18,7 +18,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public PanelService PanelService => _panelService;
         public StartupService StartupService => _startupService;
 
-        public TemplatesTabViewModel()
+        public TemplatePanelViewModel()
         {
             _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
             _startupService = App.Current.Services.GetRequiredService<StartupService>();
@@ -27,7 +27,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [ActivatorUtilitiesConstructor]
-        public TemplatesTabViewModel(CommandStack commandStack, StartupService startupService, StepService stepService, PanelService panelService)
+        public TemplatePanelViewModel(CommandStack commandStack, StartupService startupService, StepService stepService, PanelService panelService)
         {
             _commandStack = commandStack;
             _startupService = startupService;
@@ -94,7 +94,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
-        public async Task Delete(System.Collections.IList selectedItems)
+        public async Task Remove(System.Collections.IList selectedItems)
         {
             if (string.IsNullOrEmpty(_panelService.SelectedTemplate))
             {

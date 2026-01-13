@@ -5,14 +5,14 @@ using System.Windows.Controls;
 namespace FactorioToolAssistedSpeedrun.Views
 {
     /// <summary>
-    /// Interaction logic for TemplatesTab.xaml
+    /// Interaction logic for TemplatePanel.xaml
     /// </summary>
-    public partial class TemplatesTab : UserControl
+    public partial class TemplatePanel : UserControl
     {
-        public TemplatesTab()
+        public TemplatePanel()
         {
             InitializeComponent();
-            DataContext = App.Current.Services.GetRequiredService<TemplatesTabViewModel>();
+            DataContext = App.Current.Services.GetRequiredService<TemplatePanelViewModel>();
         }
     }
 }

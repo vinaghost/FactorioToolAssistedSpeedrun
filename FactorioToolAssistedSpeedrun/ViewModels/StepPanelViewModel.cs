@@ -62,7 +62,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
-        public async Task Delete(System.Collections.IList selectedItems)
+        public async Task Remove(System.Collections.IList selectedItems)
         {
             var result = MessageBox.Show("Are you sure want to delete these steps?", "Warning", MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes) return;

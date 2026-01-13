@@ -38,7 +38,7 @@ namespace FactorioToolAssistedSpeedrun
             services.AddTransient<StepPanelViewModel>();
 
             services.AddTransient<ImportTabViewModel>();
-            services.AddTransient<TemplatesTabViewModel>();
+            services.AddTransient<TemplatePanelViewModel>();
 
             return services.BuildServiceProvider();
         }

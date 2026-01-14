@@ -47,12 +47,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
-        public async Task Load()
-        {
-            _panelService.LoadTemplateSteps();
-        }
-
-        [RelayCommand]
         public async Task New()
         {
             if (string.IsNullOrWhiteSpace(InputTemplate))

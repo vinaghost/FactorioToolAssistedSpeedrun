@@ -3,6 +3,7 @@ using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
@@ -43,6 +44,8 @@ namespace FactorioToolAssistedSpeedrun.Services
                 if (TemplateCollection.Count > 0)
                     SelectedTemplate = TemplateCollection[0];
             });
+
+            LoadTemplateSteps();
         }
 
         partial void OnSelectedTemplateChanged(string? value)
@@ -100,7 +103,7 @@ namespace FactorioToolAssistedSpeedrun.Services
 
             if (!_startupService.IsProjectDataLoaded || string.IsNullOrEmpty(templateName))
             {
-                LoadSteps([], true);
+                App.Current.Dispatcher.Invoke(() => LoadSteps([], true));
                 return;
             }
 
@@ -111,7 +114,8 @@ namespace FactorioToolAssistedSpeedrun.Services
             };
 
             var steps = getStepsQuery.Execute();
-            LoadSteps(steps, true);
+
+            App.Current.Dispatcher.Invoke(() => LoadSteps(steps, true));
         }
 
         public void LoadSteps(List<Step> steps, bool template = false)

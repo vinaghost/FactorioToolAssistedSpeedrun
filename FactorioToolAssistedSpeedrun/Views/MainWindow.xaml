@@ -80,19 +80,21 @@
                     <ColumnDefinition MinWidth="100" />
                     <ColumnDefinition Width="6*" />
                 </Grid.ColumnDefinitions>
-                <views:TemplatePanel Grid.Column="0" />
+                <views:TemplatePanel x:Name="TemplatePanel" Grid.Column="0" />
 
                 <StackPanel Grid.Column="1" Margin="5">
-                    <Button Margin="0,80,0,0" Content="←" />
-                    <Button Margin="0,5,0,0" Content="→" />
+                    <Button
+                        Margin="0,80,0,0"
+                        Command="{Binding ToTemplatePanelCommand}"
+                        CommandParameter="{Binding ElementName=StepPanel, Path=SelectedItems}"
+                        Content="←" />
+                    <Button
+                        Margin="0,5,0,0"
+                        Command="{Binding ToStepPanelCommand}"
+                        CommandParameter="{Binding ElementName=TemplatePanel, Path=SelectedItems}"
+                        Content="→" />
                     <Button Margin="0,5,0,0" Content="Import string" />
                 </StackPanel>
-                <!--<GridSplitter
-                    Grid.Column="1"
-                    Width="5"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Stretch" />-->
-
                 <views:StepPanel x:Name="StepPanel" Grid.Column="2" />
             </Grid>
         </Grid>

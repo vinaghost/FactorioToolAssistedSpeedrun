@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    internal class AddStepCommand : UndoCommand
+    public class AddStepCommand : UndoCommand
     {
         public required List<Step> Steps { get; init; }
 

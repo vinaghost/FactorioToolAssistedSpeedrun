@@ -48,15 +48,38 @@ namespace FactorioToolAssistedSpeedrun.Views
 
         private void LoadHandler(object sender, RoutedEventArgs e)
         {
-            if (sender is not StepPanel panel)
-                return;
-
             //vm.StepsChangeStarted = Steps.BeginInit;
             //vm.StepsChangeCompleted = Steps.EndInit;
             var panelService = App.Current.Services.GetRequiredService<PanelService>();
             panelService.ScrollToSelectedStep = ScrollToSelected;
 
             _scrollViewer = GetScrollViewer(Steps);
+
+            Steps.SelectionChanged += Steps_SelectionChanged;
+            SelectedItems = Steps.SelectedItems;
+        }
+
+        // Dependency Property for SelectedItems
+        public static readonly DependencyProperty SelectedItemsProperty =
+            DependencyProperty.Register(
+                nameof(SelectedItems),
+                typeof(System.Collections.IList),
+                typeof(StepPanel),
+                new PropertyMetadata(null));
+
+        public System.Collections.IList SelectedItems
+        {
+            get => (System.Collections.IList)GetValue(SelectedItemsProperty);
+            set => SetValue(SelectedItemsProperty, value);
+        }
+
+        private void Steps_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is DataGrid grid)
+            {
+                // Update the dependency property when selection changes
+                SelectedItems = grid.SelectedItems;
+            }
         }
     }
 }

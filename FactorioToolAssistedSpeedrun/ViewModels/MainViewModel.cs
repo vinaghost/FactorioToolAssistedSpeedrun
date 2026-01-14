@@ -1,5 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FactorioToolAssistedSpeedrun.Commands.Steps;
+using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -97,6 +100,73 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
 
             LoadingService.Hide();
+        }
+
+        [RelayCommand]
+        private void ToTemplatePanel(System.Collections.IList selectedItems)
+        {
+            if (selectedItems.Count == 0)
+            {
+                MessageBox.Show("Please select at least one step.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (string.IsNullOrEmpty(_panelService.SelectedTemplate))
+            {
+                MessageBox.Show("Please select a template first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            var items = selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location).ToList();
+            var index = _panelService.SelectedTemplateStepIndex + 1;
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                item.Id = Guid.NewGuid();
+                item.Location = index + i;
+                item.Name = _panelService.SelectedTemplate;
+            }
+
+            var command = new AddStepCommand
+            {
+                Name = _panelService.SelectedTemplate,
+                Steps = items,
+            };
+            command.Commit();
+            _commandStack.Push(command);
+        }
+
+        [RelayCommand]
+        private void ToStepPanel(System.Collections.IList selectedItems)
+        {
+            if (string.IsNullOrEmpty(_panelService.SelectedTemplate))
+            {
+                MessageBox.Show("Please select a template first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            List<Step> items;
+            if (selectedItems.Count == 0)
+            {
+                items = [.. _panelService.TemplateStepCollection.Select(x => x.ToEntity()).OrderBy(x => x.Location)];
+            }
+            else
+            {
+                items = [.. selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location)];
+            }
+            var index = _panelService.SelectedStepIndex + 1;
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                item.Id = Guid.NewGuid();
+                item.Location = index + i;
+                item.Name = "";
+            }
+
+            var command = new AddStepCommand
+            {
+                Name = "",
+                Steps = items,
+            };
+            command.Commit();
+            _commandStack.Push(command);
         }
     }
 }

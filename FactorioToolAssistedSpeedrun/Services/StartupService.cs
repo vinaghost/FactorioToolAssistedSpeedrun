@@ -63,8 +63,8 @@ namespace FactorioToolAssistedSpeedrun.Services
 
             ProjectDataFile = projectDataFile;
             App.Current.Dispatcher.Invoke(() => ProjectName = Path.GetFileNameWithoutExtension(projectDataFile));
-            OnProjectDataLoaded?.Invoke();
             IsProjectDataLoaded = true;
+            OnProjectDataLoaded?.Invoke();
         }
     }
 }

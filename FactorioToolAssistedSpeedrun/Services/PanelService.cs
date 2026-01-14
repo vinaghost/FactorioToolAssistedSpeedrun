@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
 using System.Collections.ObjectModel;
-using System.Windows.Threading;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
@@ -44,8 +44,6 @@ namespace FactorioToolAssistedSpeedrun.Services
                 if (TemplateCollection.Count > 0)
                     SelectedTemplate = TemplateCollection[0];
             });
-
-            LoadTemplateSteps();
         }
 
         partial void OnSelectedTemplateChanged(string? value)
@@ -73,6 +71,40 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         [ObservableProperty]
         private string? _selectedTemplate;
+
+        [ObservableProperty]
+        private int _x;
+
+        [ObservableProperty]
+        private int _y;
+
+        [ObservableProperty]
+        private int _offset;
+
+        [ObservableProperty]
+        private int _multipler = 1;
+
+        partial void OnMultiplerChanged(int value)
+        {
+            if (value < 1)
+            {
+                Multipler = 1;
+            }
+        }
+
+        [ObservableProperty]
+        private int _iterator;
+
+        [ObservableProperty]
+        private TemplateDirectionType _templateDirection;
+
+        public ObservableCollection<TemplateDirectionType> TemplateDirections { get; set; } =
+        [
+            TemplateDirectionType.Normal,
+            TemplateDirectionType.Left,
+            TemplateDirectionType.Reverse,
+            TemplateDirectionType.Right,
+        ];
 
         public Action? StepsChangeStarted;
         public Action? StepsChangeCompleted;
@@ -153,6 +185,61 @@ namespace FactorioToolAssistedSpeedrun.Services
                     collection[i].FromEntity(steps[i]);
                 }
             }
+        }
+
+        public void ApplyTemplateModifier(List<Step> steps)
+        {
+            if (Iterator == 0)
+            {
+                Iterator = 1;
+            }
+
+            var xOffset = X * Iterator;
+            var yOffset = Y * Iterator;
+
+            foreach (var step in steps)
+            {
+                if (step.Type.ContainFlag(ParameterFlag.Amount))
+                {
+                    step.Amount = step.Amount * Multipler + Offset;
+                }
+                if (step.Type.ContainFlag(ParameterFlag.Point))
+                {
+                    var (newX, newY) = Transform(step.X + xOffset, step.Y + yOffset, TemplateDirection);
+                    step.X = newX;
+                    step.Y = newY;
+                }
+
+                if (step.Type.ContainFlag(ParameterFlag.Orientation) && step.Orientation.HasValue)
+                {
+                    step.Orientation = Transform(step.Orientation.Value, TemplateDirection);
+                }
+            }
+            Iterator++;
+        }
+
+        public static (double x, double y) Transform(double x, double y, TemplateDirectionType dir)
+        {
+            return dir switch
+            {
+                TemplateDirectionType.Normal => (x, y),
+                TemplateDirectionType.Left => (y, -x),
+                TemplateDirectionType.Reverse => (-x, -y),
+                TemplateDirectionType.Right => (-y, x),
+                _ => (x, y),
+            };
+        }
+
+        public static OrientationType Transform(OrientationType o, TemplateDirectionType dir)
+        {
+            return dir switch
+            {
+                TemplateDirectionType.Normal => o,
+                TemplateDirectionType.Left => (OrientationType)(((int)o + 3) % 4),
+                TemplateDirectionType.Reverse => (OrientationType)(((int)o + 2) % 4),
+                TemplateDirectionType.Right => (OrientationType)(((int)o + 1) % 4),
+                _ => o,
+            };
         }
     }
 }

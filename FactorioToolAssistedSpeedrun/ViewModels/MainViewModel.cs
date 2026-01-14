@@ -151,6 +151,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 items = [.. selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location)];
             }
+            _panelService.ApplyTemplateModifier(items);
             var index = _panelService.SelectedStepIndex + 1;
             for (int i = 0; i < items.Count; i++)
             {

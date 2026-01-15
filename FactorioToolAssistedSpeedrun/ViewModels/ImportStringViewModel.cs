@@ -34,7 +34,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [ObservableProperty]
-        private int _lineIndex;
+        private int _lineIndex = 1;
+
+        partial void OnLineIndexChanged(int oldValue, int newValue)
+        {
+            if (newValue < 1)
+            {
+                LineIndex = 1;
+            }
+        }
 
         [ObservableProperty]
         private string _templateName = "";
@@ -46,22 +54,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private bool _clearAfterImport = true;
 
         [RelayCommand]
-        private void CurrentStepIndex(bool right)
+        private void CurrentStepIndex()
         {
             var index = _panelService.SelectedStepIndex;
-            if (right)
-            {
-                var totalRow = _panelService.StepCollection.Count;
-                LineIndex = index - totalRow - 1;
-            }
-            else
-            {
-                LineIndex = index - 1;
-            }
+            LineIndex = index + 1;
         }
 
         [RelayCommand]
-        private void IntoStep()
+        private void IntoStep(bool right)
         {
             try
             {
@@ -75,7 +75,14 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 for (var i = 0; i < steps.Count; i++)
                 {
                     var step = steps[i];
-                    step.Location = LineIndex + i;
+                    if (right)
+                    {
+                        step.Location = LineIndex + i + 1;
+                    }
+                    else
+                    {
+                        step.Location = LineIndex + i;
+                    }
                     step.Name = "";
                 }
 
@@ -114,7 +121,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     MessageBox.Show("No steps to import.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
+                for (var i = 0; i < steps.Count; i++)
+                {
+                    var step = steps[i];
+                    step.Location = i + 1;
+                    step.Name = TemplateName;
+                }
                 var command = new AddStepCommand
                 {
                     Name = TemplateName,

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Exceptions;
@@ -8,6 +9,7 @@ using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.Views;
 using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {
@@ -15,28 +17,37 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     {
         private readonly PanelService _panelService;
         private readonly StartupService _startupService;
+        private readonly CommandStack _commandStack;
 
         public ImportStringViewModel()
         {
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
             _startupService = App.Current.Services.GetRequiredService<StartupService>();
+            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public ImportStringViewModel(PanelService panelService, StartupService startupService)
+        public ImportStringViewModel(PanelService panelService, StartupService startupService, CommandStack commandStack)
         {
             _panelService = panelService;
             _startupService = startupService;
+            _commandStack = commandStack;
         }
 
         [ObservableProperty]
         private int _lineIndex;
 
         [ObservableProperty]
+        private string _templateName = "";
+
+        [ObservableProperty]
         private string _importString = "";
 
+        [ObservableProperty]
+        private bool _clearAfterImport = true;
+
         [RelayCommand]
-        public void CurrentStepIndex(bool right)
+        private void CurrentStepIndex(bool right)
         {
             var index = _panelService.SelectedStepIndex;
             if (right)
@@ -50,16 +61,91 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
         }
 
-        public IEnumerable<Step> ExtractStep()
+        [RelayCommand]
+        private void IntoStep()
         {
-            var lines = ImportString.Split('\n');
+            try
+            {
+                var steps = ExtractStep().ToList();
+                if (steps.Count == 0)
+                {
+                    MessageBox.Show("No steps to import.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                for (var i = 0; i < steps.Count; i++)
+                {
+                    var step = steps[i];
+                    step.Location = LineIndex + i;
+                    step.Name = "";
+                }
+
+                var command = new AddStepCommand
+                {
+                    Name = "",
+                    Steps = steps,
+                };
+                command.Commit();
+                _commandStack.Push(command);
+
+                if (ClearAfterImport)
+                {
+                    ImportString = "";
+                }
+            }
+            catch (TasFileParserException ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void IntoTemplate()
+        {
+            if (_panelService.TemplateCollection.Contains(TemplateName))
+            {
+                MessageBox.Show("Template name already exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            try
+            {
+                var steps = ExtractStep().ToList();
+                if (steps.Count == 0)
+                {
+                    MessageBox.Show("No steps to import.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var command = new AddStepCommand
+                {
+                    Name = TemplateName,
+                    Steps = steps,
+                };
+                command.Commit();
+                _commandStack.Push(command);
+
+                _panelService.AddTemplate(TemplateName);
+
+                if (ClearAfterImport)
+                {
+                    ImportString = "";
+                }
+            }
+            catch (TasFileParserException ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private IEnumerable<Step> ExtractStep()
+        {
+            var lines = ImportString.Split(Environment.NewLine);
 
             foreach (var line in lines.Where(x => !string.IsNullOrWhiteSpace(x)))
             {
                 var segments = line.Split(';');
 
                 var step = ReadStep(segments);
-                step.Name = "";
                 yield return step;
             }
         }

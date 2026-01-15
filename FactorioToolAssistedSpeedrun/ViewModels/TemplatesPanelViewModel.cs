@@ -59,8 +59,23 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 MessageBox.Show("Template with the same name already exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            _panelService.TemplateCollection.Add(InputTemplate);
-            _panelService.SelectedTemplate = InputTemplate;
+            _panelService.AddTemplate(InputTemplate);
+            MessageBox.Show("Template created successfully.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        [RelayCommand]
+        public async Task Delete()
+        {
+            if (string.IsNullOrEmpty(_panelService.SelectedTemplate))
+            {
+                MessageBox.Show("Please select a template first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            var result = MessageBox.Show($"Are you sure want to delete this template [{_panelService.SelectedTemplate}]?", "Warning", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes) return;
+
+            _panelService.RemoveTemplate(_panelService.SelectedTemplate);
+            MessageBox.Show("Template deleted successfully.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         [RelayCommand]

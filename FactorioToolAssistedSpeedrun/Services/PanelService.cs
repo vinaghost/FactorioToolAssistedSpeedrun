@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Services
@@ -150,6 +153,35 @@ namespace FactorioToolAssistedSpeedrun.Services
             App.Current.Dispatcher.Invoke(() => LoadSteps(steps, true));
         }
 
+        public void AddTemplate(string templateName)
+        {
+            if (string.IsNullOrEmpty(templateName))
+            {
+                return;
+            }
+            if (!TemplateCollection.Contains(templateName))
+            {
+                TemplateCollection.Add(templateName);
+                SelectedTemplate = templateName;
+            }
+        }
+
+        public void RemoveTemplate(string templateName)
+        {
+            if (string.IsNullOrEmpty(templateName))
+            {
+                return;
+            }
+            TemplateCollection.Remove(templateName);
+            if (SelectedTemplate == templateName)
+            {
+                SelectedTemplate = TemplateCollection.Count > 0 ? TemplateCollection[0] : null;
+            }
+
+            using var context = new ProjectDbContext(_startupService.ProjectDataFile!);
+            context.Steps.Where(x => x.Name == templateName).ExecuteDelete();
+        }
+
         public void LoadSteps(List<Step> steps, bool template = false)
         {
             var collection = template ? TemplateStepCollection : StepCollection;
@@ -218,7 +250,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             Iterator++;
         }
 
-        public static (double x, double y) Transform(double x, double y, TemplateDirectionType dir)
+        private static (double x, double y) Transform(double x, double y, TemplateDirectionType dir)
         {
             return dir switch
             {
@@ -230,7 +262,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             };
         }
 
-        public static OrientationType Transform(OrientationType o, TemplateDirectionType dir)
+        private static OrientationType Transform(OrientationType o, TemplateDirectionType dir)
         {
             return dir switch
             {

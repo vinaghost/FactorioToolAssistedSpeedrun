@@ -1,12 +1,15 @@
-﻿<UserControl
-    x:Class="FactorioToolAssistedSpeedrun.Views.ImportTab"
+﻿<Window
+    x:Class="FactorioToolAssistedSpeedrun.Views.ImportStringWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    d:DataContext="{d:DesignInstance vm:ImportTabViewModel,
+    Title="ImportString"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance vm:ImportStringViewModel,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <Grid>
@@ -26,8 +29,19 @@
             Grid.Column="0"
             Margin="2"
             Orientation="Horizontal">
-            <Button Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Content="C" />
-            <TextBox MinWidth="60" Text="13031" />
+            <Button Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Content="C">
+                <Button.InputBindings>
+                    <MouseBinding
+                        Command="{Binding CurrentStepIndexCommand}"
+                        CommandParameter="{StaticResource False}"
+                        Gesture="LeftClick" />
+                    <MouseBinding
+                        Command="{Binding CurrentStepIndexCommand}"
+                        CommandParameter="{StaticResource True}"
+                        Gesture="RightClick" />
+                </Button.InputBindings>
+            </Button>
+            <TextBox MinWidth="60" Text="{Binding LineIndex}" />
         </StackPanel>
         <Button
             Grid.Row="1"
@@ -58,4 +72,4 @@
             Grid.ColumnSpan="4"
             VerticalScrollBarVisibility="Auto" />
     </Grid>
-</UserControl>
+</Window>

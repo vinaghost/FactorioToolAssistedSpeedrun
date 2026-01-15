@@ -103,6 +103,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
+        private static void OpenImportStringWindow()
+        {
+            var importStringWindow = new Views.ImportStringWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+            importStringWindow.Show();
+        }
+
+        [RelayCommand]
         private void ToTemplatePanel(System.Collections.IList selectedItems)
         {
             if (selectedItems.Count == 0)

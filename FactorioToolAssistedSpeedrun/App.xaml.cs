@@ -31,13 +31,13 @@ namespace FactorioToolAssistedSpeedrun
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<DialogViewModel>();
+            services.AddTransient<ImportStringViewModel>();
 
             services.AddTransient<MenuBarViewModel>();
             services.AddTransient<StepTypePanelViewModel>();
             services.AddTransient<StepDetailPanelViewModel>();
             services.AddTransient<StepPanelViewModel>();
 
-            services.AddTransient<ImportTabViewModel>();
             services.AddTransient<TemplatePanelViewModel>();
 
             return services.BuildServiceProvider();

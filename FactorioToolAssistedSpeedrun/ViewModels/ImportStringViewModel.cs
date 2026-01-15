@@ -7,7 +7,6 @@ using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Services;
-using FactorioToolAssistedSpeedrun.Views;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 

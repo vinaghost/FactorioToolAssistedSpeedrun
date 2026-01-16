@@ -24,7 +24,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 // go down
                 context.Steps
                     .Where(x => x.Location > lastLocation && x.Location <= lastLocation + MoveOffset && x.Name == Name)
-                    .ExecuteUpdateAsync(setters => setters
+                    .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location - chosenSteps.Count));
             }
             else
@@ -32,13 +32,13 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 // go up
                 context.Steps
                     .Where(x => x.Location < firstLocation && x.Location >= firstLocation + MoveOffset && x.Name == Name)
-                     .ExecuteUpdateAsync(setters => setters
+                     .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location + chosenSteps.Count));
             }
 
             context.Steps
                 .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
-                .ExecuteUpdateAsync(setters => setters
+                .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.Location, b => b.Location + MoveOffset));
         }
 
@@ -49,9 +49,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 .OrderBy(x => x.Location)
                 .ToList();
             if (chosenSteps.Count == 0) return;
-            var name = chosenSteps.First().Name;
-            if (!string.IsNullOrEmpty(name) && name != Name)
-                return;
+
             var firstLocation = chosenSteps.First().Location;
             var lastLocation = chosenSteps.Last().Location;
             if (MoveOffset > 0)
@@ -116,7 +114,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 // go down
                 context.Steps
                     .Where(x => x.Location > lastLocation && x.Location <= lastLocation + rollbackOffset && x.Name == Name)
-                    .ExecuteUpdateAsync(setters => setters
+                    .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location - chosenSteps.Count));
             }
             else
@@ -124,12 +122,12 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 // go up
                 context.Steps
                     .Where(x => x.Location < firstLocation && x.Location >= firstLocation + rollbackOffset && x.Name == Name)
-                     .ExecuteUpdateAsync(setters => setters
+                     .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location + chosenSteps.Count));
             }
             context.Steps
                 .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
-                .ExecuteUpdateAsync(setters => setters
+                .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.Location, b => b.Location + rollbackOffset));
         }
 
@@ -142,9 +140,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 .ToList();
 
             if (chosenSteps.Count == 0) return;
-            var name = chosenSteps.First().Name;
-            if (!string.IsNullOrEmpty(name) && name != Name)
-                return;
 
             var firstLocation = chosenSteps.First().Location;
             var lastLocation = chosenSteps.Last().Location;

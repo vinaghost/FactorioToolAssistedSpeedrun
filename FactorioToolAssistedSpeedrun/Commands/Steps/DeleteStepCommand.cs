@@ -24,11 +24,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         protected override void UICommit(ObservableCollection<StepModel> collection)
         {
-            if (collection.Count == 0) return;
-            var name = collection.First().Name;
-            if (!string.IsNullOrEmpty(name) && name != Name)
-                return;
-
             foreach (var location in Steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
             {
                 collection.RemoveAt(location);
@@ -53,11 +48,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         protected override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            if (collection.Count == 0) return;
-            var name = collection.First().Name;
-            if (!string.IsNullOrEmpty(name) && name != Name)
-                return;
-
             var minLocation = Steps.Min(x => x.Location);
             foreach (var step in collection.Where(x => x.Location >= minLocation))
             {

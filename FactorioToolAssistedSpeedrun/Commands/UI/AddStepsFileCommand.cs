@@ -23,6 +23,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
 
             var steps = DbContext.Steps
                 .AsNoTracking()
+                .Where(s => s.Name == "")
                 .Where(s => !s.IsSkip)
                 .OrderBy(s => s.Location)
                 .ToList();
@@ -32,7 +33,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 writer.WriteLine(StepFormat(steps[i], i + 1));
             }
 
-            writer.WriteLine($"step[{steps.Count}] = {{\"break\"}}");
+            writer.WriteLine($"step[{steps.Count + 1}] = {{\"break\"}}");
             writer.WriteLine();
             writer.WriteLine("return step");
         }

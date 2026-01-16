@@ -1,5 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Entities;
+﻿using FactorioToolAssistedSpeedrun.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Queries

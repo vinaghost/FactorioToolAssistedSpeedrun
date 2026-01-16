@@ -6,6 +6,17 @@ namespace FactorioToolAssistedSpeedrun.Services
     {
         private readonly Stack<IUndoCommand> _undoStack = new();
         private readonly Stack<IUndoCommand> _redoStack = new();
+        private bool _lock = false;
+
+        public void Lock()
+        {
+            _lock = true;
+        }
+
+        public void Unlock()
+        {
+            _lock = false;
+        }
 
         public void Clear()
         {
@@ -29,6 +40,8 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         public void Push(IUndoCommand command)
         {
+            if (_lock)
+                return;
             _undoStack.Push(command);
             _redoStack.Clear();
         }

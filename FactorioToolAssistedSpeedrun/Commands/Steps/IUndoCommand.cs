@@ -2,7 +2,7 @@
 {
     public interface IUndoCommand
     {
-        void Commit();
+        void Commit(bool ignoreUI = false);
 
         void Rollback();
     }

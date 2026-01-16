@@ -1,6 +1,6 @@
 ﻿using System.Windows.Data;
 
-namespace FactorioToolAssistedSpeedrun.Conventers
+namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 {
     public class RadioButtonCheckedConverter : IValueConverter
     {

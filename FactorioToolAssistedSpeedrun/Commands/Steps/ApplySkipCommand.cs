@@ -1,10 +1,8 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Models.UI;
+﻿using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
@@ -22,13 +20,16 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         protected override void UICommit(ObservableCollection<StepModel> collection)
         {
+            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
             var items = collection
                 .Where(x => StepIds.Contains(x.Id))
                 .ToList();
+            commandStack.Lock();
             foreach (var item in items)
             {
                 item.IsSkip = !item.IsSkip;
             }
+            commandStack.Unlock();
         }
 
         protected override void DatabaseRollback(ProjectDbContext context)

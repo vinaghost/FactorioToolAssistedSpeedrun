@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Services;
@@ -99,7 +98,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     ImportString = "";
                 }
             }
-            catch (TasFileParserException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -142,7 +141,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     ImportString = "";
                 }
             }
-            catch (TasFileParserException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -165,7 +164,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             if (segments.Length < 9)
             {
-                throw new TasFileParserException($"Invalid step format: {string.Join(',', segments)}");
+                throw new Exception($"Invalid step format: {string.Join(',', segments)}");
             }
 
             static double GetX(string[] segments)
@@ -188,7 +187,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 if (!gameData.ReverseItemsLocale.TryGetValue(segments[4], out string? value))
                 {
-                    throw new TasFileParserException($"Unknown recipe: {segments[4]}");
+                    throw new Exception($"Unknown recipe: {segments[4]}");
                 }
                 return value;
             }
@@ -197,7 +196,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 if (!gameData.ReverseRecipesLocale.TryGetValue(segments[4], out string? value))
                 {
-                    throw new TasFileParserException($"Unknown recipe: {segments[4]}");
+                    throw new Exception($"Unknown recipe: {segments[4]}");
                 }
                 return value;
             }
@@ -205,7 +204,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 if (!gameData.ReverseTechnologiesLocale.TryGetValue(segments[4], out string? value))
                 {
-                    throw new TasFileParserException($"Unknown technology: {segments[4]}");
+                    throw new Exception($"Unknown technology: {segments[4]}");
                 }
                 return value;
             }

@@ -1,7 +1,8 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Entities;
+﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -72,7 +73,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             var currentStepModel = collection.FirstOrDefault(s => s.Id == StepId);
             if (currentStepModel is null) return;
             var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
+
+            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            commandStack.Lock();
             setter(currentStepModel, NewValue);
+            commandStack.Unlock();
         }
 
         protected override void DatabaseRollback(ProjectDbContext context)
@@ -89,7 +94,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             var currentStepModel = collection.FirstOrDefault(s => s.Id == StepId);
             if (currentStepModel is null) return;
             var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
+
+            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            commandStack.Lock();
             setter(currentStepModel, OldValue);
+            commandStack.Unlock();
         }
     }
 }

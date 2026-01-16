@@ -1,5 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Entities;
+﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.IO;

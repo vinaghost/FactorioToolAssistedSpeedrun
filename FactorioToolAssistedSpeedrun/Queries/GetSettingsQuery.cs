@@ -1,5 +1,4 @@
 ﻿using FactorioToolAssistedSpeedrun.Constants;
-using FactorioToolAssistedSpeedrun.DbContexts;
 using FactorioToolAssistedSpeedrun.Entities;
 
 namespace FactorioToolAssistedSpeedrun.Queries

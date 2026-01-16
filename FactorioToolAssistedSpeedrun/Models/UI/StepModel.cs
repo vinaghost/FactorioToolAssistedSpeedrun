@@ -376,6 +376,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         partial void OnColorChanged(string? oldValue, string newValue)
         {
+            if (!_loaded) return;
+            if (_lock) return;
             var command = new UpdateStepPropertyCommand<string, string>()
             {
                 StepId = Id,
@@ -395,6 +397,9 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         partial void OnCommentChanged(string? oldValue, string newValue)
         {
+            if (!_loaded) return;
+            if (_lock) return;
+
             var command = new UpdateStepPropertyCommand<string, string>()
             {
                 StepId = Id,
@@ -414,6 +419,8 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         partial void OnIsSkipChanged(bool oldValue, bool newValue)
         {
+            if (!_loaded) return;
+            if (_lock) return;
             var command = new UpdateStepPropertyCommand<bool, bool>()
             {
                 StepId = Id,
@@ -424,7 +431,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 StepModelPropertySelector = model => model.IsSkip,
                 StepPropertyTransformer = str => str
             };
-            command.Commit();
+            command.Commit(true);
             _commandStack.Push(command);
         }
 

@@ -1,7 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Exceptions;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using System.IO;
@@ -33,25 +32,25 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
         public void Execute()
         {
             using var sr = File.OpenText(FileName);
-            var line = sr.ReadLine() ?? throw new TasFileParserException("Empty file");
+            var line = sr.ReadLine() ?? throw new Exception("Empty file");
             var totalStep = 0;
             if (line.Equals(TasFileConstants.TOTAL_STEPS_INDICATOR))
             {
-                var totalStepsLine = sr.ReadLine() ?? throw new TasFileParserException("Expected total steps line");
+                var totalStepsLine = sr.ReadLine() ?? throw new Exception("Expected total steps line");
                 if (!int.TryParse(totalStepsLine, out totalStep))
                 {
-                    throw new TasFileParserException($"Invalid total steps value {totalStepsLine}");
+                    throw new Exception($"Invalid total steps value {totalStepsLine}");
                 }
             }
 
-            line = sr.ReadLine() ?? throw new TasFileParserException("Expected goal indicator line");
+            line = sr.ReadLine() ?? throw new Exception("Expected goal indicator line");
             if (line.Equals(TasFileConstants.GOAL_INDICATOR))
             {
-                var goalLine = sr.ReadLine() ?? throw new TasFileParserException("Expected goal line");
+                var goalLine = sr.ReadLine() ?? throw new Exception("Expected goal line");
                 Result.Goal = goalLine;
             }
 
-            line = sr.ReadLine() ?? throw new TasFileParserException("Expected steps indicator line");
+            line = sr.ReadLine() ?? throw new Exception("Expected steps indicator line");
 
             if (line.Equals(TasFileConstants.STEPS_INDICATOR))
             {
@@ -73,7 +72,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 }
             }
 
-            if (line is null) throw new TasFileParserException("Expected templates indicator line");
+            if (line is null) throw new Exception("Expected templates indicator line");
 
             if (line.Equals(TasFileConstants.TEMPLATES_INDICATOR))
             {
@@ -88,7 +87,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                     var segments = line.Split(';');
                     if (segments.Length < 10)
                     {
-                        throw new TasFileParserException($"Invalid template format: {line}");
+                        throw new Exception($"Invalid template format: {line}");
                     }
                     var name = segments[0];
                     var step = ReadStep(segments[1..10]);
@@ -99,56 +98,56 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 }
             }
 
-            if (line is null) throw new TasFileParserException("Expected save file indicator line");
+            if (line is null) throw new Exception("Expected save file indicator line");
             if (line.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
             {
-                var saveFileLine = sr.ReadLine() ?? throw new TasFileParserException("Expected save file line");
+                var saveFileLine = sr.ReadLine() ?? throw new Exception("Expected save file line");
                 _ = saveFileLine;
             }
 
-            line = sr.ReadLine() ?? throw new TasFileParserException("Expected step folder indicator line");
+            line = sr.ReadLine() ?? throw new Exception("Expected step folder indicator line");
             if (line.Equals(TasFileConstants.CODE_FILE_INDICATOR))
             {
-                var codeFileLine = sr.ReadLine() ?? throw new TasFileParserException("Expected step folder line");
+                var codeFileLine = sr.ReadLine() ?? throw new Exception("Expected step folder line");
                 Result.ScriptFolder = codeFileLine[..^1];
             }
 
-            line = sr.ReadLine() ?? throw new TasFileParserException("Expected selected row indicator line");
+            line = sr.ReadLine() ?? throw new Exception("Expected selected row indicator line");
 
             if (line.Contains(TasFileConstants.SELECTED_ROW_INDICATOR))
             {
                 var segments = line.Split(";");
-                if (segments.Length != 4) throw new TasFileParserException($"Invalid selected row format: {line}");
+                if (segments.Length != 4) throw new Exception($"Invalid selected row format: {line}");
                 if (int.TryParse(segments[1], out int startRow) && int.TryParse(segments[2], out int endRow))
                 {
                     Result.SelectedRow = startRow;
                 }
                 else
                 {
-                    throw new TasFileParserException($"Invalid selected row values: {segments[1]}, {segments[2]}");
+                    throw new Exception($"Invalid selected row values: {segments[1]}, {segments[2]}");
                 }
             }
 
-            line = sr.ReadLine() ?? throw new TasFileParserException("Expected import into row indicator line");
+            line = sr.ReadLine() ?? throw new Exception("Expected import into row indicator line");
             if (line.Contains(TasFileConstants.IMPORT_INTO_ROW_INDICATOR))
             {
                 var segments = line.Split(";");
-                if (segments.Length != 2) throw new TasFileParserException($"Invalid import into row format: {line}");
+                if (segments.Length != 2) throw new Exception($"Invalid import into row format: {line}");
                 if (int.TryParse(segments[1], out int importIntoRow))
                 {
                     Result.ImportIntoRow = importIntoRow;
                 }
                 else
                 {
-                    throw new TasFileParserException($"Invalid import into row value: {segments[1]}");
+                    throw new Exception($"Invalid import into row value: {segments[1]}");
                 }
             }
 
-            line = sr.ReadLine() ?? throw new TasFileParserException("Expected logging indicator line");
+            line = sr.ReadLine() ?? throw new Exception("Expected logging indicator line");
             if (line.Contains(TasFileConstants.LOGGING_INDICATOR))
             {
                 var segments = line.Split(";");
-                if (segments.Length != 6) throw new TasFileParserException($"Invalid logging format: {line}");
+                if (segments.Length != 6) throw new Exception($"Invalid logging format: {line}");
                 Result.PrintSavegame = segments[1].Equals("1");
                 Result.PrintTech = segments[2].Equals("1");
                 Result.PrintComments = segments[3].Equals("1");
@@ -158,7 +157,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 }
                 else
                 {
-                    throw new TasFileParserException($"Invalid environment value: {segments[4]}");
+                    throw new Exception($"Invalid environment value: {segments[4]}");
                 }
             }
         }
@@ -167,7 +166,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
         {
             if (segments.Length < 9)
             {
-                throw new TasFileParserException($"Invalid step format: {string.Join(',', segments)}");
+                throw new Exception($"Invalid step format: {string.Join(',', segments)}");
             }
 
             static double GetX(string[] segments)
@@ -190,7 +189,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
             {
                 if (!gameData.ReverseItemsLocale.TryGetValue(segments[4], out string? value))
                 {
-                    throw new TasFileParserException($"Unknown recipe: {segments[4]}");
+                    throw new Exception($"Unknown recipe: {segments[4]}");
                 }
                 return value;
             }
@@ -199,7 +198,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
             {
                 if (!gameData.ReverseRecipesLocale.TryGetValue(segments[4], out string? value))
                 {
-                    throw new TasFileParserException($"Unknown recipe: {segments[4]}");
+                    throw new Exception($"Unknown recipe: {segments[4]}");
                 }
                 return value;
             }
@@ -207,7 +206,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
             {
                 if (!gameData.ReverseTechnologiesLocale.TryGetValue(segments[4], out string? value))
                 {
-                    throw new TasFileParserException($"Unknown technology: {segments[4]}");
+                    throw new Exception($"Unknown technology: {segments[4]}");
                 }
                 return value;
             }

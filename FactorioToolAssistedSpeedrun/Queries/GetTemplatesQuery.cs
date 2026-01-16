@@ -1,6 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-
-namespace FactorioToolAssistedSpeedrun.Queries
+﻿namespace FactorioToolAssistedSpeedrun.Queries
 {
     public class GetTemplatesQuery
     {

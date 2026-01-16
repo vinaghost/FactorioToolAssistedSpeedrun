@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace FactorioToolAssistedSpeedrun.AttachedBehaviours
+namespace FactorioToolAssistedSpeedrun.Misc.AttachedBehaviours
 {
     public static class DeleteRowBehavior
     {

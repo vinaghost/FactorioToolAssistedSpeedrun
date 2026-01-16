@@ -2,7 +2,7 @@ using FactorioToolAssistedSpeedrun.Enums;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace FactorioToolAssistedSpeedrun.Conventers
+namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 {
     public class StepTypeToStringConverter : IValueConverter
     {

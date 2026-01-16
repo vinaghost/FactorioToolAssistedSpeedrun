@@ -1,4 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.Conventers;
+﻿using FactorioToolAssistedSpeedrun.Misc.Conventers;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using System.Collections.Frozen;
 using System.Text.Json.Serialization;

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace FactorioToolAssistedSpeedrun.Conventers
+namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 {
     public class FrozenDictionaryConverter<TValue> : JsonConverter<FrozenDictionary<string, TValue>>
     {

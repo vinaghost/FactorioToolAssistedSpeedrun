@@ -1,5 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using FactorioToolAssistedSpeedrun.Models.UI;
+﻿using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -14,7 +13,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         protected abstract void UICommit(ObservableCollection<StepModel> collection);
 
-        public void Commit()
+        public void Commit(bool ignoreUI = false)
         {
             var startupService = App.Current.Services.GetRequiredService<StartupService>();
             if (!startupService.IsProjectDataLoaded)
@@ -27,15 +26,18 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             }
 
             var panelService = App.Current.Services.GetRequiredService<PanelService>();
-            if (Name == "")
+            if (!ignoreUI)
             {
-                UICommit(panelService.StepCollection);
-            }
-            else
-            {
-                if (Name == panelService.SelectedTemplate)
+                if (Name == "")
                 {
-                    UICommit(panelService.TemplateStepCollection);
+                    UICommit(panelService.StepCollection);
+                }
+                else
+                {
+                    if (Name == panelService.SelectedTemplate)
+                    {
+                        UICommit(panelService.TemplateStepCollection);
+                    }
                 }
             }
         }

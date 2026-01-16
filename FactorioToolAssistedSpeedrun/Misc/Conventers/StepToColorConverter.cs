@@ -3,7 +3,7 @@ using FactorioToolAssistedSpeedrun.Models.UI;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace FactorioToolAssistedSpeedrun.Conventers
+namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 {
     public class StepToColorConverter : IValueConverter
     {

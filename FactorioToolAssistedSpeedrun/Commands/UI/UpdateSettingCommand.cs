@@ -1,5 +1,4 @@
-﻿using FactorioToolAssistedSpeedrun.DbContexts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Commands.UI
 {

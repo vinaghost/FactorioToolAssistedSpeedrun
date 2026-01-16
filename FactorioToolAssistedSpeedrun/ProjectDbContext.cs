@@ -3,7 +3,7 @@ using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace FactorioToolAssistedSpeedrun.DbContexts
+namespace FactorioToolAssistedSpeedrun
 {
     public class ProjectDbContext(string name) : DbContext
     {

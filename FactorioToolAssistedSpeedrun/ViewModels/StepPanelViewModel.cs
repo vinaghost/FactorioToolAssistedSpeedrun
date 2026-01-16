@@ -133,5 +133,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             command.Commit();
             _commandStack.Push(command);
         }
+
+        [RelayCommand]
+        public async Task Skip(System.Collections.IList selectedItems)
+        {
+            var items = selectedItems.OfType<StepModel>().ToList();
+            var command = new ApplySkipCommand
+            {
+                Name = "",
+                StepIds = [.. items.Select(x => x.Id)],
+            };
+            command.Commit();
+            _commandStack.Push(command);
+        }
     }
 }

@@ -26,11 +26,6 @@
                 InputGestureText="{Binding ScriptFolder}" />
             <MenuItem Command="{Binding GenerateScriptCommand}" Header="Generate" />
         </MenuItem>
-        <MenuItem Header="Step types">
-            <MenuItem Header="Walk" />
-            <MenuItem Header="Craft" />
-            <MenuItem Header="Tech" />
-        </MenuItem>
         <MenuItem Header="Log level">
             <MenuItem Header="Print savegame">
                 <MenuItem.Icon>

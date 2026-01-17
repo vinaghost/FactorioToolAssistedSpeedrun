@@ -115,6 +115,8 @@ namespace FactorioToolAssistedSpeedrun.Queries
                 });
             }
 
+            context.SaveChanges();
+
             return new SettingsResult
             {
                 PrintComments = printComments,
@@ -123,7 +125,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
                 DebugMode = debugMode,
                 DevelopmentMode = developmentMode,
                 ProductionMode = productionMode,
-                ScriptFolder = scriptFolder
+                ScriptFolder = scriptFolder,
             };
         }
     }

@@ -1,10 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
+using FactorioToolAssistedSpeedrun.Commands.UI;
+using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Models.Game;
+using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
@@ -32,14 +35,27 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             _commandStack = commandStack;
         }
 
+        [RelayCommand]
+        private async Task Load()
+        {
+            if (!_startupService.IsProjectDataLoaded) return;
+
+            var getImportIntoRowQuery = new GetImportIntoRowQuery()
+            {
+                ProjectDataFile = _startupService.ProjectDataFile
+            };
+            var rowIndex = await Task.Run(getImportIntoRowQuery.Execute);
+            LineIndex = rowIndex;
+        }
+
         [ObservableProperty]
-        private int _lineIndex = 1;
+        private int _lineIndex = 0;
 
         partial void OnLineIndexChanged(int oldValue, int newValue)
         {
-            if (newValue < 1)
+            if (newValue < 0)
             {
-                LineIndex = 1;
+                LineIndex = 0;
             }
         }
 
@@ -55,8 +71,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private void CurrentStepIndex()
         {
-            var index = _panelService.SelectedStepIndex;
-            LineIndex = index + 1;
+            LineIndex = _panelService.SelectedStepIndex;
+
+            var updateSettingCommand = new UpdateSettingCommand()
+            {
+                ProjectDataFile = _startupService.ProjectDataFile!,
+                Setting = SettingConstants.ImportIntoRow,
+                Value = LineIndex.ToString(),
+            };
+            updateSettingCommand.Execute();
         }
 
         [RelayCommand]
@@ -71,16 +94,17 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     return;
                 }
 
+                var line = LineIndex + 1;
                 for (var i = 0; i < steps.Count; i++)
                 {
                     var step = steps[i];
                     if (right)
                     {
-                        step.Location = LineIndex + i + 1;
+                        step.Location = line + i + 1;
                     }
                     else
                     {
-                        step.Location = LineIndex + i;
+                        step.Location = line + i;
                     }
                     step.Name = "";
                 }

@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using FactorioToolAssistedSpeedrun.Commands.UI;
+using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
@@ -27,7 +29,12 @@ namespace FactorioToolAssistedSpeedrun.Services
                 ProjectDataFile = _startupService.ProjectDataFile,
             };
             var steps = getStepsQuery.Execute();
-            App.Current.Dispatcher.Invoke(() => LoadSteps(steps));
+
+            var getSelectedRowQuery = new GetSelectedRowQuery
+            {
+                ProjectDataFile = _startupService.ProjectDataFile
+            };
+            var row = getSelectedRowQuery.Execute() + 1;
 
             var getTemplatesQuery = new GetTemplatesQuery()
             {
@@ -37,6 +44,8 @@ namespace FactorioToolAssistedSpeedrun.Services
 
             App.Current.Dispatcher.Invoke(() =>
             {
+                LoadSteps(steps);
+
                 TemplateCollection.Clear();
                 foreach (var template in templates)
                 {
@@ -44,6 +53,8 @@ namespace FactorioToolAssistedSpeedrun.Services
                 }
                 if (TemplateCollection.Count > 0)
                     SelectedTemplate = TemplateCollection[0];
+
+                ScrollTo(row);
             });
         }
 
@@ -59,6 +70,17 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         [ObservableProperty]
         private int _selectedStepIndex;
+
+        partial void OnSelectedStepIndexChanged(int value)
+        {
+            var updateSettingCommand = new UpdateSettingCommand()
+            {
+                ProjectDataFile = _startupService.ProjectDataFile!,
+                Setting = SettingConstants.SelectedRow,
+                Value = value.ToString(),
+            };
+            updateSettingCommand.Execute();
+        }
 
         public ObservableCollection<StepModel> TemplateStepCollection { get; set; } = [];
 

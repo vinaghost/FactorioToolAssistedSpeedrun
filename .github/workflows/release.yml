@@ -3,7 +3,7 @@ name: Patch
 on:
   workflow_dispatch:
 jobs:
- Version:
+  Version:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.previoustag.outputs.tag }}
@@ -19,7 +19,7 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1.4.0  
         with:
           fallback: 1.0.0
- Build:
+  Build:
     runs-on: windows-latest
     needs: Version
     env:

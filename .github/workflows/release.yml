@@ -62,8 +62,7 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
           
-      - name: Install dependencies      
-        if: ${{ steps.cache-nuget.outputs.cache-hit != 'true' }}
+      - name: Install dependencies
         run: dotnet restore --locked-mode
       
       - name: Publish

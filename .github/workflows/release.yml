@@ -26,18 +26,44 @@ jobs:
         DOTNET_INSTALL_DIR: "D:/tools/dotnet"
         DOTNET_ROOT: "D:/tools/dotnet"
         NUGET_PACKAGES: "D:/.nuget/packages"
-    steps:        
-      - name: Checkout
-        uses: actions/checkout@v4.1.5
-        
-      - name: Setup dotnet
+    steps:
+      - name: Cache dotnet
+        id: cache-dotnet
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DOTNET_INSTALL_DIR }}
+          key: ${{ runner.os }}-dotnet-10
+          restore-keys: ${{ runner.os }}-dotnet-10
+          
+      - name: Install dotnet
+        if: ${{ steps.cache-dotnet.outputs.cache-hit != 'true' }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
+
+      - name: Check default dotnet version
+        run: dotnet --version
+
+      - name: Set installed/cached dotnet path [${{ env.DOTNET_INSTALL_DIR }}]
+        run: echo "${{ env.DOTNET_INSTALL_DIR }}" | Out-File -FilePath $ENV:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Check installed/cached dotnet version
+        run: dotnet --version
           
-      - name: Install dependencies
+      - name: Checkout
+        uses: actions/checkout@v4.1.5        
+      
+      - name: Cache NuGet packages      
+        id: cache-nuget
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+          
+      - name: Install dependencies      
+        if: ${{ steps.cache-nuget.outputs.cache-hit != 'true' }}
         run: dotnet restore --locked-mode
       
       - name: Publish
@@ -51,7 +77,10 @@ jobs:
           if-no-files-found: error
                   
   Release:
+    if: false
     runs-on: ubuntu-latest
+    permissions:
+        contents: write
     needs: [Build,Version]
     steps:        
       - name: Download artifact

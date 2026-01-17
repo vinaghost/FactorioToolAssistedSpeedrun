@@ -1,4 +1,4 @@
-name: Patch
+name: Release
 
 on:
   workflow_dispatch:
@@ -52,7 +52,7 @@ jobs:
                   
   Release:
     runs-on: ubuntu-latest
-    needs: Build
+    needs: [Build,Version]
     steps:        
       - name: Download artifact
         uses: actions/download-artifact@v4

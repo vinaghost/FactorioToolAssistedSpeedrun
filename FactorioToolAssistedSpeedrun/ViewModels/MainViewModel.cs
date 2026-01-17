@@ -41,10 +41,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
-        private async Task GoToLine(object dataContext)
+        private async Task GoToLine()
         {
-            if (dataContext is not StepPanelViewModel StepPanelViewModel) return;
-
             _dialogViewModel.MinLine = 1;
             _dialogViewModel.MaxLine = _panelService.StepCollection.Count;
 
@@ -58,6 +56,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             var line = _dialogViewModel.Line;
             _panelService.ScrollTo(line);
+        }
+
+        [RelayCommand]
+        private async Task Replace()
+        {
+            var dialog = new Views.ReplaceWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+            dialog.Show();
         }
 
         [RelayCommand]

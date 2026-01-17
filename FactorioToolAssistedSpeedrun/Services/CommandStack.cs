@@ -48,5 +48,6 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         public bool CanUndo => _undoStack.Count > 0;
         public bool CanRedo => _redoStack.Count > 0;
+        public bool IsLocked => _lock;
     }
 }

@@ -26,7 +26,6 @@
         <KeyBinding
             Key="G"
             Command="{Binding GoToLineCommand}"
-            CommandParameter="{Binding ElementName=StepPanel, Path=DataContext}"
             Modifiers="Control" />
         <KeyBinding
             Key="Z"
@@ -48,6 +47,10 @@
             Key="G"
             Command="{Binding ElementName=MenuBar, Path=DataContext.GenerateScriptCommand}"
             Modifiers="Alt" />
+        <KeyBinding
+            Key="H"
+            Command="{Binding ReplaceCommand}"
+            Modifiers="Control" />
     </Window.InputBindings>
     <Grid>
         <Grid x:Name="LayoutRoot">

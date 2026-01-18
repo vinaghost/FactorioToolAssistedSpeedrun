@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.previoustag.outputs.tag }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: Checkout 
         uses: actions/checkout@v4.1.5
@@ -32,14 +31,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.DOTNET_INSTALL_DIR }}
-          key: ${{ runner.os }}-dotnet-10
-          restore-keys: ${{ runner.os }}-dotnet-10
+          key: dotnet-${{ runner.os }}-10.0.102
+          restore-keys: |
+            dotnet-${{ runner.os }}-
           
       - name: Install dotnet
         if: ${{ steps.cache-dotnet.outputs.cache-hit != 'true' }}
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 10.0.102
 
       - name: Check default dotnet version
         run: dotnet --version

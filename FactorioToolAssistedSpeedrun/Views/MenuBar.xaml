@@ -11,13 +11,37 @@
     mc:Ignorable="d">
     <Menu>
         <MenuItem Header="_File">
-            <MenuItem Command="{Binding NewProjectCommand}" Header="New" />
-            <MenuItem Command="{Binding OpenFileCommand}" Header="Open" />
+            <MenuItem
+                Command="{Binding NewProjectCommand}"
+                Header="New"
+                InputGestureText="Ctrl + N" />
+            <MenuItem
+                Command="{Binding OpenFileCommand}"
+                Header="Open"
+                InputGestureText="Ctrl + O" />
             <Separator />
             <MenuItem
                 Command="{Binding DumpFactorioDataCommand}"
                 Header="Factorio"
                 InputGestureText="{Binding StartupService.Version}" />
+        </MenuItem>
+        <MenuItem Header="_Edit">
+            <MenuItem
+                Command="{Binding GoToLineCommand}"
+                Header="Go to line"
+                InputGestureText="Ctrl + G" />
+            <MenuItem
+                Command="{Binding ReplaceCommand}"
+                Header="Find and replace coordinates"
+                InputGestureText="Ctrl + H" />
+            <MenuItem
+                Command="{Binding UndoCommand}"
+                Header="Undo"
+                InputGestureText="Ctrl + Z" />
+            <MenuItem
+                Command="{Binding RedoCommand}"
+                Header="Redo"
+                InputGestureText="Ctrl + Y" />
         </MenuItem>
         <MenuItem Header="_Output">
             <MenuItem

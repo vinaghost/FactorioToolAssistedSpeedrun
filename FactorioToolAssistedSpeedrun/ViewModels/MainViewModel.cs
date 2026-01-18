@@ -19,69 +19,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         public LoadingService LoadingService => _loadingService;
 
         private readonly CommandStack _commandStack;
-        private readonly DialogViewModel _dialogViewModel;
 
         public MainViewModel()
         {
             _startupService = App.Current.Services.GetRequiredService<StartupService>();
             _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
-            _dialogViewModel = App.Current.Services.GetRequiredService<DialogViewModel>();
             _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(CommandStack commandStack, DialogViewModel dialogViewModel, StartupService startupService, LoadingService loadingService, PanelService panelService)
+        public MainViewModel(CommandStack commandStack, StartupService startupService, LoadingService loadingService, PanelService panelService)
         {
             _commandStack = commandStack;
-            _dialogViewModel = dialogViewModel;
             _startupService = startupService;
             _loadingService = loadingService;
             _panelService = panelService;
-        }
-
-        [RelayCommand]
-        private async Task GoToLine()
-        {
-            _dialogViewModel.MinLine = 1;
-            _dialogViewModel.MaxLine = _panelService.StepCollection.Count;
-
-            var dialog = new Views.Dialog
-            {
-                DataContext = _dialogViewModel,
-                Owner = Application.Current.MainWindow
-            };
-
-            if (dialog.ShowDialog() != true)
-                return;
-            var line = _dialogViewModel.Line;
-            _panelService.ScrollTo(line);
-        }
-
-        [RelayCommand]
-        private async Task Replace()
-        {
-            var dialog = new Views.ReplaceWindow
-            {
-                Owner = Application.Current.MainWindow
-            };
-            dialog.Show();
-        }
-
-        [RelayCommand]
-        private async Task Undo()
-        {
-            if (!_commandStack.CanUndo) return;
-            var command = _commandStack.UndoPop();
-            command.Rollback();
-        }
-
-        [RelayCommand]
-        private async Task Redo()
-        {
-            if (!_commandStack.CanRedo) return;
-            var command = _commandStack.RedoPop();
-            command.Commit();
         }
 
         [RelayCommand]

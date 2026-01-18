@@ -132,18 +132,18 @@ namespace FactorioToolAssistedSpeedrun.Services
         public Action? StepsChangeStarted;
         public Action? StepsChangeCompleted;
 
-        public Action? ScrollToSelectedStep;
+        public Action<bool>? ScrollToSelectedStep;
 
         public void ScrollTo(int line)
         {
-            if (line <= 0 || line >= StepCollection.Count - 1)
+            if (line < 1 || line > StepCollection.Count)
             {
                 return;
             }
             var center = Math.Min(StepCollection.Count - 1, line + 20);
             SelectedStep = StepCollection[center];
 
-            ScrollToSelectedStep?.Invoke();
+            ScrollToSelectedStep?.Invoke(center > StepCollection.Count / 2);
 
             if (center != line - 1)
                 SelectedStep = StepCollection[line - 1];
@@ -205,7 +205,10 @@ namespace FactorioToolAssistedSpeedrun.Services
         public void LoadSteps(List<Step> steps, bool template = false)
         {
             var collection = template ? TemplateStepCollection : StepCollection;
-
+            if (!template)
+            {
+                StepsChangeStarted?.Invoke();
+            }
             if (steps.Count < collection.Count)
             {
                 for (int i = 0; i < steps.Count; i++)
@@ -236,6 +239,11 @@ namespace FactorioToolAssistedSpeedrun.Services
                 {
                     collection[i].FromEntity(steps[i]);
                 }
+            }
+
+            if (!template)
+            {
+                StepsChangeCompleted?.Invoke();
             }
         }
 

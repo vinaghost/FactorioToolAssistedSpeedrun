@@ -30,7 +30,7 @@ namespace FactorioToolAssistedSpeedrun
             services.AddSingleton<CommandStack>();
 
             services.AddSingleton<MainViewModel>();
-            services.AddSingleton<DialogViewModel>();
+            services.AddTransient<GoToLineViewModel>();
             services.AddTransient<ImportStringViewModel>();
             services.AddTransient<ReplaceViewModel>();
 

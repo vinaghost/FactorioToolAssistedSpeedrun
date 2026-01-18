@@ -20,6 +20,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private readonly StartupService _startupService;
         private readonly LoadingService _loadingService;
 
+        private readonly CommandStack _commandStack;
         public StartupService StartupService => _startupService;
         public LoadingService LoadingService => _loadingService;
 
@@ -27,13 +28,15 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             _startupService = App.Current.Services.GetRequiredService<StartupService>();
             _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
+            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MenuBarViewModel(StartupService startupService, LoadingService loadingService)
+        public MenuBarViewModel(StartupService startupService, LoadingService loadingService, CommandStack commandStack)
         {
             _startupService = startupService;
             _loadingService = loadingService;
+            _commandStack = commandStack;
 
             _startupService.OnProjectDataLoaded += OnProjectDataLoaded;
         }
@@ -62,6 +65,42 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         [ObservableProperty]
         private string _scriptFolder = "";
+
+        [RelayCommand]
+        private static void GoToLine()
+        {
+            var dialog = new Views.GoToLineWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+            dialog.Show();
+        }
+
+        [RelayCommand]
+        private static void Replace()
+        {
+            var dialog = new Views.ReplaceWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+            dialog.Show();
+        }
+
+        [RelayCommand]
+        private void Undo()
+        {
+            if (!_commandStack.CanUndo) return;
+            var command = _commandStack.UndoPop();
+            command.Rollback();
+        }
+
+        [RelayCommand]
+        private void Redo()
+        {
+            if (!_commandStack.CanRedo) return;
+            var command = _commandStack.RedoPop();
+            command.Commit();
+        }
 
         [RelayCommand]
         private async Task SetScriptLocation()

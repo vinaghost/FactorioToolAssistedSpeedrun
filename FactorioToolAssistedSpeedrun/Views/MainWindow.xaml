@@ -26,15 +26,15 @@
     <Window.InputBindings>
         <KeyBinding
             Key="G"
-            Command="{Binding GoToLineCommand}"
+            Command="{Binding ElementName=MenuBar, Path=DataContext.GoToLineCommand}"
             Modifiers="Control" />
         <KeyBinding
             Key="Z"
-            Command="{Binding UndoCommand}"
+            Command="{Binding ElementName=MenuBar, Path=DataContext.UndoCommand}"
             Modifiers="Control" />
         <KeyBinding
             Key="Y"
-            Command="{Binding RedoCommand}"
+            Command="{Binding ElementName=MenuBar, Path=DataContext.RedoCommand}"
             Modifiers="Control" />
         <KeyBinding
             Key="N"
@@ -50,7 +50,7 @@
             Modifiers="Alt" />
         <KeyBinding
             Key="H"
-            Command="{Binding ReplaceCommand}"
+            Command="{Binding ElementName=MenuBar, Path=DataContext.ReplaceCommand}"
             Modifiers="Control" />
     </Window.InputBindings>
     <Grid>

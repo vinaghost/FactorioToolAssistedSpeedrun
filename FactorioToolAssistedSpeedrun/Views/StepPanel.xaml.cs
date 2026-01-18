@@ -20,18 +20,15 @@ namespace FactorioToolAssistedSpeedrun.Views
             DataContext = App.Current.Services.GetRequiredService<StepPanelViewModel>();
         }
 
-        public void ScrollToSelected(bool passCenter)
+        public void ScrollToSelected()
         {
             if (_scrollViewer is null) return;
             Steps.UpdateLayout();
-            if (passCenter)
-            {
-                _scrollViewer.ScrollToVerticalOffset(_scrollViewer.ScrollableHeight / 2);
-            }
-            else
-            {
-                _scrollViewer.ScrollToTop();
-            }
+            var rowHeight = _scrollViewer.ScrollableHeight / (Steps.Items.Count - 1);
+            var index = Math.Max(0, Steps.SelectedIndex - 100);
+            var offset = index * rowHeight;
+            _scrollViewer.ScrollToVerticalOffset(offset);
+
             Steps.ScrollIntoView(Steps.SelectedItem);
         }
 

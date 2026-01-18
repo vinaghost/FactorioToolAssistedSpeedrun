@@ -132,7 +132,7 @@ namespace FactorioToolAssistedSpeedrun.Services
         public Action? StepsChangeStarted;
         public Action? StepsChangeCompleted;
 
-        public Action<bool>? ScrollToSelectedStep;
+        public Action? ScrollToSelectedStep;
 
         public void ScrollTo(int line)
         {
@@ -143,7 +143,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             var center = Math.Min(StepCollection.Count - 1, line + 20);
             SelectedStep = StepCollection[center];
 
-            ScrollToSelectedStep?.Invoke(center > StepCollection.Count / 2);
+            ScrollToSelectedStep?.Invoke();
 
             if (center != line - 1)
                 SelectedStep = StepCollection[line - 1];

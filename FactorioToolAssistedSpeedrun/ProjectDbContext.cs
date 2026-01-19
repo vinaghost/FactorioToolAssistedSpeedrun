@@ -48,10 +48,10 @@ namespace FactorioToolAssistedSpeedrun
             });
         }
 
-        public async Task SetupTriggers()
+        public void SetupTriggers()
         {
             // Trigger to prevent updating Templates.Type
-            await Database.ExecuteSqlRawAsync(@"
+            Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS block_update_step_type
 BEFORE UPDATE OF TYPE ON Steps
 BEGIN
@@ -62,7 +62,7 @@ END;
             // Trigger to insert a Building after a Build step
             // Ignore transport-belt because some are built for walking,
             // we don't want spam the table with them
-            await Database.ExecuteSqlRawAsync(@"
+            Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS insert_building_buildstep_after_build_step
 AFTER INSERT ON Steps
 WHEN NEW.Type = 'build' AND NEW.Name = '' AND NEW.IsSkip = 0 AND NEW.Item != 'transport-belt'
@@ -85,7 +85,7 @@ END;
 
             // Trigger to update DestroyStep of Buildings after a Mine step
             // Ignore split step because they didn't actually destroy anything yet
-            await Database.ExecuteSqlRawAsync(@"
+            Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS update_building_destroystep_after_mine_step
 AFTER INSERT ON Steps
 WHEN NEW.Type = 'mine' AND NEW.Name = '' AND NEW.IsSkip = 0 AND NEW.Modifier = 'split'
@@ -97,7 +97,7 @@ END;
 ");
             // Trigger to decrement step location and adjust building references
             // when a step is deleted
-            await Database.ExecuteSqlRawAsync(@"
+            Database.ExecuteSqlRaw(@"
 CREATE TRIGGER IF NOT EXISTS decrement_step_location_after_delete
 AFTER DELETE ON Steps
 WHEN OLD.Name = ''

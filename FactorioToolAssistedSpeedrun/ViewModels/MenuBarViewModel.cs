@@ -255,8 +255,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
 
             using var context = new ProjectDbContext(filename);
-            await context.Database.EnsureCreatedAsync();
-            await context.SetupTriggers();
+            await Task.Run(context.Database.EnsureCreated);
+            await Task.Run(context.SetupTriggers);
 
             Properties.Settings.Default.ProjectDataFile = filename;
             Properties.Settings.Default.Save();

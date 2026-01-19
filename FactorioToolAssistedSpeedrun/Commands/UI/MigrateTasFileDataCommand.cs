@@ -9,9 +9,9 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
         {
             using var context = new ProjectDbContext(projectDataFile);
 
-            await context.Database.EnsureDeletedAsync();
-            await context.Database.EnsureCreatedAsync();
-            await context.SetupTriggers();
+            await Task.Run(context.Database.EnsureDeleted);
+            await Task.Run(context.Database.EnsureCreated);
+            await Task.Run(context.SetupTriggers);
 
             context.Steps.AddRange(tasFile.StepCollection);
             context.Settings.Add(new Setting
@@ -56,7 +56,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 Value = tasFile.Environment.ToString()
             });
 
-            await context.SaveChangesAsync();
+            await Task.Run(context.SaveChanges);
         }
     }
 }

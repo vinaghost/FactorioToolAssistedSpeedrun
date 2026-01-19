@@ -4,43 +4,41 @@ using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
-    public class AddVariableFileCommand : IAsyncCommand
-    {
-        public required string FolderLocation { get; init; }
-        public required int EnvironmentId { get; init; }
-        public required bool PrintMessage { get; init; }
-        public required bool PrintSavegame { get; init; }
-        public required bool PrintTech { get; init; }
+    public record VariableObject(int EnvironmentId, bool PrintMessage, bool PrintSavegame, bool PrintTech);
 
-        public async Task Execute()
+    public static class AddVariableFileCommand
+    {
+        public static async Task Execute(string folderLocation, VariableObject variables)
         {
-            var filePath = Path.Combine(FolderLocation, "variables.lua");
+            var filePath = Path.Combine(folderLocation, "variables.lua");
             if (File.Exists(filePath))
             {
                 return;
             }
 
+            var (environmentId, printMessage, printSavegame, printTech) = variables;
+
             await using var writer = new StreamWriter(filePath, false, Encoding.UTF8);
-            writer.WriteLine("--[[ GENERATED FILE - do not modify this file as it is controlled from the FTG GUI ]]");
-            writer.WriteLine();
+            await writer.WriteLineAsync("--[[ GENERATED FILE - do not modify this file as it is controlled from the FTG GUI ]]");
+            await writer.WriteLineAsync();
 
-            writer.WriteLine($"GOAL = \"Any%\"");
-            writer.WriteLine($"LOGLEVEL = {EnvironmentId}");
-            writer.WriteLine($"PRINT_SAVEGAME = {BoolToString(PrintSavegame)}");
-            writer.WriteLine($"PRINT_TECH = {BoolToString(PrintTech)}");
-            writer.WriteLine($"PRINT_COMMENT = {BoolToString(PrintMessage)}");
-            writer.WriteLine();
+            await writer.WriteLineAsync($"GOAL = \"Any%\"");
+            await writer.WriteLineAsync($"LOGLEVEL = {environmentId}");
+            await writer.WriteLineAsync($"PRINT_SAVEGAME = {BoolToString(printSavegame)}");
+            await writer.WriteLineAsync($"PRINT_TECH = {BoolToString(printTech)}");
+            await writer.WriteLineAsync($"PRINT_COMMENT = {BoolToString(printMessage)}");
+            await writer.WriteLineAsync();
 
-            writer.WriteLine("local tas_generator = {");
-            writer.WriteLine($"\tname = \"Factorio Tool Assisted Speedrun\",");
-            writer.WriteLine($"\tversion = \"{TasFileConstants.VERSION}\",");
-            writer.WriteLine("\ttas = {");
-            writer.WriteLine($"\t\tname = \"{Path.GetFileName(FolderLocation)}\",");
-            writer.WriteLine($"\t\ttimestamp = \"{CurrentDateTime()}\",");
-            writer.WriteLine("\t},");
-            writer.WriteLine("}");
-            writer.WriteLine();
-            writer.WriteLine("return tas_generator");
+            await writer.WriteLineAsync("local tas_generator = {");
+            await writer.WriteLineAsync($"\tname = \"Factorio Tool Assisted Speedrun\",");
+            await writer.WriteLineAsync($"\tversion = \"{TasFileConstants.VERSION}\",");
+            await writer.WriteLineAsync("\ttas = {");
+            await writer.WriteLineAsync($"\t\tname = \"{Path.GetFileName(folderLocation)}\",");
+            await writer.WriteLineAsync($"\t\ttimestamp = \"{CurrentDateTime()}\",");
+            await writer.WriteLineAsync("\t},");
+            await writer.WriteLineAsync("}");
+            await writer.WriteLineAsync();
+            await writer.WriteLineAsync("return tas_generator");
         }
 
         private static string BoolToString(bool value) => value ? "true" : "false";

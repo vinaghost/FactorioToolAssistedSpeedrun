@@ -5,25 +5,22 @@ using System.Text.RegularExpressions;
 
 namespace FactorioToolAssistedSpeedrun.Commands
 {
-    public partial class DumpFactorioDataCommand : ICommand, ICommandResult<string>
+    public static partial class DumpFactorioDataCommand
     {
-        public required string FileName { get; init; }
-        public string Result { get; private set; } = "Not loaded";
-
-        public void Execute()
+        public static async Task<string> Execute(string fileName)
         {
             using var dumpDataProcess = new Process()
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = FileName,
+                    FileName = fileName,
                     Arguments = "--dump-data",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
                 }
             };
-
+            var version = "Not loaded";
             var outputBuilder = new StringBuilder();
             void OutputDataReceivedHandler(object sender, DataReceivedEventArgs args)
             {
@@ -32,10 +29,9 @@ namespace FactorioToolAssistedSpeedrun.Commands
                 var match = VersionMatcher().Match(args.Data);
                 if (match.Success)
                 {
-                    Result = match.Value;
+                    version = match.Value;
+                    dumpDataProcess.OutputDataReceived -= OutputDataReceivedHandler;
                 }
-
-                dumpDataProcess.OutputDataReceived -= OutputDataReceivedHandler;
             }
             dumpDataProcess.OutputDataReceived += OutputDataReceivedHandler;
 
@@ -43,7 +39,7 @@ namespace FactorioToolAssistedSpeedrun.Commands
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = FileName,
+                    FileName = fileName,
                     Arguments = "--dump-prototype-locale",
                     UseShellExecute = false,
                     CreateNoWindow = true,
@@ -52,10 +48,11 @@ namespace FactorioToolAssistedSpeedrun.Commands
             };
 
             dumpDataProcess.Start();
-            dumpLocaleProcess.Start();
             dumpDataProcess.BeginOutputReadLine();
-            dumpDataProcess.WaitForExit();
-            dumpLocaleProcess.WaitForExit();
+            dumpLocaleProcess.Start();
+
+            await Task.WhenAll(Task.Run(dumpDataProcess.WaitForExit), Task.Run(dumpLocaleProcess.WaitForExit));
+            return version;
         }
 
         [GeneratedRegex(@"\d+\.\d+\.\d+")]

@@ -21,7 +21,7 @@
                 InputGestureText="Ctrl + O" />
             <Separator />
             <MenuItem
-                Command="{Binding DumpFactorioDataCommand}"
+                Command="{Binding DumpDataCommand}"
                 Header="Factorio"
                 InputGestureText="{Binding StartupService.Version}" />
         </MenuItem>

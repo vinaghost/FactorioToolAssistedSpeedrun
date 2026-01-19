@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Commands.UI;
 using FactorioToolAssistedSpeedrun.Constants;
+using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using FactorioToolAssistedSpeedrun.Queries;
@@ -121,7 +122,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             try
             {
-                await SetScriptLocationTask(_startupService.ProjectDataFile, folderName);
+                await SetScriptLocationTask(folderName);
                 MessageBox.Show("Script location set successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -130,15 +131,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
         }
 
-        private async Task SetScriptLocationTask(string projectDataFile, string folderName)
+        private async Task SetScriptLocationTask(string folderName)
         {
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = projectDataFile,
-                Setting = SettingConstants.ScriptFolder,
-                Value = folderName
-            };
-            await Task.Run(updateSettingCommand.Execute);
+            await UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.ScriptFolder, folderName);
             ScriptFolder = folderName;
         }
 
@@ -169,16 +164,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                         return;
                     }
 
-                    var updateSettingCommand = new UpdateSettingCommand
-                    {
-                        ProjectDataFile = _startupService.ProjectDataFile,
-                        Setting = SettingConstants.ScriptFolder,
-                        Value = folderName
-                    };
-
-                    await Task.Run(updateSettingCommand.Execute);
-
-                    ScriptFolder = folderName;
+                    await SetScriptLocationTask(folderName);
                 }
                 else
                 {
@@ -222,31 +208,30 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 Directory.CreateDirectory(Path.Combine(ScriptFolder, "locale", "en"));
                 File.Copy(Path.Combine("LuaFolders", "locale", "en", "locale.cfg"), localeFile);
             }
+            await AddVariableFileCommand.Execute(ScriptFolder, new
+            (
+                 DebugMode ? 0 : DevelopmentMode ? 1 : 2,
+                 PrintComments,
+                 PrintSavegame,
+                 PrintTech
+            ));
+            await AddInfoFileCommand.Execute(ScriptFolder);
+            await AddStepsFileCommand.Execute(ScriptFolder, new ProjectDbContext(projectDataFile).Steps.ToList(), new ProjectDbContext(projectDataFile).Buildings.ToList());
 
-            var addVariableFileCommand = new AddVariableFileCommand
+            var getStepQuery = new GetStepsQuery
             {
-                FolderLocation = ScriptFolder,
-                EnvironmentId = DebugMode ? 0 : DevelopmentMode ? 1 : 2,
-                PrintMessage = PrintComments,
-                PrintSavegame = PrintSavegame,
-                PrintTech = PrintTech
+                ProjectDataFile = projectDataFile,
+                Name = "",
             };
+            var steps = getStepQuery.Execute();
 
-            await addVariableFileCommand.Execute();
-
-            var addInfoFileCommand = new AddInfoFileCommand
+            var getBuildingsQuery = new GetBuildingsQuery
             {
-                FolderLocation = ScriptFolder,
+                ProjectDataFile = projectDataFile
             };
+            var buildings = getBuildingsQuery.Execute();
 
-            await addInfoFileCommand.Execute();
-
-            var addStepFileCommand = new AddStepsFileCommand
-            {
-                FolderLocation = ScriptFolder,
-                DbContext = new ProjectDbContext(projectDataFile),
-            };
-            await addStepFileCommand.Execute();
+            await AddStepsFileCommand.Execute(ScriptFolder, steps, buildings);
         }
 
         [RelayCommand]
@@ -271,7 +256,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             using var context = new ProjectDbContext(filename);
             await context.Database.EnsureCreatedAsync();
-            context.SetupTriggers();
+            await context.SetupTriggers();
 
             Properties.Settings.Default.ProjectDataFile = filename;
             Properties.Settings.Default.Save();
@@ -282,7 +267,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
-        private async Task DumpFactorioData()
+        private async Task DumpData()
         {
             var dialog = new OpenFileDialog
             {
@@ -301,7 +286,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 try
                 {
-                    await DumpFactorioDataTask(filename);
+                    await DumpDataTask(filename);
                     MessageBox.Show($"Game data dumped successfully. Version: {_startupService.Version}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -325,14 +310,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             LoadingService.Hide();
         }
 
-        private async Task DumpFactorioDataTask(string filename)
+        private async Task DumpDataTask(string filename)
         {
-            var dumpFactorioDataCommand = new DumpFactorioDataCommand
-            {
-                FileName = filename
-            };
-            await Task.Run(dumpFactorioDataCommand.Execute);
-            var version = dumpFactorioDataCommand.Result;
+            var version = await DumpFactorioDataCommand.Execute(filename);
 
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var scriptOutputDir = Path.Combine(appData, "Factorio", "script-output");
@@ -428,14 +408,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         private async Task MigrateTasFile(string filename)
         {
-            var parseTasFileCommand = new ParseTasFileCommand
-            {
-                FileName = filename,
-                GameData = _startupService.GameData!
-            };
-
-            await Task.Run(parseTasFileCommand.Execute);
-            var tasFileResult = parseTasFileCommand.Result;
+            var tasFileResult = await ParseTasFileCommand.Execute(filename, _startupService.GameData!);
 
             var dbFile = Path.Combine(Path.GetDirectoryName(filename)!, $"{Path.GetFileNameWithoutExtension(filename)}.db");
 
@@ -443,12 +416,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (result == MessageBoxResult.No)
                 return;
 
-            var migrateTasFileDataCommand = new MigrateTasFileDataCommand
-            {
-                ProjectDataFile = dbFile,
-                TasFileResult = tasFileResult
-            };
-            await Task.Run(migrateTasFileDataCommand.Execute);
+            await MigrateTasFileDataCommand.Execute(dbFile, tasFileResult);
 
             PrintComments = tasFileResult.PrintComments;
             PrintSavegame = tasFileResult.PrintSavegame;
@@ -489,14 +457,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!_startupService.IsProjectDataLoaded)
                 return;
 
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Setting = SettingConstants.PrintMessage,
-                Value = value ? "1" : "0"
-            };
-
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.PrintMessage, value ? "1" : "0").Wait();
         }
 
         [ObservableProperty]
@@ -507,13 +468,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!_startupService.IsProjectDataLoaded)
                 return;
 
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Setting = SettingConstants.PrintSavegame,
-                Value = value ? "1" : "0"
-            };
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.PrintSavegame, value ? "1" : "0").Wait();
         }
 
         [ObservableProperty]
@@ -524,13 +479,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!_startupService.IsProjectDataLoaded)
                 return;
 
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Setting = SettingConstants.PrintTech,
-                Value = value ? "1" : "0"
-            };
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.PrintTech, value ? "1" : "0").Wait();
         }
 
         [ObservableProperty]
@@ -542,14 +491,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             if (!_startupService.IsProjectDataLoaded)
                 return;
-
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Setting = SettingConstants.Environment,
-                Value = "0"
-            };
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.Environment, "0").Wait();
         }
 
         [ObservableProperty]
@@ -562,13 +504,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!_startupService.IsProjectDataLoaded)
                 return;
 
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Setting = SettingConstants.Environment,
-                Value = "1"
-            };
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.Environment, "1").Wait();
         }
 
         [ObservableProperty]
@@ -581,14 +517,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (!_startupService.IsProjectDataLoaded)
                 return;
 
-            var updateSettingCommand = new UpdateSettingCommand
-            {
-                ProjectDataFile = _startupService.ProjectDataFile,
-                Setting = SettingConstants.Environment,
-                Value = "2"
-            };
-
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.Environment, "2").Wait();
         }
     }
 }

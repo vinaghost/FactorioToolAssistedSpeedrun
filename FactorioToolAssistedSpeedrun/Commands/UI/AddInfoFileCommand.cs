@@ -4,28 +4,24 @@ using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
-    public class AddInfoFileCommand : IAsyncCommand
+    public static class AddInfoFileCommand
     {
-        public required string FolderLocation { get; init; }
-
-        public async Task Execute()
+        public static async Task Execute(string folderLocation)
         {
-            var filePath = Path.Combine(FolderLocation, "info.json");
+            var filePath = Path.Combine(folderLocation, "info.json");
             if (File.Exists(filePath))
-            {
                 return;
-            }
 
             await using var writer = new StreamWriter(filePath, false, Encoding.UTF8);
-            writer.WriteLine("{");
-            writer.WriteLine($"\t\"name\": \"{Path.GetFileName(FolderLocation)}\",");
-            writer.WriteLine($"\t\"version\": \"{TasFileConstants.VERSION}\",");
-            writer.WriteLine($"\t\"title\": \"Factorio TAS run\",");
-            writer.WriteLine($"\t\"author\": \"Theis+VINAGHOST\",");
-            writer.WriteLine($"\t\"factorio_version\": \"2.0\",");
-            writer.WriteLine($"\t\"contact\": \"https://github.com/vinaghost/FactorioToolAssistedSpeedrun/issues\",");
-            writer.WriteLine($"\t\"description\": \"This run has been made with the help of Factorio Tool Assisted Speedrun\"");
-            writer.WriteLine("}");
+            await writer.WriteLineAsync("{");
+            await writer.WriteLineAsync($"\t\"name\": \"{Path.GetFileName(folderLocation)}\",");
+            await writer.WriteLineAsync($"\t\"version\": \"{TasFileConstants.VERSION}\",");
+            await writer.WriteLineAsync($"\t\"title\": \"Factorio TAS run\",");
+            await writer.WriteLineAsync($"\t\"author\": \"Theis+VINAGHOST\",");
+            await writer.WriteLineAsync($"\t\"factorio_version\": \"2.0\",");
+            await writer.WriteLineAsync($"\t\"contact\": \"https://github.com/vinaghost/FactorioToolAssistedSpeedrun/issues\",");
+            await writer.WriteLineAsync($"\t\"description\": \"This run has been made with the help of Factorio Tool Assisted Speedrun\"");
+            await writer.WriteLineAsync("}");
         }
     }
 }

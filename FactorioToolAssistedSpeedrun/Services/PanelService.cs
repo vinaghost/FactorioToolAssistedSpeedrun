@@ -73,13 +73,7 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         partial void OnSelectedStepIndexChanged(int value)
         {
-            var updateSettingCommand = new UpdateSettingCommand()
-            {
-                ProjectDataFile = _startupService.ProjectDataFile!,
-                Setting = SettingConstants.SelectedRow,
-                Value = value.ToString(),
-            };
-            updateSettingCommand.Execute();
+            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.SelectedRow, value.ToString()).Wait();
         }
 
         public ObservableCollection<StepModel> TemplateStepCollection { get; set; } = [];

@@ -2,18 +2,14 @@
 
 namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
-    public class UpdateSettingCommand : ICommand
+    public static class UpdateSettingCommand
     {
-        public required string ProjectDataFile { get; init; }
-        public required string Setting { get; init; }
-        public required string Value { get; init; }
-
-        public void Execute()
+        public static async Task Execute(string projectDataFile, string setting, string value)
         {
-            using var context = new ProjectDbContext(ProjectDataFile);
-            context.Settings
-                .Where(s => s.Key == Setting)
-                .ExecuteUpdate(s => s.SetProperty(s => s.Value, Value));
+            await using var context = new ProjectDbContext(projectDataFile);
+            await context.Settings
+                .Where(s => s.Key == setting)
+                .ExecuteUpdateAsync(s => s.SetProperty(s => s.Value, value));
         }
     }
 }

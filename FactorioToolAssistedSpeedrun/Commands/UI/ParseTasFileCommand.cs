@@ -7,162 +7,174 @@ using System.IO;
 
 namespace FactorioToolAssistedSpeedrun.Commands.UI
 {
-    public class TasFileResult
+    public class TasFileObject
     {
-        public List<Step> StepCollection { get; } = [];
-        public string Goal { get; set; } = "";
-        public string ScriptFolder { get; set; } = "";
-
-        public int SelectedRow { get; set; }
-        public int ImportIntoRow { get; set; }
-        public bool PrintComments { get; set; } = false;
-        public bool PrintSavegame { get; set; } = false;
-        public bool PrintTech { get; set; } = false;
-
-        public int Environment { get; set; } = 1;
+        public required List<Step> StepCollection { get; init; }
+        public required string Goal { get; init; }
+        public required string ScriptFolder { get; init; }
+        public required int SelectedRow { get; init; }
+        public required int ImportIntoRow { get; init; }
+        public required bool PrintComments { get; init; }
+        public required bool PrintSavegame { get; init; }
+        public required bool PrintTech { get; init; }
+        public int Environment { get; init; }
     }
 
-    public class ParseTasFileCommand : ICommand, ICommandResult<TasFileResult>
+    public static class ParseTasFileCommand
     {
-        public required string FileName { get; init; }
-        public required GameData GameData { get; init; }
-
-        public TasFileResult Result { get; } = new();
-
-        public void Execute()
+        public static async Task<TasFileObject> Execute(string fileName, GameData gameData)
         {
-            using var sr = File.OpenText(FileName);
-            var line = sr.ReadLine() ?? throw new Exception("Empty file");
-            var totalStep = 0;
-            if (line.Equals(TasFileConstants.TOTAL_STEPS_INDICATOR))
+            using var sr = File.OpenText(fileName);
+            var totalStepsIndicatorLine = await sr.ReadLineAsync() ?? throw new Exception("Empty file");
+
+            if (!totalStepsIndicatorLine.Equals(TasFileConstants.TOTAL_STEPS_INDICATOR))
             {
-                var totalStepsLine = sr.ReadLine() ?? throw new Exception("Expected total steps line");
-                if (!int.TryParse(totalStepsLine, out totalStep))
-                {
-                    throw new Exception($"Invalid total steps value {totalStepsLine}");
-                }
+                throw new Exception($"Expected {TasFileConstants.TOTAL_STEPS_INDICATOR} but got: {totalStepsIndicatorLine}");
             }
 
-            line = sr.ReadLine() ?? throw new Exception("Expected goal indicator line");
-            if (line.Equals(TasFileConstants.GOAL_INDICATOR))
+            var totalStepsLine = await sr.ReadLineAsync() ?? throw new Exception("Expected total steps line but file ended");
+
+            if (!int.TryParse(totalStepsLine, out var totalStep))
             {
-                var goalLine = sr.ReadLine() ?? throw new Exception("Expected goal line");
-                Result.Goal = goalLine;
+                throw new Exception($"Invalid total steps value {totalStepsLine}");
             }
 
-            line = sr.ReadLine() ?? throw new Exception("Expected steps indicator line");
+            var goalIndicatorLine = await sr.ReadLineAsync() ?? throw new Exception("Expected goal indicator line but file ended");
 
-            if (line.Equals(TasFileConstants.STEPS_INDICATOR))
+            if (!goalIndicatorLine.Equals(TasFileConstants.GOAL_INDICATOR))
             {
-                line = sr.ReadLine();
-                while (line is not null)
-                {
-                    if (line.Equals(TasFileConstants.TEMPLATES_INDICATOR))
-                    {
-                        break;
-                    }
-
-                    var segments = line.Split(';');
-
-                    var step = ReadStep(segments);
-                    step.Location = Result.StepCollection.Count + 1;
-                    step.Name = "";
-                    Result.StepCollection.Add(step);
-                    line = sr.ReadLine();
-                }
+                throw new Exception($"Expected {TasFileConstants.GOAL_INDICATOR} but got: {goalIndicatorLine}");
             }
 
-            if (line is null) throw new Exception("Expected templates indicator line");
+            var goal = await sr.ReadLineAsync() ?? throw new Exception("Expected goal line but file ended");
 
-            if (line.Equals(TasFileConstants.TEMPLATES_INDICATOR))
+            var stepIndicatorLine = await sr.ReadLineAsync() ?? throw new Exception("Expected steps indicator line but file ended");
+            if (!stepIndicatorLine.Equals(TasFileConstants.STEPS_INDICATOR))
             {
-                line = sr.ReadLine();
-
-                while (line is not null)
-                {
-                    if (line.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
-                    {
-                        break;
-                    }
-                    var segments = line.Split(';');
-                    if (segments.Length < 10)
-                    {
-                        throw new Exception($"Invalid template format: {line}");
-                    }
-                    var name = segments[0];
-                    var step = ReadStep(segments[1..10]);
-                    step.Location = Result.StepCollection.Count(x => x.Name == name) + 1;
-                    step.Name = name;
-                    Result.StepCollection.Add(step);
-                    line = sr.ReadLine();
-                }
+                throw new Exception($"Expected {TasFileConstants.STEPS_INDICATOR} but got: {stepIndicatorLine}");
             }
 
-            if (line is null) throw new Exception("Expected save file indicator line");
-            if (line.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
+            var stepLine = await sr.ReadLineAsync();
+            var steps = new List<Step>();
+            string[] segments;
+            while (stepLine is not null)
             {
-                var saveFileLine = sr.ReadLine() ?? throw new Exception("Expected save file line");
-                _ = saveFileLine;
+                if (stepLine.Equals(TasFileConstants.TEMPLATES_INDICATOR))
+                {
+                    break;
+                }
+
+                segments = stepLine.Split(';');
+
+                var step = ReadStep(segments, gameData);
+                step.Location = steps.Count + 1;
+                step.Name = "";
+                steps.Add(step);
+                stepLine = await sr.ReadLineAsync();
             }
 
-            line = sr.ReadLine() ?? throw new Exception("Expected step folder indicator line");
-            if (line.Equals(TasFileConstants.CODE_FILE_INDICATOR))
+            if (stepLine is null) throw new Exception("Expected templates indicator line but file ended");
+
+            if (!stepLine.Equals(TasFileConstants.TEMPLATES_INDICATOR))
             {
-                var codeFileLine = sr.ReadLine() ?? throw new Exception("Expected step folder line");
-                Result.ScriptFolder = codeFileLine[..^1];
+                throw new Exception($"Expected {TasFileConstants.TEMPLATES_INDICATOR} but got: {stepLine}");
             }
 
-            line = sr.ReadLine() ?? throw new Exception("Expected selected row indicator line");
+            var templateLine = await sr.ReadLineAsync();
 
-            if (line.Contains(TasFileConstants.SELECTED_ROW_INDICATOR))
+            while (templateLine is not null)
             {
-                var segments = line.Split(";");
-                if (segments.Length != 4) throw new Exception($"Invalid selected row format: {line}");
-                if (int.TryParse(segments[1], out int startRow) && int.TryParse(segments[2], out int endRow))
+                if (templateLine.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
                 {
-                    Result.SelectedRow = startRow;
+                    break;
                 }
-                else
+                segments = templateLine.Split(';');
+                if (segments.Length < 10)
                 {
-                    throw new Exception($"Invalid selected row values: {segments[1]}, {segments[2]}");
+                    throw new Exception($"Invalid template format: {templateLine}");
                 }
+                var name = segments[0];
+                var step = ReadStep(segments[1..10], gameData);
+                step.Location = steps.Count(x => x.Name == name) + 1;
+                step.Name = name;
+                steps.Add(step);
+                templateLine = await sr.ReadLineAsync();
             }
 
-            line = sr.ReadLine() ?? throw new Exception("Expected import into row indicator line");
-            if (line.Contains(TasFileConstants.IMPORT_INTO_ROW_INDICATOR))
+            if (templateLine is null) throw new Exception("Expected save file indicator line but file ended");
+            if (!templateLine.Equals(TasFileConstants.SAVE_FILE_INDICATOR))
             {
-                var segments = line.Split(";");
-                if (segments.Length != 2) throw new Exception($"Invalid import into row format: {line}");
-                if (int.TryParse(segments[1], out int importIntoRow))
-                {
-                    Result.ImportIntoRow = importIntoRow;
-                }
-                else
-                {
-                    throw new Exception($"Invalid import into row value: {segments[1]}");
-                }
+                throw new Exception($"Expected {TasFileConstants.SAVE_FILE_INDICATOR} but got: {templateLine}");
             }
 
-            line = sr.ReadLine() ?? throw new Exception("Expected logging indicator line");
-            if (line.Contains(TasFileConstants.LOGGING_INDICATOR))
+            var saveFileLine = await sr.ReadLineAsync() ?? throw new Exception("Expected save file line but file ended");
+            _ = saveFileLine;
+
+            var codeFileIndicatorLine = await sr.ReadLineAsync() ?? throw new Exception("Expected step folder indicator line but file ended");
+            if (!codeFileIndicatorLine.Equals(TasFileConstants.CODE_FILE_INDICATOR))
             {
-                var segments = line.Split(";");
-                if (segments.Length != 6) throw new Exception($"Invalid logging format: {line}");
-                Result.PrintSavegame = segments[1].Equals("1");
-                Result.PrintTech = segments[2].Equals("1");
-                Result.PrintComments = segments[3].Equals("1");
-                if (int.TryParse(segments[4], out int environment))
-                {
-                    Result.Environment = environment;
-                }
-                else
-                {
-                    throw new Exception($"Invalid environment value: {segments[4]}");
-                }
+                throw new Exception($"Expected {TasFileConstants.CODE_FILE_INDICATOR} but got: {codeFileIndicatorLine}");
             }
+
+            var codeFileLine = await sr.ReadLineAsync() ?? throw new Exception("Expected step folder line but file ended");
+            var scriptFolder = codeFileLine[..^1];
+
+            var selectedRowline = await sr.ReadLineAsync() ?? throw new Exception("Expected selected row indicator line but file ended");
+
+            if (!selectedRowline.Contains(TasFileConstants.SELECTED_ROW_INDICATOR))
+            {
+                throw new Exception($"Expected {TasFileConstants.SELECTED_ROW_INDICATOR} but got: {selectedRowline}");
+            }
+
+            segments = selectedRowline.Split(";");
+            if (segments.Length != 4) throw new Exception($"Invalid selected row format: {selectedRowline}");
+            if (!int.TryParse(segments[1], out int selectedRow) || !int.TryParse(segments[2], out int endRow))
+            {
+                throw new Exception($"Invalid selected row values: {segments[1]}, {segments[2]}");
+            }
+
+            var importIntoRowline = await sr.ReadLineAsync() ?? throw new Exception("Expected import into row indicator line but file ended");
+            if (!importIntoRowline.Contains(TasFileConstants.IMPORT_INTO_ROW_INDICATOR))
+            {
+                throw new Exception($"Expected {TasFileConstants.IMPORT_INTO_ROW_INDICATOR} but got: {importIntoRowline}");
+            }
+
+            segments = importIntoRowline.Split(";");
+            if (segments.Length != 2) throw new Exception($"Invalid import into row format: {importIntoRowline}");
+            if (!int.TryParse(segments[1], out int importIntoRow))
+            {
+                throw new Exception($"Invalid import into row value: {segments[1]}");
+            }
+
+            var loggingLine = await sr.ReadLineAsync() ?? throw new Exception("Expected logging indicator line but file ended");
+            if (!loggingLine.Contains(TasFileConstants.LOGGING_INDICATOR))
+            {
+                throw new Exception($"Expected {TasFileConstants.LOGGING_INDICATOR} but got: {loggingLine}");
+            }
+            segments = loggingLine.Split(";");
+            if (segments.Length != 6) throw new Exception($"Invalid logging format: {loggingLine}");
+            var printSavegame = segments[1].Equals("1");
+            var printTech = segments[2].Equals("1");
+            var printComments = segments[3].Equals("1");
+            if (!int.TryParse(segments[4], out int environment))
+            {
+                throw new Exception($"Invalid environment value: {segments[4]}");
+            }
+            return new TasFileObject()
+            {
+                StepCollection = steps,
+                Goal = goal,
+                ScriptFolder = scriptFolder,
+                SelectedRow = selectedRow,
+                ImportIntoRow = importIntoRow,
+                PrintComments = printComments,
+                PrintSavegame = printSavegame,
+                PrintTech = printTech,
+                Environment = environment,
+            };
         }
 
-        private Step ReadStep(string[] segments)
+        private static Step ReadStep(string[] segments, GameData gameData)
         {
             if (segments.Length < 9)
             {
@@ -247,9 +259,9 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
             {
                 step.Item = type switch
                 {
-                    StepType.Tech => GetTechName(segments, GameData),
-                    StepType.Recipe => GetRecipeName(segments, GameData),
-                    _ => GetItemName(segments, GameData),
+                    StepType.Tech => GetTechName(segments, gameData),
+                    StepType.Recipe => GetRecipeName(segments, gameData),
+                    _ => GetItemName(segments, gameData),
                 };
             }
 

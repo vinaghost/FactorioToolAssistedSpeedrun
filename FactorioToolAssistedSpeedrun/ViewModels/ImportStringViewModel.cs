@@ -69,17 +69,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private bool _clearAfterImport = true;
 
         [RelayCommand]
-        private void CurrentStepIndex()
+        private async Task CurrentStepIndex()
         {
             LineIndex = _panelService.SelectedStepIndex;
-
-            var updateSettingCommand = new UpdateSettingCommand()
-            {
-                ProjectDataFile = _startupService.ProjectDataFile!,
-                Setting = SettingConstants.ImportIntoRow,
-                Value = LineIndex.ToString(),
-            };
-            updateSettingCommand.Execute();
+            await UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.ImportIntoRow, LineIndex.ToString());
         }
 
         [RelayCommand]

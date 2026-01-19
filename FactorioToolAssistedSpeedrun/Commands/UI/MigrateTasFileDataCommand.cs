@@ -58,16 +58,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
                 Key = SettingConstants.Environment,
                 Value = TasFileResult.Environment.ToString()
             });
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.SelectedRow,
-                Value = TasFileResult.SelectedRow.ToString()
-            });
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.ImportIntoRow,
-                Value = TasFileResult.ImportIntoRow.ToString()
-            });
 
             context.SaveChanges();
         }

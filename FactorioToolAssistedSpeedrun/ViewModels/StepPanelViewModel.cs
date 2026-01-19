@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Models.UI;
-using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;

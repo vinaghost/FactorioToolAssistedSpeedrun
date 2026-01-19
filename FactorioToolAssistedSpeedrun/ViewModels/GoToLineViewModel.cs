@@ -2,8 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System.Windows.Controls.Ribbon;
-using System.Windows.Shapes;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
 {

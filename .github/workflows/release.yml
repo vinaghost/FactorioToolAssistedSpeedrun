@@ -100,9 +100,9 @@ jobs:
   
   Clear:  
     runs-on: ubuntu-latest
-    needs: Release
+    needs: [Release,Version]
     steps:
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v5
         with:
-          name: TBS
+          name: FactorioTAS-${{needs.version.outputs.version}}

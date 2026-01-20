@@ -1,11 +1,19 @@
 ﻿using FactorioToolAssistedSpeedrun.Commands.Steps;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
     public class CommandStack
     {
-        private readonly Stack<IUndoCommand> _undoStack = new();
-        private readonly Stack<IUndoCommand> _redoStack = new();
+        private readonly IServiceProvider _services;
+
+        public CommandStack(IServiceProvider services)
+        {
+            _services = services;
+        }
+
+        private readonly Stack<ICommand> _undoStack = new();
+        private readonly Stack<ICommand> _redoStack = new();
         private bool _lock = false;
 
         public void Lock()
@@ -24,26 +32,28 @@ namespace FactorioToolAssistedSpeedrun.Services
             _redoStack.Clear();
         }
 
-        public IUndoCommand UndoPop()
+        public ICommand UndoPop()
         {
             var command = _undoStack.Pop();
             _redoStack.Push(command);
             return command;
         }
 
-        public IUndoCommand RedoPop()
+        public ICommand RedoPop()
         {
             var command = _redoStack.Pop();
             _undoStack.Push(command);
             return command;
         }
 
-        public void Push(IUndoCommand command)
+        public T? Push<T>() where T : ICommand
         {
             if (_lock)
-                return;
+                return default;
+            var command = _services.GetRequiredService<T>();
             _undoStack.Push(command);
             _redoStack.Clear();
+            return command;
         }
 
         public bool CanUndo => _undoStack.Count > 0;

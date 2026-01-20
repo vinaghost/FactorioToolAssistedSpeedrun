@@ -96,13 +96,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 item.Name = _panelService.SelectedTemplate;
             }
 
-            var command = new AddStepCommand
+            var command = _commandStack.Push<AddStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                Steps = items,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, items));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
@@ -132,13 +131,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 item.Name = "";
             }
 
-            var command = new AddStepCommand
+            var command = _commandStack.Push<AddStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                Steps = items,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", items));
+                command.Commit();
+            }
         }
     }
 }

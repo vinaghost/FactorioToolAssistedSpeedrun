@@ -1,28 +1,33 @@
 ﻿using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class MoveStepCommand : UndoCommand
+    public record MoveStepCommandParameters(string Name, List<Guid> StepIds, int MoveOffset) : CommandParameters(Name);
+
+    public class MoveStepCommand : Command<MoveStepCommandParameters>
     {
-        public required List<Guid> StepIds { get; init; }
-
-        public required int MoveOffset { get; init; }
-
-        protected override void DatabaseCommit(ProjectDbContext context)
+        public MoveStepCommand(StartupService startupService, PanelService panelService)
+            : base(startupService, panelService)
         {
+        }
+
+        public override void DatabaseCommit(ProjectDbContext context)
+        {
+            var (name, stepIds, moveOffset) = Parameters;
             var chosenSteps = context.Steps
-                .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
+                .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
             var firstLocation = chosenSteps.First().Location;
             var lastLocation = chosenSteps.Last().Location;
-            if (MoveOffset > 0)
+            if (moveOffset > 0)
             {
                 // go down
                 context.Steps
-                    .Where(x => x.Location > lastLocation && x.Location <= lastLocation + MoveOffset && x.Name == Name)
+                    .Where(x => x.Location > lastLocation && x.Location <= lastLocation + moveOffset && x.Name == name)
                     .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location - chosenSteps.Count));
             }
@@ -30,33 +35,34 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             {
                 // go up
                 context.Steps
-                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + MoveOffset && x.Name == Name)
+                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + moveOffset && x.Name == name)
                      .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location + chosenSteps.Count));
             }
 
             context.Steps
-                .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
+                .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.Location, b => b.Location + MoveOffset));
+                    .SetProperty(b => b.Location, b => b.Location + moveOffset));
         }
 
-        protected override void UICommit(ObservableCollection<StepModel> collection)
+        public override void UICommit(ObservableCollection<StepModel> collection)
         {
+            var (_, stepIds, moveOffset) = Parameters;
             var chosenSteps = collection
-                .Where(x => StepIds.Contains(x.Id))
+                .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
             if (chosenSteps.Count == 0) return;
 
             var firstLocation = chosenSteps.First().Location;
             var lastLocation = chosenSteps.Last().Location;
-            if (MoveOffset > 0)
+            if (moveOffset > 0)
             {
                 // go down
                 var sadSteps = collection
                     .Select((step, index) => (index, step))
-                    .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + MoveOffset)
+                    .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + moveOffset)
                     .OrderByDescending(x => x.index)
                     .ToList();
 
@@ -76,7 +82,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 // go up
                 var sadSteps = collection
                     .Select((step, index) => (index, step))
-                    .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + MoveOffset)
+                    .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + moveOffset)
                     .OrderByDescending(x => x.index)
                     .ToList();
 
@@ -93,15 +99,17 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             }
             foreach (var step in chosenSteps)
             {
-                step.Location += MoveOffset;
+                step.Location += moveOffset;
             }
         }
 
-        protected override void DatabaseRollback(ProjectDbContext context)
+        public override void DatabaseRollback(ProjectDbContext context)
         {
-            var rollbackOffset = -MoveOffset;
+            var (name, stepIds, moveOffset) = Parameters;
+
+            var rollbackOffset = -moveOffset;
             var chosenSteps = context.Steps
-                .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
+                .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .OrderBy(x => x.Location)
                 .ToList();
 
@@ -112,7 +120,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             {
                 // go down
                 context.Steps
-                    .Where(x => x.Location > lastLocation && x.Location <= lastLocation + rollbackOffset && x.Name == Name)
+                    .Where(x => x.Location > lastLocation && x.Location <= lastLocation + rollbackOffset && x.Name == name)
                     .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location - chosenSteps.Count));
             }
@@ -120,21 +128,23 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             {
                 // go up
                 context.Steps
-                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + rollbackOffset && x.Name == Name)
+                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + rollbackOffset && x.Name == name)
                      .ExecuteUpdate(setters => setters
                         .SetProperty(b => b.Location, b => b.Location + chosenSteps.Count));
             }
             context.Steps
-                .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
+                .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.Location, b => b.Location + rollbackOffset));
         }
 
-        protected override void UIRollback(ObservableCollection<StepModel> collection)
+        public override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var rollbackOffset = -MoveOffset;
+            var (name, stepIds, moveOffset) = Parameters;
+
+            var rollbackOffset = -moveOffset;
             var chosenSteps = collection
-                .Where(x => StepIds.Contains(x.Id))
+                .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
 

@@ -1,78 +1,85 @@
 ﻿using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class ReplacePointCommand : UndoCommand
+    public record ReplacePointCommandParameters(string Name, double OldX, double OldY, double NewX, double NewY) : CommandParameters(Name);
+
+    public class ReplacePointCommand : Command<ReplacePointCommandParameters>
     {
-        public required double OldX { get; init; }
-        public required double OldY { get; init; }
-        public required double NewX { get; init; }
-        public required double NewY { get; init; }
+        private readonly CommandStack _commandStack;
 
-        protected override void DatabaseCommit(ProjectDbContext context)
+        public ReplacePointCommand(StartupService startupService, PanelService panelService, CommandStack commandStack)
+            : base(startupService, panelService)
         {
+            _commandStack = commandStack;
+        }
+
+        public override void DatabaseCommit(ProjectDbContext context)
+        {
+            var (name, oldX, oldY, newX, newY) = Parameters;
             context.Steps
-                .Where(x => x.Name == Name)
-                .Where(x => Math.Abs(x.X - OldX) < 0.0001 && Math.Abs(x.Y - OldY) < 0.0001)
+                .Where(x => x.Name == name)
+                .Where(x => Math.Abs(x.X - oldX) < 0.0001 && Math.Abs(x.Y - oldY) < 0.0001)
                 .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => NewX)
-                    .SetProperty(b => b.Y, b => NewY));
+                    .SetProperty(b => b.X, b => newX)
+                    .SetProperty(b => b.Y, b => newY));
 
             context.Buildings
-                .Where(x => Math.Abs(x.X - OldX) < 0.0001 && Math.Abs(x.Y - OldY) < 0.0001)
+                .Where(x => Math.Abs(x.X - oldX) < 0.0001 && Math.Abs(x.Y - oldY) < 0.0001)
                  .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => NewX)
-                    .SetProperty(b => b.Y, b => NewY));
+                    .SetProperty(b => b.X, b => newX)
+                    .SetProperty(b => b.Y, b => newY));
         }
 
-        protected override void UICommit(ObservableCollection<StepModel> collection)
+        public override void UICommit(ObservableCollection<StepModel> collection)
         {
-            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            var (_, oldX, oldY, newX, newY) = Parameters;
+
             var items = collection
-                .Where(x => x.X == $"{OldX:F2}" && x.Y == $"{OldY:F2}")
+                .Where(x => x.X == $"{oldX:F2}" && x.Y == $"{oldY:F2}")
                 .ToList();
-            commandStack.Lock();
+            _commandStack.Lock();
             foreach (var item in items)
             {
-                item.X = $"{NewX:F2}";
-                item.Y = $"{NewY:F2}";
+                item.X = $"{newX:F2}";
+                item.Y = $"{newY:F2}";
             }
-            commandStack.Unlock();
+            _commandStack.Unlock();
         }
 
-        protected override void DatabaseRollback(ProjectDbContext context)
+        public override void DatabaseRollback(ProjectDbContext context)
         {
+            var (name, oldX, oldY, newX, newY) = Parameters;
             context.Steps
-                .Where(x => x.Name == Name)
-                .Where(x => Math.Abs(x.X - NewX) < 0.0001 && Math.Abs(x.Y - NewY) < 0.0001)
+                .Where(x => x.Name == name)
+                .Where(x => Math.Abs(x.X - newX) < 0.0001 && Math.Abs(x.Y - newY) < 0.0001)
                 .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => OldX)
-                    .SetProperty(b => b.Y, b => OldY));
+                    .SetProperty(b => b.X, b => oldX)
+                    .SetProperty(b => b.Y, b => oldY));
 
             context.Buildings
-                .Where(x => Math.Abs(x.X - NewX) < 0.0001 && Math.Abs(x.Y - NewY) < 0.0001)
+                .Where(x => Math.Abs(x.X - newX) < 0.0001 && Math.Abs(x.Y - newY) < 0.0001)
                  .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => OldX)
-                    .SetProperty(b => b.Y, b => OldY));
+                    .SetProperty(b => b.X, b => oldX)
+                    .SetProperty(b => b.Y, b => oldY));
         }
 
-        protected override void UIRollback(ObservableCollection<StepModel> collection)
+        public override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            var (_, oldX, oldY, newX, newY) = Parameters;
             var items = collection
-                .Where(x => x.X == $"{NewX:F2}" && x.Y == $"{NewY:F2}")
+                .Where(x => x.X == $"{newX:F2}" && x.Y == $"{newY:F2}")
                 .ToList();
-            commandStack.Lock();
+            _commandStack.Lock();
             foreach (var item in items)
             {
-                item.X = $"{OldX:F2}";
-                item.Y = $"{OldY:F2}";
+                item.X = $"{oldX:F2}";
+                item.Y = $"{oldY:F2}";
             }
-            commandStack.Unlock();
+            _commandStack.Unlock();
         }
     }
 }

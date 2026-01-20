@@ -1,4 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.Services;
+﻿using FactorioToolAssistedSpeedrun.Commands.Steps;
+using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
@@ -40,6 +41,13 @@ namespace FactorioToolAssistedSpeedrun
             services.AddTransient<StepPanelViewModel>();
 
             services.AddTransient<TemplatePanelViewModel>();
+
+            services.AddTransient<AddStepCommand>();
+            services.AddTransient<ApplySkipCommand>();
+            services.AddTransient<DeleteStepCommand>();
+            services.AddTransient<MoveStepCommand>();
+            services.AddTransient<ReplacePointCommand>();
+            services.AddTransient(typeof(UpdateStepPropertyCommand<,>));
 
             return services.BuildServiceProvider();
         }

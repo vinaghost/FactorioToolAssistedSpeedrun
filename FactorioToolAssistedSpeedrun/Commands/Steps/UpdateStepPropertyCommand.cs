@@ -2,7 +2,6 @@
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -49,56 +48,61 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         }
     }
 
-    public class UpdateStepPropertyCommand<T, TStep> : UndoCommand
+    public record UpdateStepPropertyCommandParameters<T, TStep>(string Name, Guid StepId, T OldValue, T NewValue,
+        Func<T, TStep> StepPropertyTransformer, Expression<Func<Step, TStep>> StepPropertySelector, Expression<Func<StepModel, T>> StepModelPropertySelector) : CommandParameters(Name);
+
+    public class UpdateStepPropertyCommand<T, TStep> : Command<UpdateStepPropertyCommandParameters<T, TStep>>
     {
-        public required Guid StepId { get; init; }
-        public required T OldValue { get; init; }
-        public required T NewValue { get; init; }
+        private readonly CommandStack _commandStack;
 
-        public required Func<T, TStep> StepPropertyTransformer { get; init; }
-        public required Expression<Func<Step, TStep>> StepPropertySelector { get; init; }
-        public required Expression<Func<StepModel, T>> StepModelPropertySelector { get; init; }
-
-        protected override void DatabaseCommit(ProjectDbContext context)
+        public UpdateStepPropertyCommand(StartupService startupService, PanelService panelService, CommandStack commandStack) : base(startupService, panelService)
         {
-            var stepValue = StepPropertyTransformer(NewValue);
+            _commandStack = commandStack;
+        }
+
+        public override void DatabaseCommit(ProjectDbContext context)
+        {
+            var (_, stepId, _, newValue, stepPropertyTransformer, stepPropertySelector, _) = Parameters;
+            var stepValue = stepPropertyTransformer(newValue);
             context.Steps
-                .Where(x => x.Id == StepId)
+                .Where(x => x.Id == stepId)
                 .ExecuteUpdate(setters => setters
-                    .SetProperty(StepPropertySelector, stepValue));
+                    .SetProperty(stepPropertySelector, stepValue));
         }
 
-        protected override void UICommit(ObservableCollection<StepModel> collection)
+        public override void UICommit(ObservableCollection<StepModel> collection)
         {
-            var currentStepModel = collection.FirstOrDefault(s => s.Id == StepId);
+            var (_, stepId, _, newValue, _, _, stepModelPropertySelector) = Parameters;
+
+            var currentStepModel = collection.FirstOrDefault(s => s.Id == stepId);
             if (currentStepModel is null) return;
-            var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
+            var setter = ExpressionHelper.GetSetter(stepModelPropertySelector);
 
-            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
-            commandStack.Lock();
-            setter(currentStepModel, NewValue);
-            commandStack.Unlock();
+            _commandStack.Lock();
+            setter(currentStepModel, newValue);
+            _commandStack.Unlock();
         }
 
-        protected override void DatabaseRollback(ProjectDbContext context)
+        public override void DatabaseRollback(ProjectDbContext context)
         {
-            var stepValue = StepPropertyTransformer(OldValue);
+            var (_, stepId, oldValue, _, stepPropertyTransformer, stepPropertySelector, _) = Parameters;
+            var stepValue = stepPropertyTransformer(oldValue);
             context.Steps
-               .Where(x => x.Id == StepId)
+               .Where(x => x.Id == stepId)
                .ExecuteUpdate(setters => setters
-                   .SetProperty(StepPropertySelector, stepValue));
+                   .SetProperty(stepPropertySelector, stepValue));
         }
 
-        protected override void UIRollback(ObservableCollection<StepModel> collection)
+        public override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var currentStepModel = collection.FirstOrDefault(s => s.Id == StepId);
+            var (_, stepId, oldValue, _, _, _, stepModelPropertySelector) = Parameters;
+            var currentStepModel = collection.FirstOrDefault(s => s.Id == stepId);
             if (currentStepModel is null) return;
-            var setter = ExpressionHelper.GetSetter(StepModelPropertySelector);
+            var setter = ExpressionHelper.GetSetter(stepModelPropertySelector);
 
-            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
-            commandStack.Lock();
-            setter(currentStepModel, OldValue);
-            commandStack.Unlock();
+            _commandStack.Lock();
+            setter(currentStepModel, oldValue);
+            _commandStack.Unlock();
         }
     }
 }

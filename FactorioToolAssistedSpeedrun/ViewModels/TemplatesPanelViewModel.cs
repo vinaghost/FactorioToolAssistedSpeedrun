@@ -92,14 +92,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             step.Location = index + 1;
             step.Name = _panelService.SelectedTemplate;
 
-            var command = new AddStepCommand
+            var command = _commandStack.Push<AddStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                Steps = [step],
-            };
-            command.Commit();
-            _panelService.SelectedTemplateStepIndex = index;
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, [step]));
+                command.Commit();
+                _panelService.SelectedTemplateStepIndex = index;
+            }
         }
 
         [RelayCommand]
@@ -115,13 +114,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (result != MessageBoxResult.Yes) return;
 
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new DeleteStepCommand
+
+            var command = _commandStack.Push<DeleteStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                Steps = [.. items.Select(x => x.ToEntity())],
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, [.. items.Select(x => x.ToEntity())]));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
@@ -134,14 +133,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
             var items = selectedItems.OfType<StepModel>().ToList();
 
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = -1,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, [.. items.Select(x => x.Id)], -1));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
@@ -153,14 +150,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new MoveStepCommand
+
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = -5,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, [.. items.Select(x => x.Id)], -5));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
@@ -172,14 +168,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = 1,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, [.. items.Select(x => x.Id)], 1));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
@@ -191,14 +185,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = _panelService.SelectedTemplate,
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = 5,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new(_panelService.SelectedTemplate, [.. items.Select(x => x.Id)], 5));
+                command.Commit();
+            }
         }
     }
 }

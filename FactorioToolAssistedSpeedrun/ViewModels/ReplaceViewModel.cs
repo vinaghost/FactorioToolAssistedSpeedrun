@@ -68,17 +68,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 MessageBox.Show("Project data is not loaded. Please load the project data file first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            var command = new ReplacePointCommand
+            var command = _commandStack.Push<ReplacePointCommand>();
+            if (command is not null)
             {
-                Name = "",
-                OldX = FindX,
-                OldY = FindY,
-                NewX = ReplaceX,
-                NewY = ReplaceY
-            };
-
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", FindX, FindY, ReplaceX, ReplaceY));
+                command.Commit();
+            }
 
             MessageBox.Show($"Replaced {InstancesFound} instances of point ({FindX}, {FindY}) with ({ReplaceX}, {ReplaceY}).", "Replace Complete", MessageBoxButton.OK, MessageBoxImage.Information);
         }

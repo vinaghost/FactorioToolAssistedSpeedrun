@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Commands.UI;
 using FactorioToolAssistedSpeedrun.Constants;
-using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using FactorioToolAssistedSpeedrun.Queries;

@@ -102,13 +102,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     step.Name = "";
                 }
 
-                var command = new AddStepCommand
+                var command = _commandStack.Push<AddStepCommand>();
+                if (command is not null)
                 {
-                    Name = "",
-                    Steps = steps,
-                };
-                command.Commit();
-                _commandStack.Push(command);
+                    command.Setup(new("", steps));
+                    command.Commit();
+                }
 
                 if (ClearAfterImport)
                 {
@@ -143,13 +142,12 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     step.Location = i + 1;
                     step.Name = TemplateName;
                 }
-                var command = new AddStepCommand
+                var command = _commandStack.Push<AddStepCommand>();
+                if (command is not null)
                 {
-                    Name = TemplateName,
-                    Steps = steps,
-                };
-                command.Commit();
-                _commandStack.Push(command);
+                    command.Setup(new(TemplateName, steps));
+                    command.Commit();
+                }
 
                 _panelService.AddTemplate(TemplateName);
 

@@ -1,58 +1,68 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class DeleteStepCommand : UndoCommand
+    public record DeleteStepCommandParameters(string Name, List<Step> Steps) : CommandParameters(Name);
+
+    public class DeleteStepCommand : Command<DeleteStepCommandParameters>
     {
-        public required List<Step> Steps { get; init; }
-
-        protected override void DatabaseCommit(ProjectDbContext context)
+        public DeleteStepCommand(StartupService startupService, PanelService panelService)
+            : base(startupService, panelService)
         {
-            context.Steps
-                .Where(x => Steps.Select(s => s.Id).Contains(x.Id) && x.Name == Name)
-                .ExecuteDelete();
-
-            var maxLocation = Steps.Max(x => x.Location);
-            context.Steps
-                .Where(x => x.Location > maxLocation && x.Name == Name)
-                .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location - Steps.Count));
         }
 
-        protected override void UICommit(ObservableCollection<StepModel> collection)
+        public override void DatabaseCommit(ProjectDbContext context)
         {
-            foreach (var location in Steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
+            var (name, steps) = Parameters;
+            context.Steps
+                .Where(x => steps.Select(s => s.Id).Contains(x.Id))
+                .ExecuteDelete();
+
+            var maxLocation = steps.Max(x => x.Location);
+            context.Steps
+                .Where(x => x.Location > maxLocation && x.Name == name)
+                .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location - steps.Count));
+        }
+
+        public override void UICommit(ObservableCollection<StepModel> collection)
+        {
+            var (_, steps) = Parameters;
+            foreach (var location in steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
             {
                 collection.RemoveAt(location);
             }
 
-            var maxLocation = Steps.Max(x => x.Location);
+            var maxLocation = steps.Max(x => x.Location);
             foreach (var step in collection.Where(x => x.Location > maxLocation))
             {
-                step.Location -= Steps.Count;
+                step.Location -= steps.Count;
             }
         }
 
-        protected override void DatabaseRollback(ProjectDbContext context)
+        public override void DatabaseRollback(ProjectDbContext context)
         {
-            var minLocation = Steps.Min(x => x.Location);
+            var (name, steps) = Parameters;
+            var minLocation = steps.Min(x => x.Location);
             context.Steps
-                .Where(x => x.Location >= minLocation && x.Name == Name)
-                .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location + Steps.Count));
-            context.Steps.AddRange(Steps);
+                .Where(x => x.Location >= minLocation && x.Name == name)
+                .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location + steps.Count));
+            context.Steps.AddRange(steps);
             context.SaveChanges();
         }
 
-        protected override void UIRollback(ObservableCollection<StepModel> collection)
+        public override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var minLocation = Steps.Min(x => x.Location);
+            var (_, steps) = Parameters;
+            var minLocation = steps.Min(x => x.Location);
             foreach (var step in collection.Where(x => x.Location >= minLocation))
             {
-                step.Location += Steps.Count;
+                step.Location += steps.Count;
             }
-            foreach (var step in Steps.OrderByDescending(x => x.Location))
+            foreach (var step in steps.OrderByDescending(x => x.Location))
             {
                 var model = new StepModel();
                 model.FromEntity(step);

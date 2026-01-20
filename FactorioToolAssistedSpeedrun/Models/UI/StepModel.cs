@@ -39,20 +39,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!_commandStack.IsLocked)
+                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, double>>();
+                    if (command is not null)
                     {
-                        var command = new UpdateStepPropertyCommand<string, double>()
-                        {
-                            StepId = Id,
-                            Name = Name,
-                            OldValue = oldValue ?? "",
-                            NewValue = newValue,
-                            StepPropertySelector = step => step.X,
-                            StepModelPropertySelector = model => model.X,
-                            StepPropertyTransformer = str => double.Parse(str)
-                        };
+                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                            str => double.Parse(str),
+                            model => model.X,
+                            step => step.X));
+
                         command.Commit(true);
-                        _commandStack.Push(command);
                     }
                 }
             }
@@ -81,20 +76,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!_commandStack.IsLocked)
+                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, double>>();
+                    if (command is not null)
                     {
-                        var command = new UpdateStepPropertyCommand<string, double>()
-                        {
-                            StepId = Id,
-                            OldValue = oldValue ?? "",
-                            NewValue = newValue,
-                            Name = Name,
-                            StepPropertySelector = step => step.Y,
-                            StepModelPropertySelector = model => model.Y,
-                            StepPropertyTransformer = str => double.Parse(str)
-                        };
+                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                            str => double.Parse(str),
+                            model => model.Y,
+                            step => step.Y));
+
                         command.Commit(true);
-                        _commandStack.Push(command);
                     }
                 }
             }
@@ -133,20 +123,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        if (!_commandStack.IsLocked)
+                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, int>>();
+                        if (command is not null)
                         {
-                            var command = new UpdateStepPropertyCommand<string, int>()
-                            {
-                                StepId = Id,
-                                OldValue = oldValue ?? "",
-                                NewValue = newValue,
-                                Name = Name,
-                                StepPropertySelector = step => step.Amount,
-                                StepModelPropertySelector = model => model.Amount,
-                                StepPropertyTransformer = str => int.Parse(str)
-                            };
+                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                                str => int.Parse(str),
+                                model => model.Amount,
+                                step => step.Amount));
+
                             command.Commit(true);
-                            _commandStack.Push(command);
                         }
                     }
                 }
@@ -179,20 +164,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        if (!_commandStack.IsLocked)
+                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
+                        if (command is not null)
                         {
-                            var command = new UpdateStepPropertyCommand<string, string>()
-                            {
-                                StepId = Id,
-                                OldValue = oldValue ?? "",
-                                NewValue = newValue,
-                                Name = Name,
-                                StepPropertySelector = step => step.Item,
-                                StepModelPropertySelector = model => model.Item,
-                                StepPropertyTransformer = str => str
-                            };
+                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                                str => str,
+                                model => model.Item,
+                                step => step.Item));
+
                             command.Commit(true);
-                            _commandStack.Push(command);
                         }
                     }
                 }
@@ -204,20 +184,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        if (!_commandStack.IsLocked)
+                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
+                        if (command is not null)
                         {
-                            var command = new UpdateStepPropertyCommand<string, string>()
-                            {
-                                StepId = Id,
-                                OldValue = oldValue ?? "",
-                                NewValue = newValue,
-                                Name = Name,
-                                StepPropertySelector = step => step.Item,
-                                StepModelPropertySelector = model => model.Item,
-                                StepPropertyTransformer = str => str
-                            };
+                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                                str => str,
+                                model => model.Item,
+                                step => step.Item));
+
                             command.Commit(true);
-                            _commandStack.Push(command);
                         }
                     }
                 }
@@ -229,20 +204,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        if (!_commandStack.IsLocked)
+                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
+                        if (command is not null)
                         {
-                            var command = new UpdateStepPropertyCommand<string, string>()
-                            {
-                                StepId = Id,
-                                OldValue = oldValue ?? "",
-                                NewValue = newValue,
-                                Name = Name,
-                                StepPropertySelector = step => step.Item,
-                                StepModelPropertySelector = model => model.Item,
-                                StepPropertyTransformer = str => str
-                            };
+                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                                str => str,
+                                model => model.Item,
+                                step => step.Item));
+
                             command.Commit(true);
-                            _commandStack.Push(command);
                         }
                     }
                 }
@@ -271,20 +241,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!_commandStack.IsLocked)
+                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, OrientationType?>>();
+                    if (command is not null)
                     {
-                        var command = new UpdateStepPropertyCommand<string, OrientationType?>()
-                        {
-                            StepId = Id,
-                            OldValue = oldValue ?? "",
-                            NewValue = newValue,
-                            Name = Name,
-                            StepPropertySelector = step => step.Orientation,
-                            StepModelPropertySelector = model => model.Orientation,
-                            StepPropertyTransformer = str => OrientationTypeExtensions.FromString(str)
-                        };
+                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                            str => OrientationTypeExtensions.FromString(str),
+                            model => model.Orientation,
+                            step => step.Orientation));
+
                         command.Commit(true);
-                        _commandStack.Push(command);
                     }
                 }
             }
@@ -296,20 +261,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!_commandStack.IsLocked)
+                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, InventoryType?>>();
+                    if (command is not null)
                     {
-                        var command = new UpdateStepPropertyCommand<string, InventoryType?>()
-                        {
-                            StepId = Id,
-                            OldValue = oldValue ?? "",
-                            NewValue = newValue,
-                            Name = Name,
-                            StepPropertySelector = step => step.Inventory,
-                            StepModelPropertySelector = model => model.Orientation,
-                            StepPropertyTransformer = str => InventoryTypeExtensions.FromString(str)
-                        };
+                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                            str => InventoryTypeExtensions.FromString(str),
+                            model => model.Inventory,
+                            step => step.Orientation));
+
                         command.Commit(true);
-                        _commandStack.Push(command);
                     }
                 }
             }
@@ -321,20 +281,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!_commandStack.IsLocked)
+                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, Priority?>>();
+                    if (command is not null)
                     {
-                        var command = new UpdateStepPropertyCommand<string, Priority?>()
-                        {
-                            StepId = Id,
-                            OldValue = oldValue ?? "",
-                            NewValue = newValue,
-                            Name = Name,
-                            StepPropertySelector = step => step.Priority,
-                            StepModelPropertySelector = model => model.Orientation,
-                            StepPropertyTransformer = str => Priority.FromString(str)
-                        };
+                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                            str => Priority.FromString(str),
+                            model => model.Priority,
+                            step => step.Orientation));
+
                         command.Commit(true);
-                        _commandStack.Push(command);
                     }
                 }
             }
@@ -376,21 +331,15 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     }
                     else
                     {
-                        if (!_commandStack.IsLocked)
+                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, ModifierType?>>();
+                        if (command is not null)
                         {
-                            var command = new UpdateStepPropertyCommand<string, ModifierType?>()
-                            {
-                                StepId = Id,
-                                OldValue = oldValue ?? "",
-                                NewValue = newValue,
-                                Name = Name,
-                                StepPropertySelector = step => step.Modifier,
-                                StepModelPropertySelector = model => model.Modifier,
-                                StepPropertyTransformer = str => ModifierTypeExtensions.FromString(str)
-                            };
+                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                                str => ModifierTypeExtensions.FromString(str),
+                                model => model.Modifier,
+                                step => step.Modifier));
 
                             command.Commit(true);
-                            _commandStack.Push(command);
                         }
                     }
                 }
@@ -409,21 +358,16 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         {
             if (!_loaded) return;
             if (_lock) return;
-            if (!_commandStack.IsLocked)
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
+            if (command is not null)
             {
-                var command = new UpdateStepPropertyCommand<string, string>()
-                {
-                    StepId = Id,
-                    OldValue = oldValue ?? "",
-                    NewValue = newValue,
-                    Name = Name,
-                    StepPropertySelector = step => step.Color,
-                    StepModelPropertySelector = model => model.Color,
-                    StepPropertyTransformer = str => str
-                };
+                command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                    str => str,
+                    model => model.Color,
+                    step => step.Color));
 
                 command.Commit(true);
-                _commandStack.Push(command);
             }
         }
 
@@ -434,21 +378,16 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         {
             if (!_loaded) return;
             if (_lock) return;
-            if (!_commandStack.IsLocked)
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
+            if (command is not null)
             {
-                var command = new UpdateStepPropertyCommand<string, string>()
-                {
-                    StepId = Id,
-                    OldValue = oldValue ?? "",
-                    NewValue = newValue,
-                    Name = Name,
-                    StepPropertySelector = step => step.Comment,
-                    StepModelPropertySelector = model => model.Comment,
-                    StepPropertyTransformer = str => str
-                };
+                command.Setup(new(Name, Id, oldValue ?? "", newValue,
+                    str => str,
+                    model => model.Comment,
+                    step => step.Comment));
 
                 command.Commit(true);
-                _commandStack.Push(command);
             }
         }
 
@@ -459,21 +398,16 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         {
             if (!_loaded) return;
             if (_lock) return;
-            if (!_commandStack.IsLocked)
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<bool, bool>>();
+            if (command is not null)
             {
-                var command = new UpdateStepPropertyCommand<bool, bool>()
-                {
-                    StepId = Id,
-                    OldValue = oldValue,
-                    NewValue = newValue,
-                    Name = Name,
-                    StepPropertySelector = step => step.IsSkip,
-                    StepModelPropertySelector = model => model.IsSkip,
-                    StepPropertyTransformer = str => str
-                };
+                command.Setup(new(Name, Id, oldValue, newValue,
+                    str => str,
+                    model => model.IsSkip,
+                    step => step.IsSkip));
 
                 command.Commit(true);
-                _commandStack.Push(command);
             }
         }
 

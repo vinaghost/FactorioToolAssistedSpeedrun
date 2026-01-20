@@ -50,13 +50,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             var step = _stepService.ToStep();
             var index = rightClick ? PanelService.SelectedStepIndex + 1 : PanelService.SelectedStepIndex;
             step.Location = index + 1;
-            var command = new AddStepCommand
+
+            var command = _commandStack.Push<AddStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                Steps = [step],
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [step]));
+                command.Commit();
+            }
 
             PanelService.SelectedStepIndex = index;
         }
@@ -68,13 +68,13 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (result != MessageBoxResult.Yes) return;
 
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new DeleteStepCommand
+
+            var command = _commandStack.Push<DeleteStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                Steps = [.. items.Select(x => x.ToEntity())],
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [.. items.Select(x => x.ToEntity())]));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
@@ -82,69 +82,60 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             var items = selectedItems.OfType<StepModel>().ToList();
 
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = -1,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [.. items.Select(x => x.Id)], -1));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
         public async Task MoveUpFive(System.Collections.IList selectedItems)
         {
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = -5,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [.. items.Select(x => x.Id)], -5));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
         public async Task MoveDownOne(System.Collections.IList selectedItems)
         {
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = 1,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [.. items.Select(x => x.Id)], 1));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
         public async Task MoveDownFive(System.Collections.IList selectedItems)
         {
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new MoveStepCommand
+            var command = _commandStack.Push<MoveStepCommand>();
+            if (command is not null)
             {
-                Name = "",
-                StepIds = [.. items.Select(x => x.Id)],
-                MoveOffset = 5,
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [.. items.Select(x => x.Id)], 5));
+                command.Commit();
+            }
         }
 
         [RelayCommand]
         public async Task Skip(System.Collections.IList selectedItems)
         {
             var items = selectedItems.OfType<StepModel>().ToList();
-            var command = new ApplySkipCommand
+            var command = _commandStack.Push<ApplySkipCommand>();
+            if (command is not null)
             {
-                Name = "",
-                StepIds = [.. items.Select(x => x.Id)],
-            };
-            command.Commit();
-            _commandStack.Push(command);
+                command.Setup(new("", [.. items.Select(x => x.Id)]));
+                command.Commit();
+            }
         }
     }
 }

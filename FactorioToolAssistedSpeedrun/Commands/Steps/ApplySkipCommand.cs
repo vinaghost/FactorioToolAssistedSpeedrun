@@ -1,43 +1,52 @@
 ﻿using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
-    public class ApplySkipCommand : UndoCommand
-    {
-        public required List<Guid> StepIds { get; init; }
+    public record ApplySkipCommandParameters(string Name, List<Guid> StepIds) : CommandParameters(Name);
 
-        protected override void DatabaseCommit(ProjectDbContext context)
+    public class ApplySkipCommand : Command<ApplySkipCommandParameters>
+    {
+        private readonly CommandStack _commandStack;
+
+        public ApplySkipCommand(StartupService startupService, PanelService panelService, CommandStack commandStack)
+            : base(startupService, panelService)
         {
+            _commandStack = commandStack;
+        }
+
+        public override void DatabaseCommit(ProjectDbContext context)
+        {
+            var (name, stepIds) = Parameters;
             context.Steps
-                .Where(x => StepIds.Contains(x.Id) && x.Name == Name)
+                .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.IsSkip, b => !b.IsSkip));
         }
 
-        protected override void UICommit(ObservableCollection<StepModel> collection)
+        public override void UICommit(ObservableCollection<StepModel> collection)
         {
-            var commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            var (_, stepIds) = Parameters;
             var items = collection
-                .Where(x => StepIds.Contains(x.Id))
+                .Where(x => stepIds.Contains(x.Id))
                 .ToList();
-            commandStack.Lock();
+
+            _commandStack.Lock();
             foreach (var item in items)
             {
                 item.IsSkip = !item.IsSkip;
             }
-            commandStack.Unlock();
+            _commandStack.Unlock();
         }
 
-        protected override void DatabaseRollback(ProjectDbContext context)
+        public override void DatabaseRollback(ProjectDbContext context)
         {
             DatabaseCommit(context);
         }
 
-        protected override void UIRollback(ObservableCollection<StepModel> collection)
+        public override void UIRollback(ObservableCollection<StepModel> collection)
         {
             UICommit(collection);
         }

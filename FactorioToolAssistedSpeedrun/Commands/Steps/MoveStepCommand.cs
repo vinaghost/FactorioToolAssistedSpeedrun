@@ -17,29 +17,25 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseCommit(ProjectDbContext context)
         {
             var (name, stepIds, moveOffset) = Parameters;
+            DatabaseCommit(context, stepIds, moveOffset, name);
+        }
+
+        public static void DatabaseCommit(ProjectDbContext context, List<Guid> stepIds, int moveOffset, string name)
+        {
             var chosenSteps = context.Steps
                 .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
-            var firstLocation = chosenSteps.First().Location;
-            var lastLocation = chosenSteps.Last().Location;
             if (moveOffset > 0)
             {
-                // go down
-                context.Steps
-                    .Where(x => x.Location > lastLocation && x.Location <= lastLocation + moveOffset && x.Name == name)
-                    .ExecuteUpdate(setters => setters
-                        .SetProperty(b => b.Location, b => b.Location - chosenSteps.Count));
+                var lastLocation = chosenSteps.Last().Location;
+                GoDown(context, name, lastLocation, moveOffset, chosenSteps.Count);
             }
             else
             {
-                // go up
-                context.Steps
-                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + moveOffset && x.Name == name)
-                     .ExecuteUpdate(setters => setters
-                        .SetProperty(b => b.Location, b => b.Location + chosenSteps.Count));
+                var firstLocation = chosenSteps.First().Location;
+                GoUp(context, name, firstLocation, moveOffset, chosenSteps.Count);
             }
-
             context.Steps
                 .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .ExecuteUpdate(setters => setters
@@ -49,53 +45,25 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void UICommit(ObservableCollection<StepModel> collection)
         {
             var (_, stepIds, moveOffset) = Parameters;
+            UICommit(collection, stepIds, moveOffset);
+        }
+
+        public static void UICommit(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
+        {
             var chosenSteps = collection
                 .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
             if (chosenSteps.Count == 0) return;
-
-            var firstLocation = chosenSteps.First().Location;
-            var lastLocation = chosenSteps.Last().Location;
             if (moveOffset > 0)
             {
-                // go down
-                var sadSteps = collection
-                    .Select((step, index) => (index, step))
-                    .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + moveOffset)
-                    .OrderByDescending(x => x.index)
-                    .ToList();
-
-                foreach (var (index, step) in sadSteps)
-                {
-                    collection.RemoveAt(index);
-                }
-
-                foreach (var (_, step) in sadSteps)
-                {
-                    step.Location -= chosenSteps.Count;
-                    collection.Insert(firstLocation - 1, step);
-                }
+                var lastLocation = chosenSteps.Last().Location;
+                GoDown(collection, lastLocation, moveOffset, chosenSteps.Count);
             }
             else
             {
-                // go up
-                var sadSteps = collection
-                    .Select((step, index) => (index, step))
-                    .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + moveOffset)
-                    .OrderByDescending(x => x.index)
-                    .ToList();
-
-                foreach (var (_, step) in sadSteps)
-                {
-                    step.Location += chosenSteps.Count;
-                    collection.Insert(lastLocation, step);
-                }
-
-                foreach (var (index, step) in sadSteps)
-                {
-                    collection.RemoveAt(index);
-                }
+                var firstLocation = chosenSteps.First().Location;
+                GoUp(collection, firstLocation, moveOffset, chosenSteps.Count);
             }
             foreach (var step in chosenSteps)
             {
@@ -107,30 +75,25 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         {
             var (name, stepIds, moveOffset) = Parameters;
 
+            DatabaseRollback(context, name, stepIds, moveOffset);
+        }
+
+        public static void DatabaseRollback(ProjectDbContext context, string name, List<Guid> stepIds, int moveOffset)
+        {
             var rollbackOffset = -moveOffset;
             var chosenSteps = context.Steps
                 .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .OrderBy(x => x.Location)
                 .ToList();
-
-            var firstLocation = chosenSteps.First().Location;
-            var lastLocation = chosenSteps.Last().Location;
-
             if (rollbackOffset > 0)
             {
-                // go down
-                context.Steps
-                    .Where(x => x.Location > lastLocation && x.Location <= lastLocation + rollbackOffset && x.Name == name)
-                    .ExecuteUpdate(setters => setters
-                        .SetProperty(b => b.Location, b => b.Location - chosenSteps.Count));
+                var lastLocation = chosenSteps.Last().Location;
+                GoDown(context, name, lastLocation, rollbackOffset, chosenSteps.Count);
             }
             else
             {
-                // go up
-                context.Steps
-                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + rollbackOffset && x.Name == name)
-                     .ExecuteUpdate(setters => setters
-                        .SetProperty(b => b.Location, b => b.Location + chosenSteps.Count));
+                var firstLocation = chosenSteps.First().Location;
+                GoUp(context, name, firstLocation, rollbackOffset, chosenSteps.Count);
             }
             context.Steps
                 .Where(x => stepIds.Contains(x.Id) && x.Name == name)
@@ -141,60 +104,82 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void UIRollback(ObservableCollection<StepModel> collection)
         {
             var (name, stepIds, moveOffset) = Parameters;
+            UIRollback(collection, name, stepIds, moveOffset);
+        }
 
+        public static void UIRollback(ObservableCollection<StepModel> collection, string name, List<Guid> stepIds, int moveOffset)
+        {
             var rollbackOffset = -moveOffset;
             var chosenSteps = collection
                 .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
                 .ToList();
-
             if (chosenSteps.Count == 0) return;
-
-            var firstLocation = chosenSteps.First().Location;
-            var lastLocation = chosenSteps.Last().Location;
             if (rollbackOffset > 0)
             {
-                // go down
-                var sadSteps = collection
-                    .Select((step, index) => (index, step))
-                    .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + rollbackOffset)
-                    .OrderByDescending(x => x.index)
-                    .ToList();
-
-                foreach (var (index, step) in sadSteps)
-                {
-                    collection.RemoveAt(index);
-                }
-
-                foreach (var (_, step) in sadSteps)
-                {
-                    step.Location -= chosenSteps.Count;
-                    collection.Insert(firstLocation - 1, step);
-                }
+                var lastLocation = chosenSteps.Last().Location;
+                GoDown(collection, lastLocation, rollbackOffset, chosenSteps.Count);
             }
             else
             {
-                // go up
-                var sadSteps = collection
-                    .Select((step, index) => (index, step))
-                    .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + rollbackOffset)
-                    .OrderByDescending(x => x.index)
-                    .ToList();
-
-                foreach (var (_, step) in sadSteps)
-                {
-                    step.Location += chosenSteps.Count;
-                    collection.Insert(lastLocation, step);
-                }
-
-                foreach (var (index, step) in sadSteps)
-                {
-                    collection.RemoveAt(index);
-                }
+                var firstLocation = chosenSteps.First().Location;
+                GoUp(collection, firstLocation, rollbackOffset, chosenSteps.Count);
             }
             foreach (var step in chosenSteps)
             {
                 step.Location += rollbackOffset;
+            }
+        }
+
+        private static void GoDown(ProjectDbContext context, string name, int lastLocation, int moveOffset, int stepCount)
+        {
+            context.Steps
+                   .Where(x => x.Location > lastLocation && x.Location <= lastLocation + moveOffset && x.Name == name)
+                   .ExecuteUpdate(setters => setters
+                       .SetProperty(b => b.Location, b => b.Location - stepCount));
+        }
+
+        private static void GoUp(ProjectDbContext context, string name, int firstLocation, int moveOffset, int stepCount)
+        {
+            context.Steps
+                .Where(x => x.Location < firstLocation && x.Location >= firstLocation + moveOffset && x.Name == name)
+                 .ExecuteUpdate(setters => setters
+                    .SetProperty(b => b.Location, b => b.Location + stepCount));
+        }
+
+        private static void GoDown(ObservableCollection<StepModel> collection, int lastLocation, int moveOffset, int stepCount)
+        {
+            var sadSteps = collection
+                .Select((step, index) => (index, step))
+                .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + moveOffset)
+                .OrderByDescending(x => x.index)
+                .ToList();
+            foreach (var (index, step) in sadSteps)
+            {
+                collection.RemoveAt(index);
+            }
+            foreach (var (_, step) in sadSteps)
+            {
+                step.Location -= stepCount;
+                collection.Insert(lastLocation - stepCount, step);
+            }
+        }
+
+        private static void GoUp(ObservableCollection<StepModel> collection, int firstLocation, int moveOffset, int stepCount)
+        {
+            var sadSteps = collection
+                .Select((step, index) => (index, step))
+                .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + moveOffset)
+                .OrderByDescending(x => x.index)
+                .ToList();
+            foreach (var (_, step) in sadSteps)
+            {
+                step.Location += stepCount;
+                collection.Insert(firstLocation, step);
+            }
+            foreach (var (index, step) in sadSteps)
+            {
+                collection.RemoveAt(index);
             }
         }
     }

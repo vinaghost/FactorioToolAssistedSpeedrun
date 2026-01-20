@@ -20,6 +20,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseCommit(ProjectDbContext context)
         {
             var (name, stepIds) = Parameters;
+            DatabaseCommit(context, stepIds, name);
+        }
+
+        public static void DatabaseCommit(ProjectDbContext context, List<Guid> stepIds, string name)
+        {
             context.Steps
                 .Where(x => stepIds.Contains(x.Id) && x.Name == name)
                 .ExecuteUpdate(setters => setters
@@ -29,16 +34,21 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void UICommit(ObservableCollection<StepModel> collection)
         {
             var (_, stepIds) = Parameters;
+
+            _commandStack.Lock();
+            UICommit(collection, stepIds);
+            _commandStack.Unlock();
+        }
+
+        public static void UICommit(ObservableCollection<StepModel> collection, List<Guid> stepIds)
+        {
             var items = collection
                 .Where(x => stepIds.Contains(x.Id))
                 .ToList();
-
-            _commandStack.Lock();
             foreach (var item in items)
             {
                 item.IsSkip = !item.IsSkip;
             }
-            _commandStack.Unlock();
         }
 
         public override void DatabaseRollback(ProjectDbContext context)

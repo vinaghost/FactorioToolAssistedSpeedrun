@@ -18,10 +18,14 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseCommit(ProjectDbContext context)
         {
             var (name, steps) = Parameters;
+            DatabaseCommit(context, name, steps);
+        }
+
+        public static void DatabaseCommit(ProjectDbContext context, string name, List<Step> steps)
+        {
             context.Steps
                 .Where(x => steps.Select(s => s.Id).Contains(x.Id))
                 .ExecuteDelete();
-
             var maxLocation = steps.Max(x => x.Location);
             context.Steps
                 .Where(x => x.Location > maxLocation && x.Name == name)
@@ -31,11 +35,15 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void UICommit(ObservableCollection<StepModel> collection)
         {
             var (_, steps) = Parameters;
+            UICommit(collection, steps);
+        }
+
+        public static void UICommit(ObservableCollection<StepModel> collection, List<Step> steps)
+        {
             foreach (var location in steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
             {
                 collection.RemoveAt(location);
             }
-
             var maxLocation = steps.Max(x => x.Location);
             foreach (var step in collection.Where(x => x.Location > maxLocation))
             {
@@ -46,6 +54,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseRollback(ProjectDbContext context)
         {
             var (name, steps) = Parameters;
+            DatabaseRollback(context, name, steps);
+        }
+
+        public static void DatabaseRollback(ProjectDbContext context, string name, List<Step> steps)
+        {
             var minLocation = steps.Min(x => x.Location);
             context.Steps
                 .Where(x => x.Location >= minLocation && x.Name == name)
@@ -57,6 +70,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void UIRollback(ObservableCollection<StepModel> collection)
         {
             var (_, steps) = Parameters;
+            UIRollback(collection, steps);
+        }
+
+        public static void UIRollback(ObservableCollection<StepModel> collection, List<Step> steps)
+        {
             var minLocation = steps.Min(x => x.Location);
             foreach (var step in collection.Where(x => x.Location >= minLocation))
             {

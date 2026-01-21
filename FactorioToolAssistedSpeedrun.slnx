@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="FactorioToolAssistedSpeedrun/FactorioToolAssistedSpeedrun.csproj" />
+  <Project Path="TestProject/TestProject.csproj" Id="b72a98ed-bad1-4f22-9770-cc9c4c3f37c6" />
 </Solution>

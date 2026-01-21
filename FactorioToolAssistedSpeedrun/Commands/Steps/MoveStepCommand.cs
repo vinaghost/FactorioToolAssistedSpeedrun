@@ -22,6 +22,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void DatabaseCommit(ProjectDbContext context, List<Guid> stepIds, int moveOffset, string name)
         {
+            if (stepIds.Count == 0) return;
             var chosenSteps = context.Steps
                 .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
@@ -37,7 +38,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 GoUp(context, name, firstLocation, moveOffset, chosenSteps.Count);
             }
             context.Steps
-                .Where(x => stepIds.Contains(x.Id) && x.Name == name)
+                .Where(x => stepIds.Contains(x.Id))
                 .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.Location, b => b.Location + moveOffset));
         }
@@ -50,6 +51,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void UICommit(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
         {
+            if (stepIds.Count == 0) return;
+
             var chosenSteps = collection
                 .Where(x => stepIds.Contains(x.Id))
                 .OrderBy(x => x.Location)
@@ -80,6 +83,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void DatabaseRollback(ProjectDbContext context, string name, List<Guid> stepIds, int moveOffset)
         {
+            if (stepIds.Count == 0) return;
+
             var rollbackOffset = -moveOffset;
             var chosenSteps = context.Steps
                 .Where(x => stepIds.Contains(x.Id) && x.Name == name)
@@ -109,6 +114,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void UIRollback(ObservableCollection<StepModel> collection, string name, List<Guid> stepIds, int moveOffset)
         {
+            if (stepIds.Count == 0) return;
+
             var rollbackOffset = -moveOffset;
             var chosenSteps = collection
                 .Where(x => stepIds.Contains(x.Id))

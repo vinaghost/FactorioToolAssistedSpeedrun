@@ -34,12 +34,12 @@ namespace FactorioToolAssistedSpeedrun
             services.AddTransient<GoToLineViewModel>();
             services.AddTransient<ImportStringViewModel>();
             services.AddTransient<ReplaceViewModel>();
+            services.AddTransient<CraftingViewModel>();
 
             services.AddTransient<MenuBarViewModel>();
             services.AddTransient<StepTypePanelViewModel>();
             services.AddTransient<StepDetailPanelViewModel>();
             services.AddTransient<StepPanelViewModel>();
-
             services.AddTransient<TemplatePanelViewModel>();
 
             services.AddTransient<AddStepCommand>();

@@ -74,6 +74,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [RelayCommand]
+        private static void OpenCraftingWindow()
+        {
+            var craftingWindow = new Views.CraftingWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+            craftingWindow.Show();
+        }
+
+        [RelayCommand]
         private void ToTemplatePanel(System.Collections.IList selectedItems)
         {
             if (selectedItems.Count == 0)

@@ -101,6 +101,10 @@
                         Margin="0,5,0,0"
                         Command="{Binding OpenImportStringWindowCommand}"
                         Content="Import string" />
+                    <Button
+                        Margin="0,5,0,0"
+                        Command="{Binding OpenCraftingWindowCommand}"
+                        Content="Crafting" />
                 </StackPanel>
                 <views:StepPanel x:Name="StepPanel" Grid.Column="2" />
             </Grid>

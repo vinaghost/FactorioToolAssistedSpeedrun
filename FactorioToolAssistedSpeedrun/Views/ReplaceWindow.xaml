@@ -6,7 +6,6 @@
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    Icon="pack://application:,,,/favicon.ico"
     Title="Replace"
     d:DataContext="{d:DesignInstance vm:ReplaceViewModel,
                                      IsDesignTimeCreatable=True}"

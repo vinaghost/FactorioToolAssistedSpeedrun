@@ -10,7 +10,6 @@
     d:DataContext="{d:DesignInstance vm:GoToLineViewModel,
                                      IsDesignTimeCreatable=True}"
     ContentRendered="Window_ContentRendered"
-    Icon="pack://application:,,,/favicon.ico"
     SizeToContent="WidthAndHeight"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">

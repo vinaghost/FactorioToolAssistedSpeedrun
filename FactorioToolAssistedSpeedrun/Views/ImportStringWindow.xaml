@@ -12,7 +12,6 @@
     Height="450"
     d:DataContext="{d:DesignInstance vm:ImportStringViewModel,
                                      IsDesignTimeCreatable=True}"
-    Icon="pack://application:,,,/favicon.ico"
     mc:Ignorable="d">
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Loaded" SourceObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">

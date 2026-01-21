@@ -7,7 +7,7 @@
     xmlns:local="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    Title="CraftingWindow"
+    Title="Crafting"
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance vm:CraftingViewModel,

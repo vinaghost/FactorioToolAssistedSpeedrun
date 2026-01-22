@@ -14,7 +14,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
             using var context = new ProjectDbContext(ProjectDataFile);
             return [.. context.Steps
                 .Where(x => !x.IsSkip && x.Type == StepType.Build)
-                .Select(x => new Building(x.X, x.Y, x.Name, x.Location))];
+                .Select(x => new Building(x.X, x.Y, x.Item, x.Location))];
         }
     }
 }

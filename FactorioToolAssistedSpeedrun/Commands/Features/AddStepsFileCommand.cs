@@ -1,5 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Models.Database;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Text;
@@ -132,8 +133,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
             if (inventoryType == InventoryType.Input || inventoryType == InventoryType.Modules)
             {
                 var entity = buildings
-                    .Where(b => Math.Abs(b.X - x) < 0.0001 && Math.Abs(b.Y - y) < 0.0001 && b.BuildStep < id && (b.DestroyStep > id || b.DestroyStep == -1))
-                    .FirstOrDefault();
+                    .Where(b => Math.Abs(b.X - x) < 0.0001 && Math.Abs(b.Y - y) < 0.0001 && b.Location < id)
+                    .MaxBy(x => x.Location);
                 return inventoryType.GetInventoryDefines(entity?.Name ?? "");
             }
 
@@ -143,8 +144,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.UI
         private static string OrientationFilter(List<Building> buildings, int id, double x, double y)
         {
             var entity = buildings
-                   .Where(b => Math.Abs(b.X - x) < 0.0001 && Math.Abs(b.Y - y) < 0.0001 && b.BuildStep < id && (b.DestroyStep > id || b.DestroyStep == -1))
-                   .FirstOrDefault() ?? throw new Exception($"Cannot find building at ({x}, {y}) for step {id}");
+                    .Where(b => Math.Abs(b.X - x) < 0.0001 && Math.Abs(b.Y - y) < 0.0001 && b.Location < id)
+                    .MaxBy(x => x.Location) ?? throw new Exception($"Cannot find building at ({x}, {y}) for step {id}");
 
             if (entity.Name.Contains("splitter"))
             {

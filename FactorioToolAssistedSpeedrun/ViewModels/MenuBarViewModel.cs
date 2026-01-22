@@ -215,7 +215,6 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                  PrintTech
             ));
             await AddInfoFileCommand.Execute(ScriptFolder);
-            await AddStepsFileCommand.Execute(ScriptFolder, new ProjectDbContext(projectDataFile).Steps.ToList(), new ProjectDbContext(projectDataFile).Buildings.ToList());
 
             var getStepQuery = new GetStepsQuery
             {

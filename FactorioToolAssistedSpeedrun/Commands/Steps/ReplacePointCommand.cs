@@ -31,11 +31,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.X, b => newX)
                     .SetProperty(b => b.Y, b => newY));
-            context.Buildings
-                .Where(x => Math.Abs(x.X - oldX) < 0.0001 && Math.Abs(x.Y - oldY) < 0.0001)
-                 .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => newX)
-                    .SetProperty(b => b.Y, b => newY));
         }
 
         public override void UICommit(ObservableCollection<StepModel> collection)
@@ -71,11 +66,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 .Where(x => x.Name == name)
                 .Where(x => Math.Abs(x.X - newX) < 0.0001 && Math.Abs(x.Y - newY) < 0.0001)
                 .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => oldX)
-                    .SetProperty(b => b.Y, b => oldY));
-            context.Buildings
-                .Where(x => Math.Abs(x.X - newX) < 0.0001 && Math.Abs(x.Y - newY) < 0.0001)
-                 .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.X, b => oldX)
                     .SetProperty(b => b.Y, b => oldY));
         }

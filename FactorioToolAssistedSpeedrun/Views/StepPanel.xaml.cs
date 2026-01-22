@@ -23,7 +23,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public void ScrollToSelected()
         {
             if (_scrollViewer is null) return;
-            Steps.UpdateLayout();
+
             var rowHeight = _scrollViewer.ScrollableHeight / (Steps.Items.Count - 1);
             var index = Math.Max(0, Steps.SelectedIndex - 100);
             var offset = index * rowHeight;

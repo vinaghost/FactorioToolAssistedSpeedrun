@@ -1,7 +1,9 @@
 ﻿using FactorioToolAssistedSpeedrun;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Models.UI;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 
 namespace TestProject
 {
@@ -39,9 +41,11 @@ namespace TestProject
             var stepIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
             SeedSteps(context, name,
             [
-                (stepIds[0], 1),
-                (stepIds[1], 2),
-                (Guid.NewGuid(), 3)
+                (Guid.NewGuid(), 1),
+                (stepIds[0], 2),
+                (stepIds[1], 3),
+                (Guid.NewGuid(), 4),
+                (Guid.NewGuid(), 5),
             ]);
 
             // Act
@@ -50,9 +54,12 @@ namespace TestProject
             // Assert
             context.ChangeTracker.Clear();
             var steps = context.Steps.Where(s => s.Name == name).OrderBy(s => s.Location).ToList();
-            Assert.Equal(3, steps.Count);
-            Assert.Contains(steps, s => s.Id == stepIds[0] && s.Location == 2);
-            Assert.Contains(steps, s => s.Id == stepIds[1] && s.Location == 3);
+            Assert.Equal(5, steps.Count);
+            Assert.Contains(steps, s => s.Location == 1);
+            Assert.Contains(steps, s => s.Id == stepIds[0] && s.Location == 3);
+            Assert.Contains(steps, s => s.Id == stepIds[1] && s.Location == 4);
+            Assert.Contains(steps, s => s.Location == 4);
+            Assert.Contains(steps, s => s.Location == 5);
         }
 
         [Fact]
@@ -65,8 +72,10 @@ namespace TestProject
             SeedSteps(context, name,
             [
                 (Guid.NewGuid(), 1),
-                (stepIds[0], 2),
-                (stepIds[1], 3)
+                (Guid.NewGuid(), 2),
+                (stepIds[0], 3),
+                (stepIds[1], 4),
+                (Guid.NewGuid(), 5),
             ]);
 
             // Act
@@ -75,9 +84,12 @@ namespace TestProject
             // Assert
             context.ChangeTracker.Clear();
             var steps = context.Steps.Where(s => s.Name == name).OrderBy(s => s.Location).ToList();
-            Assert.Equal(3, steps.Count);
-            Assert.Contains(steps, s => s.Id == stepIds[0] && s.Location == 1);
-            Assert.Contains(steps, s => s.Id == stepIds[1] && s.Location == 2);
+            Assert.Equal(5, steps.Count);
+            Assert.Contains(steps, s => s.Location == 1);
+            Assert.Contains(steps, s => s.Id == stepIds[0] && s.Location == 2);
+            Assert.Contains(steps, s => s.Id == stepIds[1] && s.Location == 3);
+            Assert.Contains(steps, s => s.Location == 4);
+            Assert.Contains(steps, s => s.Location == 5);
         }
 
         [Fact]
@@ -85,7 +97,7 @@ namespace TestProject
         {
             // Arrange
             var context = GetInMemoryDbContext();
-            var name = "Test";
+            var name = "";
             SeedSteps(context, name,
             [
                 (Guid.NewGuid(), 1),

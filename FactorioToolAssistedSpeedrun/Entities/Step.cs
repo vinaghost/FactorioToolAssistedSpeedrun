@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 namespace FactorioToolAssistedSpeedrun.Entities
 {
     [PrimaryKey(nameof(Id))]
-    [Index(nameof(Name), nameof(Location), IsUnique = true)]
     public class Step
     {
         public Guid Id { get; set; } = Guid.NewGuid();

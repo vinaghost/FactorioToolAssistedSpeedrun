@@ -182,7 +182,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             foreach (var (_, step) in sadSteps)
             {
                 step.Location += stepCount;
-                collection.Insert(firstLocation, step);
+                collection.Insert(firstLocation + stepCount - 1, step);
             }
             foreach (var (index, step) in sadSteps)
             {

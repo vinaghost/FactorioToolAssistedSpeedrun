@@ -194,8 +194,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
             static int GetAmount(string[] segments)
             {
-                var amount = int.TryParse(segments[3], out int amountVal) ? amountVal : 0;
-                return amount;
+                var amount = double.TryParse(segments[3], out double amountVal) ? amountVal : 0;
+                return (int)amount;
             }
 
             static string GetItemName(string[] segments, GameData gameData)

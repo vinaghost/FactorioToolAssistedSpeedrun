@@ -1,10 +1,7 @@
 name: Release
 
 on:
-  workflow_dispatch:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:  
 jobs:
   Version:
     runs-on: ubuntu-latest

@@ -75,16 +75,28 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void UIRollback(ObservableCollection<StepModel> collection, List<Step> steps)
         {
-            var minLocation = steps.Min(x => x.Location);
-            foreach (var step in collection.Where(x => x.Location >= minLocation))
+            if (steps.Count == 0)
             {
-                step.Location += steps.Count;
+                foreach (var step in steps.OrderBy(x => x.Location))
+                {
+                    var model = new StepModel();
+                    model.FromEntity(step);
+                    collection.Add(model);
+                }
             }
-            foreach (var step in steps.OrderByDescending(x => x.Location))
+            else
             {
-                var model = new StepModel();
-                model.FromEntity(step);
-                collection.Insert(minLocation - 1, model);
+                var minLocation = steps.Min(x => x.Location);
+                foreach (var step in collection.Where(x => x.Location >= minLocation))
+                {
+                    step.Location += steps.Count;
+                }
+                foreach (var step in steps.OrderByDescending(x => x.Location))
+                {
+                    var model = new StepModel();
+                    model.FromEntity(step);
+                    collection.Insert(minLocation - 1, model);
+                }
             }
         }
     }

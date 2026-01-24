@@ -7,6 +7,7 @@ using FactorioToolAssistedSpeedrun.Models.Game;
 using FactorioToolAssistedSpeedrun.Models.Prototypes;
 using FactorioToolAssistedSpeedrun.Queries;
 using FactorioToolAssistedSpeedrun.Services;
+using FactorioToolAssistedSpeedrun.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.IO;
@@ -69,7 +70,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private static void GoToLine()
         {
-            var dialog = new Views.GoToLineWindow
+            var existingWindow = Application.Current.Windows.OfType<GoToLineWindow>().FirstOrDefault();
+            if (existingWindow is not null)
+            {
+                existingWindow.Activate();
+                if (existingWindow.WindowState == WindowState.Minimized)
+                {
+                    existingWindow.WindowState = WindowState.Normal;
+                }
+                return;
+            }
+
+            var dialog = new GoToLineWindow
             {
                 Owner = Application.Current.MainWindow
             };
@@ -79,7 +91,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private static void Replace()
         {
-            var dialog = new Views.ReplaceWindow
+            var existingWindow = Application.Current.Windows.OfType<ReplaceWindow>().FirstOrDefault();
+            if (existingWindow is not null)
+            {
+                existingWindow.Activate();
+                if (existingWindow.WindowState == WindowState.Minimized)
+                {
+                    existingWindow.WindowState = WindowState.Normal;
+                }
+                return;
+            }
+
+            var dialog = new ReplaceWindow
             {
                 Owner = Application.Current.MainWindow
             };

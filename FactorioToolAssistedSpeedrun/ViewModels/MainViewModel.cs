@@ -4,6 +4,7 @@ using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
+using FactorioToolAssistedSpeedrun.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
@@ -66,7 +67,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private static void OpenImportStringWindow()
         {
-            var importStringWindow = new Views.ImportStringWindow
+            var existingWindow = Application.Current.Windows.OfType<ImportStringWindow>().FirstOrDefault();
+            if (existingWindow is not null)
+            {
+                existingWindow.Activate();
+                if (existingWindow.WindowState == WindowState.Minimized)
+                {
+                    existingWindow.WindowState = WindowState.Normal;
+                }
+                return;
+            }
+
+            var importStringWindow = new ImportStringWindow
             {
                 Owner = Application.Current.MainWindow
             };
@@ -76,7 +88,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private static void OpenCraftingWindow()
         {
-            var craftingWindow = new Views.CraftingWindow
+            var existingWindow = Application.Current.Windows.OfType<CraftingWindow>().FirstOrDefault();
+            if (existingWindow is not null)
+            {
+                existingWindow.Activate();
+                if (existingWindow.WindowState == WindowState.Minimized)
+                {
+                    existingWindow.WindowState = WindowState.Normal;
+                }
+                return;
+            }
+
+            var craftingWindow = new CraftingWindow
             {
                 Owner = Application.Current.MainWindow
             };

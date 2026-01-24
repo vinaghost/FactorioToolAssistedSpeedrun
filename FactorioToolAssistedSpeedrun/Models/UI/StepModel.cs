@@ -439,7 +439,10 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                     step.Amount = int.Parse(Amount);
                 }
             }
-            step.Item = Item;
+            if (Type.ContainFlag(ParameterFlag.Item))
+            {
+                step.Item = Item;
+            }
             if (Type.ContainFlag(ParameterFlag.Orientation))
             {
                 step.Orientation = OrientationTypeExtensions.FromString(Orientation)!;

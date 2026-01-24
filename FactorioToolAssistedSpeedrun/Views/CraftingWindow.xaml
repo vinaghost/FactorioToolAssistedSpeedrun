@@ -17,6 +17,9 @@
     mc:Ignorable="d">
     <Window.Resources>
         <conventers:StepTypeToStringConverter x:Key="StepTypeToStringConverter" />
+        <Style TargetType="{x:Type DataGridRow}">
+            <Setter Property="attachedBehaviours:DeleteRowBehavior.DeleteRowCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RemoveCommand}" />
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>

@@ -2,8 +2,10 @@
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Controls;
 using System.Xml.Linq;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
@@ -158,6 +160,30 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 Amount = $"{step.Amount}";
             }
             _loaded = true;
+        }
+
+        public Step ToEntity()
+        {
+            var step = new Step
+            {
+                Id = Id,
+                Name = "",
+                Location = Location,
+                Type = Type,
+                Item = Item,
+                Color = "",
+                Comment = Comment,
+                IsSkip = IsSkip
+            };
+            if (Amount == "All")
+            {
+                step.Amount = 0;
+            }
+            else
+            {
+                step.Amount = int.Parse(Amount);
+            }
+            return step;
         }
     }
 }

@@ -98,6 +98,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
             var items = selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location).ToList();
             var index = _panelService.SelectedTemplateStepIndex + 1;
+            if (index == 0) index = 1;
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
@@ -133,6 +134,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
             _panelService.ApplyTemplateModifier(items);
             var index = _panelService.SelectedStepIndex + 1;
+            if (index == 0) index = 1;
+
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];

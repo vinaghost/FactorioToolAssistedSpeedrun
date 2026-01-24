@@ -88,6 +88,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             }
             var step = _stepService.ToStep();
             var index = rightClick ? _panelService.SelectedTemplateStepIndex + 1 : _panelService.SelectedTemplateStepIndex;
+            if (index == -1) index = 0;
 
             step.Location = index + 1;
             step.Name = _panelService.SelectedTemplate;

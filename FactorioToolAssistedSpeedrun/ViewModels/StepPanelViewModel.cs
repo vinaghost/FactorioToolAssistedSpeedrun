@@ -49,6 +49,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         {
             var step = _stepService.ToStep();
             var index = rightClick ? PanelService.SelectedStepIndex + 1 : PanelService.SelectedStepIndex;
+            if (index == -1) index = 0;
             step.Location = index + 1;
 
             var command = _commandStack.Push<AddStepCommand>();

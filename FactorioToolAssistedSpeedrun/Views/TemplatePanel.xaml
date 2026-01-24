@@ -19,8 +19,6 @@
         <conventers:ItemNameToStringConverter x:Key="ItemNameToStringConverter" />
         <Style TargetType="{x:Type DataGridRow}">
             <Setter Property="attachedBehaviours:MouseRightButtonUpBehavior.MouseRightButtonUpCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.MouseRightButtonUpCommand}" />
-        </Style>
-        <Style TargetType="{x:Type DataGrid}">
             <Setter Property="attachedBehaviours:DeleteRowBehavior.DeleteRowCommand" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.RemoveCommand}" />
         </Style>
     </UserControl.Resources>

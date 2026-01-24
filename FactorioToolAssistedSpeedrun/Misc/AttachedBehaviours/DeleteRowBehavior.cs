@@ -11,10 +11,9 @@ namespace FactorioToolAssistedSpeedrun.Misc.AttachedBehaviours
                "DeleteRowCommand",
                typeof(ICommand),
                typeof(DeleteRowBehavior),
-               new FrameworkPropertyMetadata(default(ICommand), new PropertyChangedCallback(OnSet))
+               new FrameworkPropertyMetadata(default(ICommand), new PropertyChangedCallback(OnSet)));
 
-       ); public static ICommand GetDeleteRowCommand(DependencyObject target) =>
-
+        public static ICommand GetDeleteRowCommand(DependencyObject target) =>
             (ICommand)target.GetValue(DeleteRowCommandProperty);
 
         public static void SetDeleteRowCommand(DependencyObject target, ICommand value) =>
@@ -22,19 +21,20 @@ namespace FactorioToolAssistedSpeedrun.Misc.AttachedBehaviours
 
         private static void OnSet(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not DataGrid grid) return;
+            if (d is not DataGridRow row) return;
 
-            grid.PreviewKeyUp += Grid_PreviewKeyUpp;
+            row.PreviewKeyUp += Row_PreviewKeyUp;
         }
 
-        private static void Grid_PreviewKeyUpp(object sender, KeyEventArgs e)
+        private static void Row_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            if (sender is not DataGrid grid) return;
+            if (sender is not DataGridRow row) return;
             if (e.Key != Key.Delete) return;
-            if (grid.SelectedItems is null || grid.SelectedItems.Count == 0) return;
+            if (row.IsEditing) return;
+            if (ItemsControl.ItemsControlFromItemContainer(row) is not DataGrid grid) return;
 
             e.Handled = true;
-            ICommand command = GetDeleteRowCommand(grid);
+            ICommand command = GetDeleteRowCommand(row);
             command?.Execute(grid.SelectedItems);
         }
     }

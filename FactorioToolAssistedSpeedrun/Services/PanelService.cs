@@ -6,7 +6,6 @@ using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Services

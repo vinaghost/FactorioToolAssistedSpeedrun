@@ -1,9 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {

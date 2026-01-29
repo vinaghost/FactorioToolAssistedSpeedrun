@@ -9,12 +9,12 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public abstract class Command<T> : ICommand, IUICommand, IDatabaseCommand where T : CommandParameters
     {
-        protected readonly StartupService _startupService;
+        protected readonly IStartupService _startupService;
         protected readonly PanelService _panelService;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
-        public Command(StartupService startupService, PanelService panelService)
+        public Command(IStartupService startupService, PanelService panelService)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         {
             _startupService = startupService;

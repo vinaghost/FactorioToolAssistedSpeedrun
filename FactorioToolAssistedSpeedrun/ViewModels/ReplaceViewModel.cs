@@ -10,17 +10,17 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class ReplaceViewModel : ObservableObject
     {
-        private readonly StartupService _startupService;
-        private readonly CommandStack _commandStack;
+        private readonly IStartupService _startupService;
+        private readonly ICommandStack _commandStack;
 
         public ReplaceViewModel()
         {
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
-            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public ReplaceViewModel(StartupService startupService, CommandStack commandStack)
+        public ReplaceViewModel(IStartupService startupService, ICommandStack commandStack)
         {
             _startupService = startupService;
             _commandStack = commandStack;

@@ -23,12 +23,12 @@ namespace FactorioToolAssistedSpeedrun
         private static ServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<StartupService>();
             services.AddSingleton<StepService>();
             services.AddSingleton<PanelService>();
             services.AddSingleton<LoadingService>();
 
-            services.AddSingleton<CommandStack>();
+            services.AddSingleton<IStartupService, StartupService>();
+            services.AddSingleton<ICommandStack, CommandStack>();
 
             services.AddSingleton<MainViewModel>();
             services.AddTransient<GoToLineViewModel>();

@@ -9,7 +9,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public class MoveStepCommand : Command<MoveStepCommandParameters>
     {
-        public MoveStepCommand(StartupService startupService, PanelService panelService)
+        public MoveStepCommand(IStartupService startupService, PanelService panelService)
             : base(startupService, panelService)
         {
         }
@@ -49,28 +49,16 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             UICommit(collection, stepIds, moveOffset);
         }
 
-        public static void UICommit(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
+        public void UICommit(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
         {
             if (stepIds.Count == 0) return;
-
-            var chosenSteps = collection
-                .Where(x => stepIds.Contains(x.Id))
-                .OrderBy(x => x.Location)
-                .ToList();
-            if (chosenSteps.Count == 0) return;
             if (moveOffset > 0)
             {
-                var lastLocation = chosenSteps.Last().Location;
-                GoDown(collection, lastLocation, moveOffset, chosenSteps.Count);
+                GoDown(collection, stepIds, moveOffset);
             }
             else
             {
-                var firstLocation = chosenSteps.First().Location;
-                GoUp(collection, firstLocation, moveOffset, chosenSteps.Count);
-            }
-            foreach (var step in chosenSteps)
-            {
-                step.Location += moveOffset;
+                GoUp(collection, stepIds, moveOffset);
             }
         }
 
@@ -108,33 +96,21 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public override void UIRollback(ObservableCollection<StepModel> collection)
         {
-            var (name, stepIds, moveOffset) = Parameters;
-            UIRollback(collection, name, stepIds, moveOffset);
+            var (_, stepIds, moveOffset) = Parameters;
+            UIRollback(collection, stepIds, moveOffset);
         }
 
-        public static void UIRollback(ObservableCollection<StepModel> collection, string name, List<Guid> stepIds, int moveOffset)
+        public void UIRollback(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
         {
             if (stepIds.Count == 0) return;
-
             var rollbackOffset = -moveOffset;
-            var chosenSteps = collection
-                .Where(x => stepIds.Contains(x.Id))
-                .OrderBy(x => x.Location)
-                .ToList();
-            if (chosenSteps.Count == 0) return;
             if (rollbackOffset > 0)
             {
-                var lastLocation = chosenSteps.Last().Location;
-                GoDown(collection, lastLocation, rollbackOffset, chosenSteps.Count);
+                GoDown(collection, stepIds, moveOffset);
             }
             else
             {
-                var firstLocation = chosenSteps.First().Location;
-                GoUp(collection, firstLocation, rollbackOffset, chosenSteps.Count);
-            }
-            foreach (var step in chosenSteps)
-            {
-                step.Location += rollbackOffset;
+                GoUp(collection, stepIds, moveOffset);
             }
         }
 
@@ -154,39 +130,104 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                     .SetProperty(b => b.Location, b => b.Location + stepCount));
         }
 
-        private static void GoDown(ObservableCollection<StepModel> collection, int lastLocation, int moveOffset, int stepCount)
+        public static void GoDown(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
         {
-            var sadSteps = collection
+            if (stepIds.Count == 0 || moveOffset <= 0) return;
+
+            // Find the indices of the selected steps, sorted ascending
+            var selectedIndices = collection
                 .Select((step, index) => (index, step))
-                .Where(x => x.step.Location > lastLocation && x.step.Location <= lastLocation + moveOffset)
-                .OrderByDescending(x => x.index)
+                .Where(x => stepIds.Contains(x.step.Id))
+                .OrderBy(x => x.index)
+                .Select(x => x.index)
                 .ToList();
-            foreach (var (index, step) in sadSteps)
+
+            if (selectedIndices.Count == 0) return;
+
+            int firstSelectedIndex = selectedIndices.First();
+            int lastSelectedIndex = selectedIndices.Last();
+
+            // Find the range of items below the selected steps to move up
+            int startMoveIndex = lastSelectedIndex + 1;
+            int endMoveIndex = Math.Min(startMoveIndex + moveOffset - 1, collection.Count - 1);
+
+            if (startMoveIndex > endMoveIndex) return; // Nothing to move
+
+            // Extract the items to move
+            var itemsToMove = new List<StepModel>();
+            for (int i = startMoveIndex; i <= endMoveIndex; i++)
             {
-                collection.RemoveAt(index);
+                itemsToMove.Add(collection[startMoveIndex]); // Always remove at startMoveIndex as collection shrinks
+                collection.RemoveAt(startMoveIndex);
             }
-            foreach (var (_, step) in sadSteps)
+
+            // Insert the moved items above the first selected step
+            int insertIndex = firstSelectedIndex;
+            foreach (var item in itemsToMove)
             {
-                step.Location -= stepCount;
-                collection.Insert(lastLocation - stepCount, step);
+                collection.Insert(insertIndex++, item);
+            }
+
+            // Update Location property for moved items
+            foreach (var item in itemsToMove)
+            {
+                item.Location -= (selectedIndices.Count);
+            }
+            // Update Location property for selected steps
+            foreach (var idx in selectedIndices)
+            {
+                collection[idx + itemsToMove.Count].Location += itemsToMove.Count;
             }
         }
 
-        private static void GoUp(ObservableCollection<StepModel> collection, int firstLocation, int moveOffset, int stepCount)
+        public static void GoUp(ObservableCollection<StepModel> collection, List<Guid> stepIds, int moveOffset)
         {
-            var sadSteps = collection
+            if (stepIds.Count == 0 || moveOffset >= 0) return;
+
+            // Find the indices of the selected steps, sorted ascending
+            var selectedIndices = collection
                 .Select((step, index) => (index, step))
-                .Where(x => x.step.Location < firstLocation && x.step.Location >= firstLocation + moveOffset)
-                .OrderByDescending(x => x.index)
+                .Where(x => stepIds.Contains(x.step.Id))
+                .OrderBy(x => x.index)
+                .Select(x => x.index)
                 .ToList();
-            foreach (var (_, step) in sadSteps)
+
+            if (selectedIndices.Count == 0) return;
+
+            int firstSelectedIndex = selectedIndices.First();
+            int lastSelectedIndex = selectedIndices.Last();
+
+            // Find the range of items above the selected steps to move down
+            int blockSize = Math.Min(-moveOffset, firstSelectedIndex);
+            if (blockSize == 0) return;
+
+            int startMoveIndex = firstSelectedIndex - blockSize;
+            int endMoveIndex = firstSelectedIndex - 1;
+
+            // Extract the items to move
+            var itemsToMove = new List<StepModel>();
+            for (int i = 0; i < blockSize; i++)
             {
-                step.Location += stepCount;
-                collection.Insert(firstLocation + stepCount - 1, step);
+                itemsToMove.Add(collection[startMoveIndex]); // Always remove at startMoveIndex as collection shrinks
+                collection.RemoveAt(startMoveIndex);
             }
-            foreach (var (index, step) in sadSteps)
+
+            // Insert the moved items below the last selected step
+            int insertIndex = lastSelectedIndex - blockSize + 1;
+            foreach (var item in itemsToMove)
             {
-                collection.RemoveAt(index);
+                collection.Insert(insertIndex++, item);
+            }
+
+            // Update Location property for moved items
+            foreach (var item in itemsToMove)
+            {
+                item.Location += selectedIndices.Count;
+            }
+            // Update Location property for selected steps
+            foreach (var idx in selectedIndices)
+            {
+                collection[idx - itemsToMove.Count].Location -= itemsToMove.Count;
             }
         }
     }

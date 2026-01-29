@@ -10,8 +10,14 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class StepModel : ObservableObject
     {
-        private readonly CommandStack _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
-        private readonly StartupService _startupService = App.Current.Services.GetRequiredService<StartupService>();
+        public StepModel(ICommandStack? commandStack = null, IStartupService? startupService = null)
+        {
+            _commandStack = commandStack ?? App.Current.Services.GetRequiredService<ICommandStack>();
+            _startupService = startupService ?? App.Current.Services.GetRequiredService<IStartupService>();
+        }
+
+        private readonly ICommandStack _commandStack;
+        private readonly IStartupService _startupService;
         public Guid Id { get; private set; } = Guid.NewGuid();
         public string Name { get; private set; } = "";
         private bool _loaded = false;

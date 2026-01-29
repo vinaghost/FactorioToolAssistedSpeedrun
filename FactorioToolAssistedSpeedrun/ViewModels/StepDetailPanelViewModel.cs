@@ -9,18 +9,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class StepDetailPanelViewModel : ObservableObject
     {
         private readonly StepService _stepService;
-        private readonly StartupService _startupService;
+        private readonly IStartupService _startupService;
 
         public StepService StepService => _stepService;
 
         public StepDetailPanelViewModel()
         {
             _stepService = App.Current.Services.GetRequiredService<StepService>();
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepDetailPanelViewModel(StepService stepService, StartupService startupService)
+        public StepDetailPanelViewModel(StepService stepService, IStartupService startupService)
         {
             _stepService = stepService;
             _startupService = startupService;

@@ -18,22 +18,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class MenuBarViewModel : ObservableObject
     {
-        private readonly StartupService _startupService;
+        private readonly IStartupService _startupService;
         private readonly LoadingService _loadingService;
 
-        private readonly CommandStack _commandStack;
-        public StartupService StartupService => _startupService;
+        private readonly ICommandStack _commandStack;
+        public IStartupService startupService => _startupService;
         public LoadingService LoadingService => _loadingService;
 
         public MenuBarViewModel()
         {
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
             _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
-            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MenuBarViewModel(StartupService startupService, LoadingService loadingService, CommandStack commandStack)
+        public MenuBarViewModel(IStartupService startupService, LoadingService loadingService, ICommandStack commandStack)
         {
             _startupService = startupService;
             _loadingService = loadingService;

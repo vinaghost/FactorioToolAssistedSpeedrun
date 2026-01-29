@@ -2,18 +2,15 @@
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System.Windows.Controls;
-using System.Xml.Linq;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class CraftingModel : ObservableObject
     {
-        private readonly CommandStack _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
-        private readonly StartupService _startupService = App.Current.Services.GetRequiredService<StartupService>();
+        private readonly ICommandStack _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
+        private readonly IStartupService _startupService = App.Current.Services.GetRequiredService<IStartupService>();
         public Guid Id { get; set; }
 
         private bool _loaded = false;

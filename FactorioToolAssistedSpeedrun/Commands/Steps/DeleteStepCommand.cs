@@ -10,7 +10,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public class DeleteStepCommand : Command<DeleteStepCommandParameters>
     {
-        public DeleteStepCommand(StartupService startupService, PanelService panelService)
+        public DeleteStepCommand(IStartupService startupService, PanelService panelService)
             : base(startupService, panelService)
         {
         }

@@ -12,9 +12,9 @@ namespace FactorioToolAssistedSpeedrun.Services
 {
     public partial class PanelService : ObservableObject
     {
-        private readonly StartupService _startupService;
+        private readonly IStartupService _startupService;
 
-        public PanelService(StartupService startupService)
+        public PanelService(IStartupService startupService)
         {
             _startupService = startupService;
 

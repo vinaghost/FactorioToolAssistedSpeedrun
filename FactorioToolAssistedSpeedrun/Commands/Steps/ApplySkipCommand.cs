@@ -9,9 +9,9 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public class ApplySkipCommand : Command<ApplySkipCommandParameters>
     {
-        private readonly CommandStack _commandStack;
+        private readonly ICommandStack _commandStack;
 
-        public ApplySkipCommand(StartupService startupService, PanelService panelService, CommandStack commandStack)
+        public ApplySkipCommand(IStartupService startupService, PanelService panelService, ICommandStack commandStack)
             : base(startupService, panelService)
         {
             _commandStack = commandStack;

@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
-    public partial class StartupService : ObservableObject
+    public partial class StartupService : ObservableObject, IStartupService
     {
         [ObservableProperty]
         private string _version = "Not loaded";

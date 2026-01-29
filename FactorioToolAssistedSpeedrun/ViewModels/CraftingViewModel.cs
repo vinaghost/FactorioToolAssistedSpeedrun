@@ -11,20 +11,20 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class CraftingViewModel : ObservableObject
     {
         private readonly PanelService _panelService;
-        private readonly StartupService _startupService;
-        private readonly CommandStack _commandStack;
+        private readonly IStartupService _startupService;
+        private readonly ICommandStack _commandStack;
         public PanelService PanelService => _panelService;
-        public StartupService StartupService => _startupService;
+        public IStartupService startupService => _startupService;
 
         public CraftingViewModel()
         {
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
-            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public CraftingViewModel(PanelService panelService, StartupService startupService, CommandStack commandStack)
+        public CraftingViewModel(PanelService panelService, IStartupService startupService, ICommandStack commandStack)
         {
             _panelService = panelService;
             _startupService = startupService;

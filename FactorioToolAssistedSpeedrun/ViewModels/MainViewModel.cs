@@ -13,24 +13,24 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly StartupService _startupService;
+        private readonly IStartupService _startupService;
         private readonly LoadingService _loadingService;
         private readonly PanelService _panelService;
-        public StartupService StartupService => _startupService;
+        public IStartupService startupService => _startupService;
         public LoadingService LoadingService => _loadingService;
 
-        private readonly CommandStack _commandStack;
+        private readonly ICommandStack _commandStack;
 
         public MainViewModel()
         {
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
-            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
             _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(CommandStack commandStack, StartupService startupService, LoadingService loadingService, PanelService panelService)
+        public MainViewModel(ICommandStack commandStack, IStartupService startupService, LoadingService loadingService, PanelService panelService)
         {
             _commandStack = commandStack;
             _startupService = startupService;

@@ -107,6 +107,7 @@
             CanUserSortColumns="False"
             EnableRowVirtualization="True"
             ItemsSource="{Binding PanelService.StepCollection, Mode=OneWay}"
+            RowHeight="20"
             ScrollViewer.IsDeferredScrollingEnabled="True"
             SelectedIndex="{Binding PanelService.SelectedStepIndex}"
             SelectedItem="{Binding PanelService.SelectedStep}"

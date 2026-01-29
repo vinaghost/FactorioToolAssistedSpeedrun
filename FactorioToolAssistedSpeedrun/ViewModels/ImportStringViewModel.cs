@@ -17,18 +17,18 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class ImportStringViewModel : ObservableObject
     {
         private readonly PanelService _panelService;
-        private readonly StartupService _startupService;
-        private readonly CommandStack _commandStack;
+        private readonly IStartupService _startupService;
+        private readonly ICommandStack _commandStack;
 
         public ImportStringViewModel()
         {
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
-            _commandStack = App.Current.Services.GetRequiredService<CommandStack>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public ImportStringViewModel(PanelService panelService, StartupService startupService, CommandStack commandStack)
+        public ImportStringViewModel(PanelService panelService, IStartupService startupService, ICommandStack commandStack)
         {
             _panelService = panelService;
             _startupService = startupService;

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
-    public class CommandStack
+    public class CommandStack : ICommandStack
     {
         private readonly IServiceProvider _services;
 

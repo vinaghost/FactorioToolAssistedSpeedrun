@@ -9,15 +9,15 @@ namespace FactorioToolAssistedSpeedrun.Services
 {
     public partial class StepService : ObservableObject
     {
-        private readonly StartupService _startupService;
+        private readonly IStartupService _startupService;
 
         public StepService()
         {
-            _startupService = App.Current.Services.GetRequiredService<StartupService>();
+            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepService(StartupService startupService)
+        public StepService(IStartupService startupService)
         {
             _startupService = startupService;
             _startupService.OnGameDataLoaded += OnGameDataLoaded;

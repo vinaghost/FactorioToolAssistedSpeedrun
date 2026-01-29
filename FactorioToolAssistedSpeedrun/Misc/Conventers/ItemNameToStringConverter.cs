@@ -9,7 +9,7 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var startupService = App.Current.Services.GetRequiredService<StartupService>();
+            var startupService = App.Current.Services.GetRequiredService<IStartupService>();
             if (!startupService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
 
             if (value is string itemName && !string.IsNullOrEmpty(itemName))
@@ -23,7 +23,7 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var startupService = App.Current.Services.GetRequiredService<StartupService>();
+            var startupService = App.Current.Services.GetRequiredService<IStartupService>();
             if (!startupService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
 
             if (value is string humanizedName && !string.IsNullOrEmpty(humanizedName))

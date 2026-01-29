@@ -53,9 +53,9 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public class UpdateStepPropertyCommand<T, TStep> : Command<UpdateStepPropertyCommandParameters<T, TStep>>
     {
-        private readonly CommandStack _commandStack;
+        private readonly ICommandStack _commandStack;
 
-        public UpdateStepPropertyCommand(StartupService startupService, PanelService panelService, CommandStack commandStack) : base(startupService, panelService)
+        public UpdateStepPropertyCommand(IStartupService startupService, PanelService panelService, ICommandStack commandStack) : base(startupService, panelService)
         {
             _commandStack = commandStack;
         }

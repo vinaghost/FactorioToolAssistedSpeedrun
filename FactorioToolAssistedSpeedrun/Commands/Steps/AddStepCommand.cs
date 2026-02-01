@@ -89,15 +89,17 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void UIRollback(ObservableCollection<StepModel> collection, List<Step> steps)
         {
-            foreach (var location in steps.OrderByDescending(x => x.Location).Select(x => x.Location - 1))
+            var ids = steps.Select(x => x.Id).ToList();
+            var locations = collection.Select((x, index) => (x, index)).Where(x => ids.Contains(x.x.Id)).Select(x => x.index).OrderByDescending(x => x).ToList();
+            foreach (var location in locations)
             {
                 collection.RemoveAt(location);
             }
 
-            var maxLocation = steps.Max(x => x.Location);
+            var maxLocation = locations.Max();
             foreach (var step in collection.Where(x => x.Location > maxLocation))
             {
-                step.Location -= steps.Count;
+                step.Location -= locations.Count;
             }
         }
     }

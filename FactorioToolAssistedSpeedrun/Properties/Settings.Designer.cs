@@ -46,5 +46,197 @@ namespace FactorioToolAssistedSpeedrun.Properties {
                 this["ProjectDataFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MainWindow_Top {
+            get {
+                return ((double)(this["MainWindow_Top"]));
+            }
+            set {
+                this["MainWindow_Top"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MainWindow_Left {
+            get {
+                return ((double)(this["MainWindow_Left"]));
+            }
+            set {
+                this["MainWindow_Left"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1200")]
+        public double MainWindow_Width {
+            get {
+                return ((double)(this["MainWindow_Width"]));
+            }
+            set {
+                this["MainWindow_Width"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("900")]
+        public double MainWindow_Height {
+            get {
+                return ((double)(this["MainWindow_Height"]));
+            }
+            set {
+                this["MainWindow_Height"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double CraftingWindow_Top {
+            get {
+                return ((double)(this["CraftingWindow_Top"]));
+            }
+            set {
+                this["CraftingWindow_Top"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double CraftingWindow_Left {
+            get {
+                return ((double)(this["CraftingWindow_Left"]));
+            }
+            set {
+                this["CraftingWindow_Left"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double CraftingWindow_Width {
+            get {
+                return ((double)(this["CraftingWindow_Width"]));
+            }
+            set {
+                this["CraftingWindow_Width"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
+        public double CraftingWindow_Height {
+            get {
+                return ((double)(this["CraftingWindow_Height"]));
+            }
+            set {
+                this["CraftingWindow_Height"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double ImportStringWindow_Top {
+            get {
+                return ((double)(this["ImportStringWindow_Top"]));
+            }
+            set {
+                this["ImportStringWindow_Top"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double ImportStringWindow_Left {
+            get {
+                return ((double)(this["ImportStringWindow_Left"]));
+            }
+            set {
+                this["ImportStringWindow_Left"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double ImportStringWindow_Width {
+            get {
+                return ((double)(this["ImportStringWindow_Width"]));
+            }
+            set {
+                this["ImportStringWindow_Width"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
+        public double ImportStringWindow_Height {
+            get {
+                return ((double)(this["ImportStringWindow_Height"]));
+            }
+            set {
+                this["ImportStringWindow_Height"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double ReplaceWindow_Top {
+            get {
+                return ((double)(this["ReplaceWindow_Top"]));
+            }
+            set {
+                this["ReplaceWindow_Top"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double ReplaceWindow_Left {
+            get {
+                return ((double)(this["ReplaceWindow_Left"]));
+            }
+            set {
+                this["ReplaceWindow_Left"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double ReplaceWindow_Width {
+            get {
+                return ((double)(this["ReplaceWindow_Width"]));
+            }
+            set {
+                this["ReplaceWindow_Width"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
+        public double ReplaceWindow_Height {
+            get {
+                return ((double)(this["ReplaceWindow_Height"]));
+            }
+            set {
+                this["ReplaceWindow_Height"] = value;
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using FactorioToolAssistedSpeedrun.Commands.Features;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Misc;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
 using Microsoft.EntityFrameworkCore;
@@ -71,7 +72,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             LoadTemplateSteps(value);
         }
 
-        public ObservableCollection<StepModel> StepCollection { get; set; } = [];
+        public ObservableCollectionEx<StepModel> StepCollection { get; set; } = [];
 
         [ObservableProperty]
         private StepModel? _selectedStep;
@@ -84,12 +85,12 @@ namespace FactorioToolAssistedSpeedrun.Services
             UpdateSettingCommand.Execute(_dataService.ProjectDataFile, SettingConstants.SelectedRow, value.ToString()).Wait();
         }
 
-        public ObservableCollection<CraftingModel> CraftingCollection { get; set; } = [];
+        public ObservableCollectionEx<CraftingModel> CraftingCollection { get; set; } = [];
 
         [ObservableProperty]
         private CraftingModel? _selectedCraftStep;
 
-        public ObservableCollection<StepModel> TemplateStepCollection { get; set; } = [];
+        public ObservableCollectionEx<StepModel> TemplateStepCollection { get; set; } = [];
 
         [ObservableProperty]
         private StepModel? _selectedTemplateStep;
@@ -237,6 +238,8 @@ namespace FactorioToolAssistedSpeedrun.Services
         private void LoadCrafting(List<Step> steps)
         {
             var collection = CraftingCollection;
+
+            collection.SupressNotifications();
             if (steps.Count < collection.Count)
             {
                 for (int i = 0; i < steps.Count; i++)
@@ -268,11 +271,13 @@ namespace FactorioToolAssistedSpeedrun.Services
                     collection[i].FromEntity(steps[i]);
                 }
             }
+            collection.ResumeNotifications();
         }
 
         private void LoadSteps(List<Step> steps, bool template = false)
         {
             var collection = template ? TemplateStepCollection : StepCollection;
+            collection.SupressNotifications();
             if (!template)
             {
                 StepsChangeStarted?.Invoke();
@@ -313,6 +318,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             {
                 StepsChangeCompleted?.Invoke();
             }
+            collection.ResumeNotifications();
         }
 
         public void ApplyTemplateModifier(List<Step> steps)

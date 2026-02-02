@@ -9,6 +9,16 @@ namespace FactorioToolAssistedSpeedrun.Misc
         private bool _notificationSuppressed = false;
         private bool _havePendingNotifications = false;
 
+        public void SupressNotifications()
+        {
+            NotificationSuppressed = true;
+        }
+
+        public void ResumeNotifications()
+        {
+            NotificationSuppressed = false;
+        }
+
         public bool NotificationSuppressed
         {
             get { return _notificationSuppressed; }

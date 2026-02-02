@@ -51,13 +51,17 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             {
                 if (Parameters.Name == "")
                 {
+                    _panelService.StepCollection.SupressNotifications();
                     UICommit(_panelService.StepCollection);
+                    _panelService.StepCollection.ResumeNotifications();
                 }
                 else
                 {
                     if (Parameters.Name == _panelService.SelectedTemplate)
                     {
+                        _panelService.TemplateStepCollection.SupressNotifications();
                         UICommit(_panelService.TemplateStepCollection);
+                        _panelService.TemplateStepCollection.ResumeNotifications();
                     }
                 }
             }
@@ -76,13 +80,17 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
             if (Parameters.Name == "")
             {
+                _panelService.StepCollection.SupressNotifications();
                 UIRollback(_panelService.StepCollection);
+                _panelService.StepCollection.ResumeNotifications();
             }
             else
             {
                 if (Parameters.Name == _panelService.SelectedTemplate)
                 {
+                    _panelService.TemplateStepCollection.SupressNotifications();
                     UIRollback(_panelService.TemplateStepCollection);
+                    _panelService.TemplateStepCollection.ResumeNotifications();
                 }
             }
         }

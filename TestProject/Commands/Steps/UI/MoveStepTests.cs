@@ -1,47 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TestProject
+﻿namespace TestProject.Commands.Steps.UI
 {
     using FactorioToolAssistedSpeedrun.Commands.Steps;
-    using FactorioToolAssistedSpeedrun.Models.UI;
-    using FactorioToolAssistedSpeedrun.Services;
-    using NSubstitute;
-    using System.Collections.ObjectModel;
     using Xunit;
 
-    public class UIMoveStepCommandTests
+    public class MoveStepTests : IClassFixture<UIFixture>
     {
-        private static ObservableCollection<StepModel> SeedSteps(int count)
+        private readonly UIFixture _fixture;
+
+        public MoveStepTests(UIFixture fixture)
         {
-            var collection = new ObservableCollection<StepModel>();
-            var fakeCommandStack = Substitute.For<ICommandStack>();
-            var fakeStartupService = Substitute.For<IDataService>();
-            for (int i = 0; i < count; i++)
-            {
-                collection.Add(new StepModel(fakeCommandStack, fakeStartupService)
-                {
-                    // Set Id and Name for test clarity
-                    // Name is not used in GoDown
-                    // Location is sequential
-                    // Id is deterministic for test
-                    // Use Guid based on index for reproducibility
-                    // e.g. Guid.Parse($"00000000-0000-0000-0000-00000000000{i}")
-                    // But for simplicity, use Guid.NewGuid()
-                    // We'll track the Ids in a list for selection
-                    Location = i + 1,
-                    // Name = $"Step{i}",
-                });
-            }
-            return collection;
+            _fixture = fixture;
         }
 
         [Fact]
         public void GoDown_MovesBlockDownBy1_CorrectOrderAndLocations()
         {
             // Arrange
-            var collection = SeedSteps(10);
+            var collection = _fixture.Collection;
+            _fixture.SeedSteps(10);
             // Select steps at indices 3,4,5
             var stepIds = new List<Guid> { collection[3].Id, collection[4].Id, collection[5].Id };
             int moveOffset = 1;
@@ -53,7 +29,7 @@ namespace TestProject
             expectedOrder.AddRange(collection.Skip(7).Select(x => x.Id));
 
             // Act
-            MoveStepCommand.GoDown(collection, stepIds, moveOffset);
+            collection.MoveSteps(stepIds, moveOffset);
 
             // Assert
             Assert.Equal(10, collection.Count);
@@ -69,7 +45,8 @@ namespace TestProject
         public void GoDown_MovesBlockDownBy5_CorrectOrderAndLocations()
         {
             // Arrange
-            var collection = SeedSteps(10);
+            var collection = _fixture.Collection;
+            _fixture.SeedSteps(10);
             // Select steps at indices 3,4,5
             var stepIds = new List<Guid> { collection[3].Id, collection[4].Id, collection[5].Id };
             int moveOffset = 5;
@@ -80,7 +57,7 @@ namespace TestProject
             expectedOrder.AddRange(collection.Skip(3).Take(3).Select(x => x.Id)); // selected
 
             // Act
-            MoveStepCommand.GoDown(collection, stepIds, moveOffset);
+            collection.MoveSteps(stepIds, moveOffset);
 
             // Assert
             Assert.Equal(10, collection.Count);
@@ -96,7 +73,8 @@ namespace TestProject
         public void GoUp_MovesBlockUpBy1_CorrectOrderAndLocations()
         {
             // Arrange
-            var collection = SeedSteps(10);
+            var collection = _fixture.Collection;
+            _fixture.SeedSteps(10);
             // Select steps at indices 3,4,5
             var stepIds = new List<Guid> { collection[3].Id, collection[4].Id, collection[5].Id };
             int moveOffset = -1;
@@ -108,7 +86,7 @@ namespace TestProject
             expectedOrder.AddRange(collection.Skip(6).Select(x => x.Id));
 
             // Act
-            MoveStepCommand.GoUp(collection, stepIds, moveOffset);
+            collection.MoveSteps(stepIds, moveOffset);
 
             // Assert
             Assert.Equal(10, collection.Count);
@@ -124,7 +102,8 @@ namespace TestProject
         public void GoUp_MovesBlockUpBy5_CorrectOrderAndLocations()
         {
             // Arrange
-            var collection = SeedSteps(10);
+            var collection = _fixture.Collection;
+            _fixture.SeedSteps(10);
             // Select steps at indices 3,4,5
             var stepIds = new List<Guid> { collection[3].Id, collection[4].Id, collection[5].Id };
             int moveOffset = -5;
@@ -136,7 +115,7 @@ namespace TestProject
             expectedOrder.AddRange(collection.Skip(6).Select(x => x.Id));
 
             // Act
-            MoveStepCommand.GoUp(collection, stepIds, moveOffset);
+            collection.MoveSteps(stepIds, moveOffset);
 
             // Assert
             Assert.Equal(10, collection.Count);

@@ -1,45 +1,24 @@
-﻿using FactorioToolAssistedSpeedrun;
-using FactorioToolAssistedSpeedrun.Commands.Steps;
-using FactorioToolAssistedSpeedrun.Entities;
-using FactorioToolAssistedSpeedrun.Models.UI;
+﻿using FactorioToolAssistedSpeedrun.Commands.Steps;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.ObjectModel;
 
-namespace TestProject
+namespace TestProject.Commands.Steps.Database
 {
-    public class MoveStepCommandTests
+    public class MoveStepTests : IClassFixture<DatabaseFixture>
     {
-        private static ProjectDbContext GetInMemoryDbContext()
-        {
-            var context = new ProjectDbContext("test");
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-            context.SetupTriggers();
-            return context;
-        }
+        private readonly DatabaseFixture _fixture;
 
-        private static void SeedSteps(ProjectDbContext context, string name, List<(Guid id, int location)> steps)
+        public MoveStepTests(DatabaseFixture fixture)
         {
-            foreach (var (id, location) in steps)
-            {
-                context.Steps.Add(new Step
-                {
-                    Id = id,
-                    Name = name,
-                    Location = location
-                });
-            }
-            context.SaveChanges();
+            _fixture = fixture;
         }
 
         [Fact]
         public void DatabaseCommit_MovesStepsDown_UpdatesLocationsCorrectly()
         {
             // Arrange
-            var context = GetInMemoryDbContext();
             var name = "";
             var stepIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-            SeedSteps(context, name,
+            _fixture.SeedSteps(name,
             [
                 (Guid.NewGuid(), 1),
                 (stepIds[0], 2),
@@ -47,9 +26,10 @@ namespace TestProject
                 (Guid.NewGuid(), 4),
                 (Guid.NewGuid(), 5),
             ]);
+            var context = _fixture.Context;
 
             // Act
-            MoveStepCommand.DatabaseCommit(context, stepIds, 1, name);
+            context.MoveSteps(name, stepIds, 1);
 
             // Assert
             context.ChangeTracker.Clear();
@@ -66,10 +46,9 @@ namespace TestProject
         public void DatabaseCommit_MovesStepsUp_UpdatesLocationsCorrectly()
         {
             // Arrange
-            var context = GetInMemoryDbContext();
             var name = "";
             var stepIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-            SeedSteps(context, name,
+            _fixture.SeedSteps(name,
             [
                 (Guid.NewGuid(), 1),
                 (Guid.NewGuid(), 2),
@@ -77,9 +56,10 @@ namespace TestProject
                 (stepIds[1], 4),
                 (Guid.NewGuid(), 5),
             ]);
+            var context = _fixture.Context;
 
             // Act
-            MoveStepCommand.DatabaseCommit(context, stepIds, -1, name);
+            context.MoveSteps(name, stepIds, -1);
 
             // Assert
             context.ChangeTracker.Clear();
@@ -96,16 +76,16 @@ namespace TestProject
         public void DatabaseCommit_EmptyStepIds_DoesNothing()
         {
             // Arrange
-            var context = GetInMemoryDbContext();
             var name = "";
-            SeedSteps(context, name,
+            _fixture.SeedSteps(name,
             [
                 (Guid.NewGuid(), 1),
                 (Guid.NewGuid(), 2)
             ]);
+            var context = _fixture.Context;
 
             // Act
-            MoveStepCommand.DatabaseCommit(context, [], 1, name);
+            context.MoveSteps(name, [], 1);
 
             // Assert
             context.ChangeTracker.Clear();

@@ -27,7 +27,7 @@ namespace FactorioToolAssistedSpeedrun
             services.AddSingleton<PanelService>();
             services.AddSingleton<LoadingService>();
 
-            services.AddSingleton<IStartupService, StartupService>();
+            services.AddSingleton<IDataService, DataService>();
             services.AddSingleton<ICommandStack, CommandStack>();
 
             services.AddSingleton<MainViewModel>();

@@ -9,22 +9,22 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class StepDetailPanelViewModel : ObservableObject
     {
         private readonly StepService _stepService;
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
 
         public StepService StepService => _stepService;
 
         public StepDetailPanelViewModel()
         {
             _stepService = App.Current.Services.GetRequiredService<StepService>();
-            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = App.Current.Services.GetRequiredService<IDataService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepDetailPanelViewModel(StepService stepService, IStartupService startupService)
+        public StepDetailPanelViewModel(StepService stepService, IDataService dataService)
         {
             _stepService = stepService;
-            _startupService = startupService;
-            _startupService.OnGameDataLoaded += LoadItemData;
+            _dataService = dataService;
+            _dataService.OnGameDataLoaded += LoadItemData;
             _stepService.TypeChanged += LoadDetail;
         }
 
@@ -38,17 +38,17 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private void LoadItemData()
         {
             _buildableItems.Clear();
-            _buildableItems.AddRange(_startupService.GameData!.Items
+            _buildableItems.AddRange(_dataService.GameData.Items
                                         .Where(x => x.Value.IsBuilable)
                                         .OrderBy(x => x.Key)
                                         .Select(x => x.Key));
             _craftableItems.Clear();
-            _craftableItems.AddRange(_startupService.GameData!.Items
+            _craftableItems.AddRange(_dataService.GameData.Items
                                         .OrderBy(x => x.Key)
                                         .Select(x => x.Key));
 
             _equipableItems.Clear();
-            _equipableItems.AddRange(_startupService.GameData!.Items
+            _equipableItems.AddRange(_dataService.GameData.Items
                                         .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
                                                     (x.Value.Type.StartsWith("armor") ||
                                                     x.Value.Type.StartsWith("gun") ||
@@ -57,14 +57,19 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                                         .Select(x => x.Key));
 
             _throwableItems.Clear();
-            _throwableItems.AddRange(_startupService.GameData!.Items
+            _throwableItems.AddRange(_dataService.GameData.Items
                                         .Where(x => !string.IsNullOrEmpty(x.Value.Type) &&
                                                     x.Value.Type.StartsWith("capsule"))
                                         .OrderBy(x => x.Key)
                                         .Select(x => x.Key));
 
             _recipes.Clear();
-            _recipes.AddRange(_startupService.GameData!.Recipes
+            _recipes.AddRange(_dataService.GameData.Recipes
+                                        .OrderBy(x => x.Key)
+                                        .Select(x => x.Key));
+
+            _technologies.Clear();
+            _technologies.AddRange(_dataService.GameData.Technologies
                                         .OrderBy(x => x.Key)
                                         .Select(x => x.Key));
         }

@@ -198,7 +198,7 @@
             SelectedItem="{Binding PanelService.SelectedTemplateStep}"
             SelectionMode="Extended">
             <DataGrid.Resources>
-                <misc:BindingProxy x:Key="proxy" Data="{Binding StartupService.ItemsCollection, Mode=OneWay}" />
+                <misc:BindingProxy x:Key="proxy" Data="{Binding ItemsCollection, Mode=OneWay}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn

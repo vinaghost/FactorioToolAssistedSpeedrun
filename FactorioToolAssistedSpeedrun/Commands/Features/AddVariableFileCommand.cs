@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace FactorioToolAssistedSpeedrun.Commands.UI
+namespace FactorioToolAssistedSpeedrun.Commands.Features
 {
     public record VariableObject(int EnvironmentId, bool PrintMessage, bool PrintSavegame, bool PrintTech);
 

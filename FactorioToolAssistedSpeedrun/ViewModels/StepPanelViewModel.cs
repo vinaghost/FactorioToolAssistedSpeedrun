@@ -4,6 +4,7 @@ using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,28 +13,32 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class StepPanelViewModel : ObservableObject
     {
         private readonly ICommandStack _commandStack;
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
         private readonly StepService _stepService;
         private readonly PanelService _panelService;
 
         public PanelService PanelService => _panelService;
-        public IStartupService startupService => _startupService;
+        public ObservableCollection<string> ItemsCollection { get; }
 
         public StepPanelViewModel()
         {
             _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
-            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = App.Current.Services.GetRequiredService<IDataService>();
             _stepService = App.Current.Services.GetRequiredService<StepService>();
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
+
+            ItemsCollection = _dataService.ItemsCollection;
         }
 
         [ActivatorUtilitiesConstructor]
-        public StepPanelViewModel(ICommandStack commandStack, IStartupService startupService, StepService stepService, PanelService panelService)
+        public StepPanelViewModel(ICommandStack commandStack, IDataService dataService, StepService stepService, PanelService panelService)
         {
             _commandStack = commandStack;
-            _startupService = startupService;
+            _dataService = dataService;
             _stepService = stepService;
             _panelService = panelService;
+
+            ItemsCollection = _dataService.ItemsCollection;
         }
 
         [RelayCommand]

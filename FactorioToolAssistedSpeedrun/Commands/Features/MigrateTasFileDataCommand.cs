@@ -1,7 +1,7 @@
 ﻿using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 
-namespace FactorioToolAssistedSpeedrun.Commands.UI
+namespace FactorioToolAssistedSpeedrun.Commands.Features
 {
     public static class MigrateTasFileDataCommand
     {

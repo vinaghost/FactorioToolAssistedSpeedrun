@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FactorioToolAssistedSpeedrun.Commands.UI
+namespace FactorioToolAssistedSpeedrun.Commands.Features
 {
     public static class UpdateSettingCommand
     {

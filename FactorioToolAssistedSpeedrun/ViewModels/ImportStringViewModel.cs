@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FactorioToolAssistedSpeedrun.Commands.Features;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
-using FactorioToolAssistedSpeedrun.Commands.UI;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
@@ -17,32 +17,32 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class ImportStringViewModel : ObservableObject
     {
         private readonly PanelService _panelService;
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
         private readonly ICommandStack _commandStack;
 
         public ImportStringViewModel()
         {
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
-            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = App.Current.Services.GetRequiredService<IDataService>();
             _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public ImportStringViewModel(PanelService panelService, IStartupService startupService, ICommandStack commandStack)
+        public ImportStringViewModel(PanelService panelService, IDataService dataService, ICommandStack commandStack)
         {
             _panelService = panelService;
-            _startupService = startupService;
+            _dataService = dataService;
             _commandStack = commandStack;
         }
 
         [RelayCommand]
         private async Task Load()
         {
-            if (!_startupService.IsProjectDataLoaded) return;
+            if (!_dataService.IsProjectDataLoaded) return;
 
             var getImportIntoRowQuery = new GetImportIntoRowQuery()
             {
-                ProjectDataFile = _startupService.ProjectDataFile
+                ProjectDataFile = _dataService.ProjectDataFile
             };
             var rowIndex = await Task.Run(getImportIntoRowQuery.Execute);
             LineIndex = rowIndex;
@@ -72,7 +72,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private async Task CurrentStepIndex()
         {
             LineIndex = _panelService.SelectedStepIndex;
-            await UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.ImportIntoRow, LineIndex.ToString());
+            await UpdateSettingCommand.Execute(_dataService.ProjectDataFile, SettingConstants.ImportIntoRow, LineIndex.ToString());
         }
 
         [RelayCommand]
@@ -260,9 +260,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             {
                 step.Item = type switch
                 {
-                    StepType.Tech => GetTechName(segments, _startupService.GameData!),
-                    StepType.Recipe => GetRecipeName(segments, _startupService.GameData!),
-                    _ => GetItemName(segments, _startupService.GameData!),
+                    StepType.Tech => GetTechName(segments, _dataService.GameData),
+                    StepType.Recipe => GetRecipeName(segments, _dataService.GameData),
+                    _ => GetItemName(segments, _dataService.GameData),
                 };
             }
 

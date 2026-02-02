@@ -17,7 +17,7 @@ namespace TestProject
         {
             var collection = new ObservableCollection<StepModel>();
             var fakeCommandStack = Substitute.For<ICommandStack>();
-            var fakeStartupService = Substitute.For<IStartupService>();
+            var fakeStartupService = Substitute.For<IDataService>();
             for (int i = 0; i < count; i++)
             {
                 collection.Add(new StepModel(fakeCommandStack, fakeStartupService)

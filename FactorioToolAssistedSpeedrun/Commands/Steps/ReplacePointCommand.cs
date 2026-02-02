@@ -11,8 +11,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
     {
         private readonly ICommandStack _commandStack;
 
-        public ReplacePointCommand(IStartupService startupService, PanelService panelService, ICommandStack commandStack)
-            : base(startupService, panelService)
+        public ReplacePointCommand(IDataService dataService, PanelService panelService, ICommandStack commandStack)
+            : base(dataService, panelService)
         {
             _commandStack = commandStack;
         }

@@ -13,29 +13,41 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
         private readonly LoadingService _loadingService;
         private readonly PanelService _panelService;
-        public IStartupService startupService => _startupService;
         public LoadingService LoadingService => _loadingService;
 
         private readonly ICommandStack _commandStack;
 
         public MainViewModel()
         {
-            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = App.Current.Services.GetRequiredService<IDataService>();
             _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
             _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public MainViewModel(ICommandStack commandStack, IStartupService startupService, LoadingService loadingService, PanelService panelService)
+        public MainViewModel(ICommandStack commandStack, IDataService dataService, LoadingService loadingService, PanelService panelService)
         {
             _commandStack = commandStack;
-            _startupService = startupService;
+            _dataService = dataService;
             _loadingService = loadingService;
             _panelService = panelService;
+
+            _dataService.OnProjectDataLoaded += OnProjectDataLoaded;
+        }
+
+        [ObservableProperty]
+        private string _projectName = "Not loaded";
+
+        private void OnProjectDataLoaded()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                ProjectName = _dataService.ProjectName;
+            });
         }
 
         [RelayCommand]
@@ -45,7 +57,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             try
             {
-                await Task.Run(_startupService.LoadGameDataFile);
+                await Task.Run(_dataService.LoadGameDataFile);
             }
             catch (Exception ex)
             {
@@ -54,7 +66,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             try
             {
-                await Task.Run(_startupService.LoadProjectDataFile);
+                await Task.Run(_dataService.LoadProjectDataFile);
             }
             catch (Exception ex)
             {

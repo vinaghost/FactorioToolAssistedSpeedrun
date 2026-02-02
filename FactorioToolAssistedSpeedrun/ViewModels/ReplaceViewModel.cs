@@ -10,19 +10,19 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 {
     public partial class ReplaceViewModel : ObservableObject
     {
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
         private readonly ICommandStack _commandStack;
 
         public ReplaceViewModel()
         {
-            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = App.Current.Services.GetRequiredService<IDataService>();
             _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]
-        public ReplaceViewModel(IStartupService startupService, ICommandStack commandStack)
+        public ReplaceViewModel(IDataService dataService, ICommandStack commandStack)
         {
-            _startupService = startupService;
+            _dataService = dataService;
             _commandStack = commandStack;
         }
 
@@ -44,7 +44,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private void Find()
         {
-            if (!_startupService.IsProjectDataLoaded)
+            if (!_dataService.IsProjectDataLoaded)
             {
                 MessageBox.Show("Project data is not loaded. Please load the project data file first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -52,7 +52,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var countPointQuery = new CountPointQuery
             {
-                ProjectDataFile = _startupService.ProjectDataFile,
+                ProjectDataFile = _dataService.ProjectDataFile,
                 X = FindX,
                 Y = FindY
             };
@@ -63,7 +63,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         [RelayCommand]
         private void Replace()
         {
-            if (!_startupService.IsProjectDataLoaded)
+            if (!_dataService.IsProjectDataLoaded)
             {
                 MessageBox.Show("Project data is not loaded. Please load the project data file first.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;

@@ -9,12 +9,12 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var startupService = App.Current.Services.GetRequiredService<IStartupService>();
-            if (!startupService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
+            var dataService = App.Current.Services.GetRequiredService<IDataService>();
+            if (!dataService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
 
             if (value is string itemName && !string.IsNullOrEmpty(itemName))
             {
-                if (startupService.GameData!.ItemsLocale.TryGetValue(itemName, out var humanized))
+                if (dataService.GameData.ItemsLocale.TryGetValue(itemName, out var humanized))
                     return humanized;
                 return itemName;
             }
@@ -23,12 +23,12 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var startupService = App.Current.Services.GetRequiredService<IStartupService>();
-            if (!startupService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
+            var dataService = App.Current.Services.GetRequiredService<IDataService>();
+            if (!dataService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
 
             if (value is string humanizedName && !string.IsNullOrEmpty(humanizedName))
             {
-                if (startupService.GameData!.ReverseItemsLocale.TryGetValue(humanizedName, out var itemName))
+                if (dataService.GameData.ReverseItemsLocale.TryGetValue(humanizedName, out var itemName))
                     return itemName;
                 return humanizedName;
             }

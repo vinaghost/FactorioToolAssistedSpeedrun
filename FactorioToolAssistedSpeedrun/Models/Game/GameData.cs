@@ -24,6 +24,20 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
             ReverseRecipesLocale = data.ReverseRecipesLocale;
         }
 
+        public static GameData DefaultGameData = new()
+        {
+            Technologies = FrozenDictionary<string, TechnologyGame>.Empty,
+            Items = FrozenDictionary<string, ItemGame>.Empty,
+            Recipes = FrozenDictionary<string, RecipeGame>.Empty,
+
+            TechnologiesLocale = FrozenDictionary<string, string>.Empty,
+            ItemsLocale = FrozenDictionary<string, string>.Empty,
+            RecipesLocale = FrozenDictionary<string, string>.Empty,
+            ReverseTechnologiesLocale = FrozenDictionary<string, string>.Empty,
+            ReverseItemsLocale = FrozenDictionary<string, string>.Empty,
+            ReverseRecipesLocale = FrozenDictionary<string, string>.Empty,
+        };
+
         public static GameData Create(PrototypeData prototypeData, LocalePrototype technologyLocale, LocalePrototype itemLocale, LocalePrototype recipeLocale)
         {
             var technoLogiesDict = prototypeData.Technologies

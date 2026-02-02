@@ -9,15 +9,15 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public abstract class Command<T> : ICommand, IUICommand, IDatabaseCommand where T : CommandParameters
     {
-        protected readonly IStartupService _startupService;
+        protected readonly IDataService _dataService;
         protected readonly PanelService _panelService;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
-        public Command(IStartupService startupService, PanelService panelService)
+        public Command(IDataService dataService, PanelService panelService)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         {
-            _startupService = startupService;
+            _dataService = dataService;
             _panelService = panelService;
         }
 
@@ -30,11 +30,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public void Commit(bool ignoreUI = false)
         {
-            if (!_startupService.IsProjectDataLoaded)
+            if (!_dataService.IsProjectDataLoaded)
             {
                 return;
             }
-            using (var context = new ProjectDbContext(_startupService.ProjectDataFile!))
+            using (var context = new ProjectDbContext(_dataService.ProjectDataFile!))
             {
                 try
                 {
@@ -65,11 +65,11 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public void Rollback()
         {
-            if (!_startupService.IsProjectDataLoaded)
+            if (!_dataService.IsProjectDataLoaded)
             {
                 return;
             }
-            using (var context = new ProjectDbContext(_startupService.ProjectDataFile!))
+            using (var context = new ProjectDbContext(_dataService.ProjectDataFile!))
             {
                 DatabaseRollback(context);
             }

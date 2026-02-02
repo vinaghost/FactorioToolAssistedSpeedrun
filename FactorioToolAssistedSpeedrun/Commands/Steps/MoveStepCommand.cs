@@ -9,8 +9,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public class MoveStepCommand : Command<MoveStepCommandParameters>
     {
-        public MoveStepCommand(IStartupService startupService, PanelService panelService)
-            : base(startupService, panelService)
+        public MoveStepCommand(IDataService dataService, PanelService panelService)
+            : base(dataService, panelService)
         {
         }
 

@@ -10,7 +10,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
     public partial class CraftingModel : ObservableObject
     {
         private readonly ICommandStack _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
-        private readonly IStartupService _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+        private readonly IDataService _dataService = App.Current.Services.GetRequiredService<IDataService>();
         public Guid Id { get; set; }
 
         private bool _loaded = false;
@@ -32,7 +32,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
             _lock = true;
 
-            if (!_startupService.GameData!.Items.ContainsKey(newValue))
+            if (!_dataService.GameData.Items.ContainsKey(newValue))
             {
                 Item = oldValue ?? "";
             }

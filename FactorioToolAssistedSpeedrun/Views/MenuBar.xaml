@@ -23,7 +23,7 @@
             <MenuItem
                 Command="{Binding DumpDataCommand}"
                 Header="Factorio"
-                InputGestureText="{Binding StartupService.Version}" />
+                InputGestureText="{Binding Version}" />
         </MenuItem>
         <MenuItem Header="_Edit">
             <MenuItem

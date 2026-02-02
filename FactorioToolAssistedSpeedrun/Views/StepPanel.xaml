@@ -115,7 +115,7 @@
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">
             <DataGrid.Resources>
-                <misc:BindingProxy x:Key="proxy" Data="{Binding StartupService.ItemsCollection, Mode=OneWay}" />
+                <misc:BindingProxy x:Key="proxy" Data="{Binding ItemsCollection, Mode=OneWay}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn

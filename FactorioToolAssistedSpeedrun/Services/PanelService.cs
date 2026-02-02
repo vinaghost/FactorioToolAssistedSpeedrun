@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FactorioToolAssistedSpeedrun.Commands.UI;
+using FactorioToolAssistedSpeedrun.Commands.Features;
 using FactorioToolAssistedSpeedrun.Constants;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
@@ -12,13 +12,13 @@ namespace FactorioToolAssistedSpeedrun.Services
 {
     public partial class PanelService : ObservableObject
     {
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
 
-        public PanelService(IStartupService startupService)
+        public PanelService(IDataService dataService)
         {
-            _startupService = startupService;
+            _dataService = dataService;
 
-            _startupService.OnProjectDataLoaded += OnProjectDataLoaded;
+            _dataService.OnProjectDataLoaded += OnProjectDataLoaded;
         }
 
         private void OnProjectDataLoaded()
@@ -26,25 +26,25 @@ namespace FactorioToolAssistedSpeedrun.Services
             var getStepsQuery = new GetStepsQuery
             {
                 Name = "",
-                ProjectDataFile = _startupService.ProjectDataFile,
+                ProjectDataFile = _dataService.ProjectDataFile,
             };
             var steps = getStepsQuery.Execute();
 
             var getSelectedRowQuery = new GetSelectedRowQuery
             {
-                ProjectDataFile = _startupService.ProjectDataFile
+                ProjectDataFile = _dataService.ProjectDataFile
             };
             var row = getSelectedRowQuery.Execute() + 1;
 
             var getTemplatesQuery = new GetTemplatesQuery()
             {
-                ProjectDataFile = _startupService.ProjectDataFile,
+                ProjectDataFile = _dataService.ProjectDataFile,
             };
             var templates = getTemplatesQuery.Execute();
 
             var getCraftingStepQUery = new GetCraftingStepQuery()
             {
-                ProjectDataFile = _startupService.ProjectDataFile
+                ProjectDataFile = _dataService.ProjectDataFile
             };
 
             var crafts = getCraftingStepQUery.Execute();
@@ -81,7 +81,7 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         partial void OnSelectedStepIndexChanged(int value)
         {
-            UpdateSettingCommand.Execute(_startupService.ProjectDataFile, SettingConstants.SelectedRow, value.ToString()).Wait();
+            UpdateSettingCommand.Execute(_dataService.ProjectDataFile, SettingConstants.SelectedRow, value.ToString()).Wait();
         }
 
         public ObservableCollection<CraftingModel> CraftingCollection { get; set; } = [];
@@ -158,14 +158,14 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         public void LoadCraft()
         {
-            if (!_startupService.IsProjectDataLoaded)
+            if (!_dataService.IsProjectDataLoaded)
             {
                 App.Current.Dispatcher.Invoke(() => LoadCrafting([]));
                 return;
             }
             var getCraftingStepQUery = new GetCraftingStepQuery()
             {
-                ProjectDataFile = _startupService.ProjectDataFile
+                ProjectDataFile = _dataService.ProjectDataFile
             };
             var crafts = getCraftingStepQUery.Execute();
 
@@ -188,7 +188,7 @@ namespace FactorioToolAssistedSpeedrun.Services
                 templateName = SelectedTemplate ?? "";
             }
 
-            if (!_startupService.IsProjectDataLoaded || string.IsNullOrEmpty(templateName))
+            if (!_dataService.IsProjectDataLoaded || string.IsNullOrEmpty(templateName))
             {
                 App.Current.Dispatcher.Invoke(() => LoadSteps([], true));
                 return;
@@ -197,7 +197,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             var getStepsQuery = new GetStepsQuery()
             {
                 Name = templateName,
-                ProjectDataFile = _startupService.ProjectDataFile!,
+                ProjectDataFile = _dataService.ProjectDataFile!,
             };
 
             var steps = getStepsQuery.Execute();
@@ -230,7 +230,7 @@ namespace FactorioToolAssistedSpeedrun.Services
                 SelectedTemplate = TemplateCollection.Count > 0 ? TemplateCollection[0] : null;
             }
 
-            using var context = new ProjectDbContext(_startupService.ProjectDataFile!);
+            using var context = new ProjectDbContext(_dataService.ProjectDataFile!);
             context.Steps.Where(x => x.Name == templateName).ExecuteDelete();
         }
 

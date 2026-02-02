@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:FactorioToolAssistedSpeedrun.Views"
     xmlns:vm="clr-namespace:FactorioToolAssistedSpeedrun.ViewModels"
-    Title="{Binding StartupService.ProjectName, StringFormat={}{0} - Factorio Tool Assisted Speedrun}"
+    Title="{Binding ProjectName, StringFormat={}{0} - Factorio Tool Assisted Speedrun}"
     Width="1200"
     Height="900"
     d:DataContext="{d:DesignInstance vm:MainViewModel,

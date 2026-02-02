@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace FactorioToolAssistedSpeedrun.Commands.UI
+namespace FactorioToolAssistedSpeedrun.Commands.Features
 {
     public static class AddInfoFileCommand
     {

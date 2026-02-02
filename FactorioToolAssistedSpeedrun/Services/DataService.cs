@@ -1,22 +1,18 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FactorioToolAssistedSpeedrun.Models.Game;
+﻿using FactorioToolAssistedSpeedrun.Models.Game;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
-    public partial class StartupService : ObservableObject, IStartupService
+    public class DataService : IDataService
     {
-        [ObservableProperty]
-        private string _version = "Not loaded";
+        public string Version { get; private set; } = "Not loaded";
+        public string ProjectName { get; private set; } = "Not loaded";
+        public ObservableCollection<string> ItemsCollection { get; } = [];
 
-        [ObservableProperty]
-        private string _projectName = "Not loaded";
-
-        public ObservableCollection<string> ItemsCollection { get; set; } = [];
-
-        public GameData? GameData { get; private set; }
+        private GameData? _gameData;
+        public GameData GameData => _gameData ?? GameData.DefaultGameData;
         public string ProjectDataFile { get; private set; } = "";
 
         public bool IsGameDataLoaded { get; private set; }
@@ -35,20 +31,12 @@ namespace FactorioToolAssistedSpeedrun.Services
                 return;
 
             var fileContent = File.ReadAllText(gameDataFile);
-            GameData = JsonSerializer.Deserialize<GameData>(fileContent);
+            _gameData = JsonSerializer.Deserialize<GameData>(fileContent);
+            if (_gameData is null)
+                return;
 
-            App.Current.Dispatcher.Invoke(() => Version = Path.GetFileNameWithoutExtension(gameDataFile));
-
-            ItemsCollection.Clear();
-
-            var items = GameData!.Items.Select(x => x.Key)
-                .Concat(GameData!.Recipes.Select(x => x.Key))
-                .Concat(GameData!.Technologies.Select(x => x.Key));
-
-            foreach (var item in items)
-            {
-                ItemsCollection.Add(item);
-            }
+            Version = Path.GetFileNameWithoutExtension(gameDataFile);
+            LoadItemsAutoFill(_gameData);
 
             IsGameDataLoaded = true;
             OnGameDataLoaded?.Invoke();
@@ -62,9 +50,22 @@ namespace FactorioToolAssistedSpeedrun.Services
                 return;
 
             ProjectDataFile = projectDataFile;
-            App.Current.Dispatcher.Invoke(() => ProjectName = Path.GetFileNameWithoutExtension(projectDataFile));
+            ProjectName = Path.GetFileNameWithoutExtension(projectDataFile);
+
             IsProjectDataLoaded = true;
             OnProjectDataLoaded?.Invoke();
+        }
+
+        private void LoadItemsAutoFill(GameData gameData)
+        {
+            ItemsCollection.Clear();
+            var items = gameData.Items.Select(x => x.Key)
+                .Concat(gameData.Recipes.Select(x => x.Key))
+                .Concat(gameData.Technologies.Select(x => x.Key));
+            foreach (var item in items)
+            {
+                ItemsCollection.Add(item);
+            }
         }
     }
 }

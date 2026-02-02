@@ -10,14 +10,14 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class StepModel : ObservableObject
     {
-        public StepModel(ICommandStack? commandStack = null, IStartupService? startupService = null)
+        public StepModel(ICommandStack? commandStack = null, IDataService? dataService = null)
         {
             _commandStack = commandStack ?? App.Current.Services.GetRequiredService<ICommandStack>();
-            _startupService = startupService ?? App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = dataService ?? App.Current.Services.GetRequiredService<IDataService>();
         }
 
         private readonly ICommandStack _commandStack;
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
         public Guid Id { get; private set; } = Guid.NewGuid();
         public string Name { get; private set; } = "";
         private bool _loaded = false;
@@ -164,7 +164,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
             {
                 if (Type == StepType.Tech)
                 {
-                    if (!_startupService.GameData!.Technologies.ContainsKey(newValue))
+                    if (!_dataService.GameData.Technologies.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
                     }
@@ -184,7 +184,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else if (Type == StepType.Recipe)
                 {
-                    if (!_startupService.GameData!.Recipes.ContainsKey(newValue))
+                    if (!_dataService.GameData.Recipes.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
                     }
@@ -204,7 +204,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
                 }
                 else
                 {
-                    if (!_startupService.GameData!.Items.ContainsKey(newValue))
+                    if (!_dataService.GameData.Items.ContainsKey(newValue))
                     {
                         Item = oldValue ?? "";
                     }

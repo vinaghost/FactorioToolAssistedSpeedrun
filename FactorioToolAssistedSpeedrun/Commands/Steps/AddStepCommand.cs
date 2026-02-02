@@ -10,8 +10,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
     public class AddStepCommand : Command<AddStepCommandParameters>
     {
-        public AddStepCommand(IStartupService startupService, PanelService panelService)
-            : base(startupService, panelService)
+        public AddStepCommand(IDataService dataService, PanelService panelService)
+            : base(dataService, panelService)
         {
         }
 

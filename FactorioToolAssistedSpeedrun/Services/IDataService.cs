@@ -3,15 +3,15 @@ using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
-    public interface IStartupService
+    public interface IDataService
     {
         string Version { get; }
         string ProjectName { get; }
-        GameData? GameData { get; }
         bool IsGameDataLoaded { get; }
         bool IsProjectDataLoaded { get; }
-        ObservableCollection<string> ItemsCollection { get; set; }
+        ObservableCollection<string> ItemsCollection { get; }
         string ProjectDataFile { get; }
+        GameData GameData { get; }
 
         event Action? OnGameDataLoaded;
 

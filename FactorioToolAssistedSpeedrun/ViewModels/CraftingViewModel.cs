@@ -4,6 +4,7 @@ using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
@@ -11,24 +12,29 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
     public partial class CraftingViewModel : ObservableObject
     {
         private readonly PanelService _panelService;
-        private readonly IStartupService _startupService;
+        private readonly IDataService _dataService;
         private readonly ICommandStack _commandStack;
         public PanelService PanelService => _panelService;
-        public IStartupService startupService => _startupService;
+
+        public ObservableCollection<string> ItemsCollection { get; }
 
         public CraftingViewModel()
         {
             _panelService = App.Current.Services.GetRequiredService<PanelService>();
-            _startupService = App.Current.Services.GetRequiredService<IStartupService>();
+            _dataService = App.Current.Services.GetRequiredService<IDataService>();
             _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
+
+            ItemsCollection = _dataService.ItemsCollection;
         }
 
         [ActivatorUtilitiesConstructor]
-        public CraftingViewModel(PanelService panelService, IStartupService startupService, ICommandStack commandStack)
+        public CraftingViewModel(PanelService panelService, IDataService dataService, ICommandStack commandStack)
         {
             _panelService = panelService;
-            _startupService = startupService;
+            _dataService = dataService;
             _commandStack = commandStack;
+
+            ItemsCollection = _dataService.ItemsCollection;
         }
 
         [RelayCommand]

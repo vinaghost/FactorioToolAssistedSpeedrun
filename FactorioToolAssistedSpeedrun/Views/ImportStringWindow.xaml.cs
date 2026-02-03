@@ -1,6 +1,6 @@
-﻿using FactorioToolAssistedSpeedrun.Services;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.Views
@@ -13,7 +13,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public ImportStringWindow()
         {
             InitializeComponent();
-            DataContext = App.Current.Services.GetRequiredService<ImportStringViewModel>();
+            DataContext = Ioc.Default.GetRequiredService<ImportStringViewModel>();
             WindowPositionManager.Load(this, nameof(ImportStringWindow));
         }
 

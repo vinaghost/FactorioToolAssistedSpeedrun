@@ -1,5 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.ViewModels;
 using System.Windows.Controls;
 
 namespace FactorioToolAssistedSpeedrun.Views
@@ -12,7 +12,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public StepTypePanel()
         {
             InitializeComponent();
-            DataContext = App.Current.Services.GetRequiredService<StepTypePanelViewModel>();
+            DataContext = Ioc.Default.GetRequiredService<StepTypePanelViewModel>();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.ViewModels;
 using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,7 +14,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public TemplatePanel()
         {
             InitializeComponent();
-            DataContext = App.Current.Services.GetRequiredService<TemplatePanelViewModel>();
+            DataContext = Ioc.Default.GetRequiredService<TemplatePanelViewModel>();
             Loaded += TemplatePanel_Loaded;
         }
 

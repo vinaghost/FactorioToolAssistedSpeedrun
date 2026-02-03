@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Queries;
@@ -15,8 +16,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         public ReplaceViewModel()
         {
-            _dataService = App.Current.Services.GetRequiredService<IDataService>();
-            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
+            _dataService = Ioc.Default.GetRequiredService<IDataService>();
+            _commandStack = Ioc.Default.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]

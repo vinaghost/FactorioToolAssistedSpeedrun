@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
@@ -13,7 +14,7 @@ namespace FactorioToolAssistedSpeedrun.Services
 
         public StepService()
         {
-            _dataService = App.Current.Services.GetRequiredService<IDataService>();
+            _dataService = Ioc.Default.GetRequiredService<IDataService>();
         }
 
         [ActivatorUtilitiesConstructor]

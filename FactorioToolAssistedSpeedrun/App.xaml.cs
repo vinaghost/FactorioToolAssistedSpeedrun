@@ -1,4 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.Commands.Steps;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,12 +14,13 @@ namespace FactorioToolAssistedSpeedrun
     {
         public App()
         {
-            Services = ConfigureServices();
+            _services = ConfigureServices();
+            Ioc.Default.ConfigureServices(_services);
             InitializeComponent();
         }
 
         public new static App Current => (App)Application.Current;
-        public IServiceProvider Services { get; }
+        private readonly IServiceProvider _services;
 
         private static ServiceProvider ConfigureServices()
         {

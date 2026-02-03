@@ -1,5 +1,5 @@
+using CommunityToolkit.Mvvm.DependencyInjection;
 using FactorioToolAssistedSpeedrun.Services;
-using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -9,7 +9,7 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var dataService = App.Current.Services.GetRequiredService<IDataService>();
+            var dataService = Ioc.Default.GetRequiredService<IDataService>();
             if (!dataService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
 
             if (value is string itemName && !string.IsNullOrEmpty(itemName))
@@ -23,7 +23,7 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var dataService = App.Current.Services.GetRequiredService<IDataService>();
+            var dataService = Ioc.Default.GetRequiredService<IDataService>();
             if (!dataService.IsGameDataLoaded) throw new InvalidOperationException("GameData is not initialized.");
 
             if (value is string humanizedName && !string.IsNullOrEmpty(humanizedName))

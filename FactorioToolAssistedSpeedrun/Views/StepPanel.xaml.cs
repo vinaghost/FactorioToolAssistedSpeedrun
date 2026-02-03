@@ -1,6 +1,6 @@
-﻿using FactorioToolAssistedSpeedrun.Services;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -17,7 +17,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public StepPanel()
         {
             InitializeComponent();
-            DataContext = App.Current.Services.GetRequiredService<StepPanelViewModel>();
+            DataContext = Ioc.Default.GetRequiredService<StepPanelViewModel>();
         }
 
         public void ScrollToSelected()
@@ -53,7 +53,7 @@ namespace FactorioToolAssistedSpeedrun.Views
 
         private void LoadHandler(object sender, RoutedEventArgs e)
         {
-            var panelService = App.Current.Services.GetRequiredService<PanelService>();
+            var panelService = Ioc.Default.GetRequiredService<PanelService>();
             panelService.ScrollToSelectedStep = ScrollToSelected;
             panelService.StepsChangeStarted = Steps.BeginInit;
             panelService.StepsChangeCompleted = Steps.EndInit;

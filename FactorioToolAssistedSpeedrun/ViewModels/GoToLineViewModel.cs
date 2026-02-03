@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         public GoToLineViewModel()
         {
-            _panelService = App.Current.Services.GetRequiredService<PanelService>();
+            _panelService = Ioc.Default.GetRequiredService<PanelService>();
         }
 
         [ActivatorUtilitiesConstructor]

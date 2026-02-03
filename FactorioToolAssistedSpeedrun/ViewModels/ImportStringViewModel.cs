@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Features;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
@@ -22,9 +23,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         public ImportStringViewModel()
         {
-            _panelService = App.Current.Services.GetRequiredService<PanelService>();
-            _dataService = App.Current.Services.GetRequiredService<IDataService>();
-            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
+            _panelService = Ioc.Default.GetRequiredService<PanelService>();
+            _dataService = Ioc.Default.GetRequiredService<IDataService>();
+            _commandStack = Ioc.Default.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]

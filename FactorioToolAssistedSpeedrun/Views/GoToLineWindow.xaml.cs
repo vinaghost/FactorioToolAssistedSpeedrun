@@ -1,5 +1,5 @@
-﻿using FactorioToolAssistedSpeedrun.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.ViewModels;
 using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.Views
@@ -12,7 +12,7 @@ namespace FactorioToolAssistedSpeedrun.Views
         public GoToLineWindow()
         {
             InitializeComponent();
-            var vm = App.Current.Services.GetRequiredService<GoToLineViewModel>();
+            var vm = Ioc.Default.GetRequiredService<GoToLineViewModel>();
             vm.Close += Close;
             DataContext = vm;
         }

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         public StepTypePanelViewModel()
         {
-            _stepService = App.Current.Services.GetRequiredService<StepService>();
+            _stepService = Ioc.Default.GetRequiredService<StepService>();
         }
 
         [ActivatorUtilitiesConstructor]

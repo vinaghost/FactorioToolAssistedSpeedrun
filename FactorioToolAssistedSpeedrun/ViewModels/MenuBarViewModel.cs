@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands;
 using FactorioToolAssistedSpeedrun.Commands.Features;
@@ -32,9 +33,9 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
         public MenuBarViewModel()
         {
-            _dataService = App.Current.Services.GetRequiredService<IDataService>();
-            _loadingService = App.Current.Services.GetRequiredService<LoadingService>();
-            _commandStack = App.Current.Services.GetRequiredService<ICommandStack>();
+            _dataService = Ioc.Default.GetRequiredService<IDataService>();
+            _loadingService = Ioc.Default.GetRequiredService<LoadingService>();
+            _commandStack = Ioc.Default.GetRequiredService<ICommandStack>();
         }
 
         [ActivatorUtilitiesConstructor]

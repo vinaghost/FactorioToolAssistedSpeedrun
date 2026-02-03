@@ -1,23 +1,18 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
 using FactorioToolAssistedSpeedrun.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FactorioToolAssistedSpeedrun.Models.UI
 {
     public partial class StepModel : ObservableObject
     {
-        public StepModel(ICommandStack? commandStack = null, IDataService? dataService = null)
-        {
-            _commandStack = commandStack ?? App.Current.Services.GetRequiredService<ICommandStack>();
-            _dataService = dataService ?? App.Current.Services.GetRequiredService<IDataService>();
-        }
+        private readonly ICommandStack _commandStack = Ioc.Default.GetRequiredService<ICommandStack>();
+        private readonly IDataService _dataService = Ioc.Default.GetRequiredService<IDataService>();
 
-        private readonly ICommandStack _commandStack;
-        private readonly IDataService _dataService;
         public Guid Id { get; private set; } = Guid.NewGuid();
         public string Name { get; private set; } = "";
         private bool _loaded = false;

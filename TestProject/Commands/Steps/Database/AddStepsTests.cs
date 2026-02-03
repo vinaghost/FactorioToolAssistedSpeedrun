@@ -4,15 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Commands.Steps.Database
 {
-    public class AddStepsTests : IClassFixture<DatabaseFixture>
+    public class AddStepsTests : DatabaseBaseTests
     {
-        private readonly DatabaseFixture _fixture;
-        private const string StepCategoryName = "";
-        private const int Amount = 5;
-
-        public AddStepsTests(DatabaseFixture fixture)
+        public AddStepsTests(DatabaseFixture databaseFixture) : base(databaseFixture)
         {
-            _fixture = fixture;
         }
 
         [Theory]

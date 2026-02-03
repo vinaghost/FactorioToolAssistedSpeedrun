@@ -3,14 +3,10 @@ using FactorioToolAssistedSpeedrun.Entities;
 
 namespace TestProject.Commands.Steps.UI
 {
-    public class AddStepsTests : IClassFixture<UIFixture>
+    public class AddStepsTests : UIBaseTests
     {
-        private readonly UIFixture _fixture;
-        private const int Amount = 5;
-
-        public AddStepsTests(UIFixture fixture)
+        public AddStepsTests(UIFixture fixture) : base(fixture)
         {
-            _fixture = fixture;
         }
 
         [Theory]

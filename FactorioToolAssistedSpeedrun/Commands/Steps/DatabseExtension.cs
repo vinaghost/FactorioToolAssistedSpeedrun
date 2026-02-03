@@ -31,42 +31,74 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public static void MoveSteps(this ProjectDbContext context, string name, List<Guid> stepIds, int moveOffset)
         {
             if (stepIds.Count == 0) return;
+            if (!context.Steps.Any(x => x.Name == name)) return;
 
-            var chosenSteps = context.Steps
+            var count = context.Steps
                 .Where(x => stepIds.Contains(x.Id))
-                .OrderBy(x => x.Location)
-                .ToList();
+                .Count();
 
+            if (count == 0) return;
             if (moveOffset > 0)
             {
-                var lastLocation = chosenSteps.Last().Location;
-                context.GoDown(name, lastLocation, moveOffset, chosenSteps.Count);
+                // go down
+                var lastStep = context.Steps
+                    .Where(x => x.Name == name)
+                    .OrderByDescending(x => x.Location)
+                    .First();
+
+                var lastLocation = context.Steps
+                    .Where(x => stepIds.Contains(x.Id))
+                    .OrderByDescending(x => x.Location)
+                    .Select(x => x.Location)
+                    .First();
+
+                if (lastStep.Location == lastLocation)
+                {
+                    return;
+                }
+
+                if (lastLocation + moveOffset > lastStep.Location)
+                {
+                    moveOffset = lastStep.Location - lastLocation;
+                }
+
+                context.Steps
+                   .Where(x => x.Location > lastLocation && x.Location <= lastLocation + moveOffset && x.Name == name)
+                   .ExecuteUpdate(setters => setters
+                       .SetProperty(b => b.Location, b => b.Location - count));
             }
             else
             {
-                var firstLocation = chosenSteps.First().Location;
-                context.GoUp(name, firstLocation, moveOffset, chosenSteps.Count);
+                // go up
+                var firstStep = context.Steps
+                    .Where(x => x.Name == name)
+                    .OrderBy(x => x.Location)
+                    .First();
+
+                var firstLocation = context.Steps
+                    .Where(x => stepIds.Contains(x.Id))
+                    .OrderBy(x => x.Location)
+                    .Select(x => x.Location)
+                    .First();
+
+                if (firstStep.Location == firstLocation)
+                {
+                    return;
+                }
+                if (firstLocation + moveOffset < firstStep.Location)
+                {
+                    moveOffset = firstStep.Location - firstLocation;
+                }
+                context.Steps
+                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + moveOffset && x.Name == name)
+                    .ExecuteUpdate(setters => setters
+                        .SetProperty(b => b.Location, b => b.Location + count));
             }
+
             context.Steps
                 .Where(x => stepIds.Contains(x.Id))
                 .ExecuteUpdate(setters => setters
                     .SetProperty(b => b.Location, b => b.Location + moveOffset));
-        }
-
-        private static void GoDown(this ProjectDbContext context, string name, int lastLocation, int moveOffset, int stepCount)
-        {
-            context.Steps
-                   .Where(x => x.Location > lastLocation && x.Location <= lastLocation + moveOffset && x.Name == name)
-                   .ExecuteUpdate(setters => setters
-                       .SetProperty(b => b.Location, b => b.Location - stepCount));
-        }
-
-        private static void GoUp(this ProjectDbContext context, string name, int firstLocation, int moveOffset, int stepCount)
-        {
-            context.Steps
-                .Where(x => x.Location < firstLocation && x.Location >= firstLocation + moveOffset && x.Name == name)
-                 .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.Location, b => b.Location + stepCount));
         }
 
         public static void UpdatePosition(this ProjectDbContext context, string name, double oldX, double oldY, double newX, double newY)

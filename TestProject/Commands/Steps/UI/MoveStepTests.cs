@@ -2,6 +2,7 @@
 
 namespace TestProject.Commands.Steps.UI
 {
+    [Collection("Step model")]
     public class MoveStepTests : UIBaseTests
     {
         public MoveStepTests(UIFixture fixture) : base(fixture)

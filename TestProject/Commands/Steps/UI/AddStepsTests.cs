@@ -3,6 +3,7 @@ using FactorioToolAssistedSpeedrun.Entities;
 
 namespace TestProject.Commands.Steps.UI
 {
+    [Collection("Step model")]
     public class AddStepsTests : UIBaseTests
     {
         public AddStepsTests(UIFixture fixture) : base(fixture)

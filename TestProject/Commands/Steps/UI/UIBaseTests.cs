@@ -1,6 +1,11 @@
 ﻿namespace TestProject.Commands.Steps.UI
 {
-    public class UIBaseTests : IClassFixture<UIFixture>
+    [CollectionDefinition("Step model")]
+    public class StepModelCollection : ICollectionFixture<UIFixture>
+    {
+    }
+
+    public class UIBaseTests
     {
         protected const int Amount = 5;
 

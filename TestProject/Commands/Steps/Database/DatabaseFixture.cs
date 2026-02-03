@@ -15,12 +15,13 @@ namespace TestProject.Commands.Steps.Database
 
         public void Dispose()
         {
+            _context.Database.EnsureDeleted();
             _context.Dispose();
         }
 
         private static ProjectDbContext GetInMemoryDbContext()
         {
-            var context = new ProjectDbContext("test");
+            var context = new ProjectDbContext($"{Guid.NewGuid()}");
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             context.SetupTriggers();

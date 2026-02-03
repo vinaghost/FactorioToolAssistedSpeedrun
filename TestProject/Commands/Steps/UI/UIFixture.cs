@@ -1,35 +1,59 @@
-﻿using FactorioToolAssistedSpeedrun.Models.UI;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using FactorioToolAssistedSpeedrun.Misc;
+using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using System.Collections.ObjectModel;
 
 namespace TestProject.Commands.Steps.UI
 {
     public class UIFixture
     {
-        public ObservableCollection<StepModel> Collection { get; } = [];
+        private readonly ObservableCollectionEx<StepModel> _collection = [];
+        private readonly IServiceProvider _services;
 
-        public void SeedSteps(int count)
+        public UIFixture()
         {
-            Collection.Clear();
-            var fakeCommandStack = Substitute.For<ICommandStack>();
-            var fakeStartupService = Substitute.For<IDataService>();
+            _services = ConfigureServices();
+            Ioc.Default.ConfigureServices(_services);
+        }
+
+        private static ServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton(x => Substitute.For<IDataService>());
+            services.AddSingleton(x => Substitute.For<ICommandStack>());
+            return services.BuildServiceProvider();
+        }
+
+        public (ObservableCollectionEx<StepModel>, List<StepModel>) SeedSteps(int count)
+        {
+            var steps = GenerateSteps(count);
+            AddSteps(steps);
+            return (_collection, steps);
+        }
+
+        private void AddSteps(List<StepModel> steps)
+        {
+            _collection.Clear();
+            foreach (var step in steps)
+            {
+                _collection.Add(step);
+            }
+        }
+
+        private static List<StepModel> GenerateSteps(int count)
+        {
+            var collection = new List<StepModel>();
             for (int i = 0; i < count; i++)
             {
-                Collection.Add(new StepModel(fakeCommandStack, fakeStartupService)
+                collection.Add(new StepModel()
                 {
-                    // Set Id and Name for test clarity
-                    // Name is not used in GoDown
-                    // Location is sequential
-                    // Id is deterministic for test
-                    // Use Guid based on index for reproducibility
-                    // e.g. Guid.Parse($"00000000-0000-0000-0000-00000000000{i}")
-                    // But for simplicity, use Guid.NewGuid()
-                    // We'll track the Ids in a list for selection
                     Location = i + 1,
-                    // Name = $"Step{i}",
                 });
             }
+            return collection;
         }
     }
 }

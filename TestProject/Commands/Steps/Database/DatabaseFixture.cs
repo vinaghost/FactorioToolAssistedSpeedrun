@@ -4,18 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Commands.Steps.Database
 {
-    public class DatabaseFixture : IDisposable
+    public sealed class DatabaseFixture : IDisposable
     {
-        public ProjectDbContext Context { get; private set; }
+        private readonly ProjectDbContext _context;
 
         public DatabaseFixture()
         {
-            Context = GetInMemoryDbContext();
+            _context = GetInMemoryDbContext();
         }
 
         public void Dispose()
         {
-            Context.Dispose();
+            _context.Dispose();
         }
 
         private static ProjectDbContext GetInMemoryDbContext()
@@ -27,19 +27,36 @@ namespace TestProject.Commands.Steps.Database
             return context;
         }
 
-        public void SeedSteps(string name, List<(Guid id, int location)> steps)
+        public (ProjectDbContext, List<(Guid Id, int Location)>) SeedSteps(string name, int count)
         {
-            Context.Steps.ExecuteDelete();
+            var steps = GenerateSteps(count);
+            AddSteps(name, steps);
+            return (_context, steps);
+        }
+
+        private void AddSteps(string name, List<(Guid Id, int Location)> steps)
+        {
+            _context.Steps.ExecuteDelete();
             foreach (var (id, location) in steps)
             {
-                Context.Steps.Add(new Step
+                _context.Steps.Add(new Step
                 {
                     Id = id,
                     Name = name,
                     Location = location
                 });
             }
-            Context.SaveChanges();
+            _context.SaveChanges();
+        }
+
+        private static List<(Guid Id, int Location)> GenerateSteps(int count)
+        {
+            var steps = new List<(Guid Id, int Location)>();
+            for (int i = 1; i <= count; i++)
+            {
+                steps.Add((Guid.NewGuid(), i));
+            }
+            return steps;
         }
     }
 }

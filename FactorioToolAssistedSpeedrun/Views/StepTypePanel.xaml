@@ -81,9 +81,8 @@
                         Grid.Row="2"
                         Grid.Column="0"
                         Margin="{StaticResource StepTypeMargin}"
-                        Content="Cancel"
-                        IsChecked="{Binding StepService.Type, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.CancelCrafting}}"
-                        IsEnabled="False" />
+                        Content="Cancel Crafting"
+                        IsChecked="{Binding StepService.Type, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.CancelCrafting}}" />
                     <RadioButton
                         Grid.Row="2"
                         Grid.Column="1"

@@ -47,7 +47,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Features
                 sb.Append($", {{{step.X:F6}, {step.Y:F6}}}");
             }
 
-            if (type == StepType.Craft)
+            if (type == StepType.Craft || type == StepType.CancelCrafting)
             {
                 if (type.ContainFlag(ParameterFlag.Amount))
                 {

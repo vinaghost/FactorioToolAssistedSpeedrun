@@ -1694,12 +1694,17 @@ script.on_event(defines.events.on_built_entity, function(event)
 	if storage.tas.player == nil or storage.tas.player.character == nil then --early end if in god mode
 		return
 	end
-
+	if steps[storage.tas.step] == nil then
+		return
+	end
+	
 	local comment = steps[storage.tas.step].comment or "";
 	if storage.tas.item == 'oil-refinery' and comment == "mirror" then
 		event.entity.mirroring = true
 	end
-
+	if storage.tas.item == 'chemical-plant' and comment == "mirror" then
+		event.entity.mirroring = true
+	end
 	if storage.tas.item == 'pump' then
 		if #comment ~= 0 then
 			storage.tas.player.surface.create_entity{
@@ -1782,7 +1787,7 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 		return
 	end
 
-	if (steps[storage.tas.step][1] == "break") then
+	if steps[storage.tas.step] == nil or steps[storage.tas.step][1] == "break" then
 		return
 	end
 

@@ -105,6 +105,26 @@
                         Margin="0,5,0,0"
                         Command="{Binding OpenCraftingWindowCommand}"
                         Content="Crafting" />
+                    <Button
+                        Margin="0,5,0,0"
+                        Command="{Binding SortTopRightCommand}"
+                        CommandParameter="{Binding ElementName=StepPanel, Path=SelectedItems}"
+                        Content="Sort Top right" />
+                    <Button
+                        Margin="0,5,0,0"
+                        Command="{Binding SortBottomRightCommand}"
+                        CommandParameter="{Binding ElementName=StepPanel, Path=SelectedItems}"
+                        Content="Sort Bottom right" />
+                    <Button
+                        Margin="0,5,0,0"
+                        Command="{Binding SortBottomLeftCommand}"
+                        CommandParameter="{Binding ElementName=StepPanel, Path=SelectedItems}"
+                        Content="Sort Bottom left" />
+                    <Button
+                        Margin="0,5,0,0"
+                        Command="{Binding SortTopLeftCommand}"
+                        CommandParameter="{Binding ElementName=StepPanel, Path=SelectedItems}"
+                        Content="Sort Top left" />
                 </StackPanel>
                 <views:StepPanel x:Name="StepPanel" Grid.Column="2" />
             </Grid>

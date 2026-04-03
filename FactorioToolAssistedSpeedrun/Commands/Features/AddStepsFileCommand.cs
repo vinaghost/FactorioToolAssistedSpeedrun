@@ -1,7 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
-using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Text;
 
@@ -20,7 +19,14 @@ namespace FactorioToolAssistedSpeedrun.Commands.Features
 
             foreach (var (item, index) in steps.Where(x => !x.IsSkip).Select((x, index) => (x, index)))
             {
-                await writer.WriteLineAsync(StepFormat(item, index + 1, buildings));
+                try
+                {
+                    await writer.WriteLineAsync(StepFormat(item, index + 1, buildings));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Error processing step at location {item.Location}: {ex.Message}", ex);
+                }
             }
 
             await writer.WriteLineAsync($"step[{steps.Count + 1}] = {{\"break\"}}");

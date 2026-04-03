@@ -3,10 +3,10 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.Views;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
@@ -184,6 +184,50 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
             if (command is not null)
             {
                 command.Setup(new("", items));
+                command.Commit();
+            }
+        }
+
+        [RelayCommand]
+        private void SortTopRight(System.Collections.IList selectedItems)
+        {
+            Sort(selectedItems, SortDirectionType.TopRight);
+        }
+
+        [RelayCommand]
+        private void SortTopLeft(System.Collections.IList selectedItems)
+        {
+            Sort(selectedItems, SortDirectionType.TopLeft);
+        }
+
+        [RelayCommand]
+        private void SortBottomRight(System.Collections.IList selectedItems)
+        {
+            Sort(selectedItems, SortDirectionType.BottomRight);
+        }
+
+        [RelayCommand]
+        private void SortBottomLeft(System.Collections.IList selectedItems)
+        {
+            Sort(selectedItems, SortDirectionType.BottomLeft);
+        }
+
+        public void Sort(System.Collections.IList selectedItems, SortDirectionType direction)
+        {
+            if (selectedItems.Count < 3)
+            {
+                MessageBox.Show("Please select at least three steps to sort.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var answer = MessageBox.Show("Sort by X coordinate first?", "Sort Steps", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var firstType = answer == MessageBoxResult.Yes ? SortFirstType.X : SortFirstType.Y;
+
+            var items = selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location).ToList();
+            var command = _commandStack.Push<SortStepCommand>();
+            if (command is not null)
+            {
+                command.Setup(new("", items, direction, firstType));
                 command.Commit();
             }
         }

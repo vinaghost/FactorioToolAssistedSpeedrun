@@ -1,4 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps

@@ -44,7 +44,9 @@ namespace TestProject.Commands.Steps.Database
                 {
                     Id = id,
                     Name = name,
-                    Location = location
+                    Location = location,
+                    X = Random.Shared.Next(-100, 100),
+                    Y = Random.Shared.Next(-100, 100),
                 });
             }
             _context.SaveChanges();

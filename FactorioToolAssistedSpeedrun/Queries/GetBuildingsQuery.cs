@@ -1,6 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Queries
 {

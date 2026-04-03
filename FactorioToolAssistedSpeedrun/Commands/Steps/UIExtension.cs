@@ -1,4 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using System.Collections.ObjectModel;
 

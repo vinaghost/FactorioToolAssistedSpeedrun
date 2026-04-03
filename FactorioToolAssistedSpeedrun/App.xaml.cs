@@ -49,6 +49,7 @@ namespace FactorioToolAssistedSpeedrun
             services.AddTransient<DeleteStepCommand>();
             services.AddTransient<MoveStepCommand>();
             services.AddTransient<ReplacePointCommand>();
+            services.AddTransient<SortStepCommand>();
             services.AddTransient(typeof(UpdateStepPropertyCommand<,>));
 
             return services.BuildServiceProvider();

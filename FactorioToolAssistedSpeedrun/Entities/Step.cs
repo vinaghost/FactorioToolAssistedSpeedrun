@@ -23,5 +23,27 @@ namespace FactorioToolAssistedSpeedrun.Entities
         public string Color { get; set; } = "";
         public string Comment { get; set; } = "";
         public bool IsSkip { get; set; } = false;
+
+        public Step Clone()
+        {
+            return new Step
+            {
+                Id = Id,
+                Name = Name,
+                Location = Location,
+                Type = Type,
+                X = X,
+                Y = Y,
+                Amount = Amount,
+                Item = Item,
+                Orientation = Orientation,
+                Inventory = Inventory,
+                Priority = Priority,
+                Modifier = Modifier,
+                Color = Color,
+                Comment = Comment,
+                IsSkip = IsSkip
+            };
+        }
     }
 }

@@ -12,8 +12,8 @@ namespace TestProject.Commands.Steps.Database
         [InlineData(1, 2, 3)]
         [InlineData(2, 1, 3)]
         [InlineData(3, -1, 2)]
-        [InlineData(3, 5, Amount)]
-        [InlineData(3, -5, 1)]
+        [InlineData(3, Amount, Amount)]
+        [InlineData(3, -Amount, 1)]
         public void MoveSingleStep_UpdateLocationCorrectly(int index, int moveOffset, int expectedIndex)
         {
             // Arrange
@@ -35,8 +35,8 @@ namespace TestProject.Commands.Steps.Database
         [InlineData(1, 2, 2, 3)]
         [InlineData(2, 3, 1, 3)]
         [InlineData(3, 2, -1, 2)]
-        [InlineData(3, 2, 5, Amount - 1)]
-        [InlineData(3, 2, -5, 1)]
+        [InlineData(3, 2, Amount, Amount - 1)]
+        [InlineData(3, 2, -Amount, 1)]
         public void MoveMultipleSteps_UpdateLocationsCorrectly(int startIndex, int moveCount, int moveOffset, int expectedIndex)
         {
             // Arrange

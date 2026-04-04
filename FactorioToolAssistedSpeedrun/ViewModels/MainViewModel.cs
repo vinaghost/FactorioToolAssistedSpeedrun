@@ -219,11 +219,16 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 MessageBox.Show("Please select at least three steps to sort.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            var items = selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location).ToList();
+            if (items.All(x => x.Type.ContainFlag(ParameterFlag.Point)))
+            {
+                MessageBox.Show("Sort only works with steps that have coordinates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             var answer = MessageBox.Show("Sort by X coordinate first?", "Sort Steps", MessageBoxButton.YesNo, MessageBoxImage.Question);
             var firstType = answer == MessageBoxResult.Yes ? SortFirstType.X : SortFirstType.Y;
 
-            var items = selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location).ToList();
             var command = _commandStack.Push<SortStepCommand>();
             if (command is not null)
             {

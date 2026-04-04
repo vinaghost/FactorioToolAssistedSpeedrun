@@ -20,41 +20,72 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static List<Step> Sort(List<Step> steps, SortDirectionType sortDirection, SortFirstType sortFirst)
         {
-            Func<Step, object> primaryKey = sortFirst == SortFirstType.Y ? step => step.Y : step => step.X;
-            Func<Step, object> secondaryKey = sortFirst == SortFirstType.Y ? step => step.X : step => step.Y;
-
-            return sortDirection switch
+            if (sortFirst == SortFirstType.X)
             {
-                SortDirectionType.TopLeft => steps
-                    .OrderBy(primaryKey) // Primary key (Y or X)
-                    .ThenBy(step => step.Type != StepType.Walk)
-                    .ThenBy(secondaryKey) // Secondary key (X or Y)
-                    .ThenBy(step => step.Type != StepType.Build)
-                    .ToList(),
+                return sortDirection switch
+                {
+                    SortDirectionType.TopLeft => steps
+                        .OrderBy(step => step.X) // X ascending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenBy(step => step.Y) // Y ascending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
 
-                SortDirectionType.TopRight => steps
-                    .OrderBy(primaryKey) // Primary key (Y or X)
-                    .ThenBy(step => step.Type != StepType.Walk)
-                    .ThenByDescending(secondaryKey) // Secondary key (X or Y, descending)
-                    .ThenBy(step => step.Type != StepType.Build)
-                    .ToList(),
+                    SortDirectionType.TopRight => steps
+                        .OrderByDescending(step => step.X) // X descending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenBy(step => step.Y) // Y ascending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
 
-                SortDirectionType.BottomLeft => steps
-                    .OrderByDescending(primaryKey) // Primary key (Y or X, descending)
-                    .ThenBy(step => step.Type != StepType.Walk)
-                    .ThenBy(secondaryKey) // Secondary key (X or Y)
-                    .ThenBy(step => step.Type != StepType.Build)
-                    .ToList(),
+                    SortDirectionType.BottomLeft => steps
+                        .OrderBy(step => step.X) // X ascending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenByDescending(step => step.Y) // Y descending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
 
-                SortDirectionType.BottomRight => steps
-                    .OrderByDescending(primaryKey) // Primary key (Y or X, descending)
-                    .ThenBy(step => step.Type != StepType.Walk)
-                    .ThenByDescending(secondaryKey) // Secondary key (X or Y, descending)
-                    .ThenBy(step => step.Type != StepType.Build)
-                    .ToList(),
+                    SortDirectionType.BottomRight => steps
+                        .OrderByDescending(step => step.X) // X descending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenByDescending(step => step.Y) // Y descending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
 
-                _ => steps
-            };
+                    _ => steps
+                };
+            }
+            else
+            {
+                return sortDirection switch
+                {
+                    SortDirectionType.TopLeft => steps
+                        .OrderBy(step => step.Y) // Y ascending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenBy(step => step.X) // X ascending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
+                    SortDirectionType.TopRight => steps
+                        .OrderBy(step => step.Y) // Y ascending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenByDescending(step => step.X) // X descending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
+                    SortDirectionType.BottomLeft => steps
+                        .OrderByDescending(step => step.Y) // Y descending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenBy(step => step.X) // X ascending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
+                    SortDirectionType.BottomRight => steps
+                        .OrderByDescending(step => step.Y) // Y descending
+                        .ThenBy(step => step.Type != StepType.Walk)
+                        .ThenByDescending(step => step.X) // X descending
+                        .ThenBy(step => step.Type != StepType.Build)
+                        .ToList(),
+                    _ => steps
+                };
+            }
         }
 
         public override void DatabaseCommit(ProjectDbContext context)

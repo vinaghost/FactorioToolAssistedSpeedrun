@@ -220,7 +220,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
             }
             var items = selectedItems.OfType<StepModel>().Select(x => x.ToEntity()).OrderBy(x => x.Location).ToList();
-            if (items.All(x => x.Type.ContainFlag(ParameterFlag.Point)))
+            if (!items.All(x => x.Type.ContainFlag(ParameterFlag.Point)))
             {
                 MessageBox.Show("Sort only works with steps that have coordinates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;

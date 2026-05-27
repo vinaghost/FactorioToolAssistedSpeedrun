@@ -44,6 +44,10 @@ namespace FactorioToolAssistedSpeedrun.Commands.Features
             {
                 sb.Append($", \"pick\"");
             }
+            else if (type == StepType.Speed)
+            {
+                sb.Append($", \"speed\"");
+            }
             else
             {
                 sb.Append($", \"{StepTypeExtensions.ToString(type)}\"");

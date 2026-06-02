@@ -501,7 +501,8 @@ local function cancel_crafting()
 			end
 		end
 	end
-	Warning(string.format("Step: %s - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task, format_name(storage.tas.item)))
+	-- Warning(string.format("Step: %s - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task, format_name(storage.tas.item)))
+	Warning(string.format("Step: %s - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task, storage.tas.item))
 	return false
 end
 

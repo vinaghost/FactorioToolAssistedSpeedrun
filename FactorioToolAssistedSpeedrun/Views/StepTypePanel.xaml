@@ -94,15 +94,13 @@
                         Grid.Column="2"
                         Margin="{StaticResource StepTypeMargin}"
                         Content="Throw"
-                        IsChecked="{Binding StepService.Type, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Throw}}"
-                        IsEnabled="False" />
+                        IsChecked="{Binding StepService.Type, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Throw}}" />
                     <RadioButton
                         Grid.Row="3"
                         Grid.Column="0"
                         Margin="{StaticResource StepTypeMargin}"
                         Content="Shoot"
-                        IsChecked="{Binding StepService.Type, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Shoot}}"
-                        IsEnabled="False" />
+                        IsChecked="{Binding StepService.Type, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static enums:StepType.Shoot}}" />
                     <RadioButton
                         Grid.Row="3"
                         Grid.Column="1"

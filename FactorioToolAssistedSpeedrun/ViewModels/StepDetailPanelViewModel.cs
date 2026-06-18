@@ -119,12 +119,20 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     {
                         Items.Add(item);
                     }
+                    if (string.IsNullOrEmpty(StepService.SelectedItem))
+                    {
+                        StepService.SelectedItem = Items.FirstOrDefault()!;
+                    }
                     break;
 
                 case StepType.Equip:
                     foreach (var item in _equipableItems)
                     {
                         Items.Add(item);
+                    }
+                    if (string.IsNullOrEmpty(StepService.SelectedItem))
+                    {
+                        StepService.SelectedItem = Items.FirstOrDefault()!;
                     }
                     break;
 
@@ -133,6 +141,10 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     {
                         Items.Add(item);
                     }
+                    if (string.IsNullOrEmpty(StepService.SelectedItem))
+                    {
+                        StepService.SelectedItem = Items.FirstOrDefault()!;
+                    }
                     break;
 
                 case StepType.Recipe:
@@ -140,12 +152,20 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                     {
                         Items.Add(item);
                     }
+                    if (string.IsNullOrEmpty(StepService.SelectedItem))
+                    {
+                        StepService.SelectedItem = Items.FirstOrDefault()!;
+                    }
                     break;
 
                 case StepType.Tech:
                     foreach (var item in _technologies)
                     {
                         Items.Add(item);
+                    }
+                    if (string.IsNullOrEmpty(StepService.SelectedItem))
+                    {
+                        StepService.SelectedItem = Items.FirstOrDefault()!;
                     }
                     break;
 

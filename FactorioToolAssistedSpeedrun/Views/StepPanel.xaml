@@ -105,6 +105,7 @@
             CanUserReorderColumns="False"
             CanUserResizeRows="False"
             CanUserSortColumns="False"
+            EnableColumnVirtualization="True"
             EnableRowVirtualization="True"
             ItemsSource="{Binding PanelService.StepCollection, Mode=OneWay}"
             RowHeight="20"

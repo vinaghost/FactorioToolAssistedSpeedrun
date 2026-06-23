@@ -46,6 +46,8 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private async Task OK()
         {
             _panelService.ScrollTo(Line);
+            await Task.Delay(500);
+            _panelService.ScrollTo(Line);
             Close?.Invoke();
         }
 

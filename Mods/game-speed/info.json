@@ -1,0 +1,10 @@
+{
+    "name": "game-speed",
+    "version": "2.1.0",
+    "title": "Game Speed Controls",
+    "author": "larkexploitingprodmodules",
+	"factorio_version": "2.1",
+	"contact": "https://github.com/vinaghost/FactorioToolAssistedSpeedrun/issues",	
+    "description": "Add game speed controls similar to those in editor mode, without having to go into editor mode."
+}
+

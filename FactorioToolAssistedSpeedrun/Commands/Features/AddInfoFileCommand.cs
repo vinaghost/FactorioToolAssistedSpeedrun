@@ -18,7 +18,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Features
             await writer.WriteLineAsync($"\t\"version\": \"{TasFileConstants.VERSION}\",");
             await writer.WriteLineAsync($"\t\"title\": \"Factorio TAS run\",");
             await writer.WriteLineAsync($"\t\"author\": \"Theis+VINAGHOST\",");
-            await writer.WriteLineAsync($"\t\"factorio_version\": \"2.0\",");
+            await writer.WriteLineAsync($"\t\"factorio_version\": \"2.1\",");
             await writer.WriteLineAsync($"\t\"contact\": \"https://github.com/vinaghost/FactorioToolAssistedSpeedrun/issues\",");
             await writer.WriteLineAsync($"\t\"description\": \"This run has been made with the help of Factorio Tool Assisted Speedrun\"");
             await writer.WriteLineAsync("}");

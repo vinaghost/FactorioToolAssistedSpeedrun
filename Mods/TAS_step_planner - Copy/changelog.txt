@@ -1,0 +1,73 @@
+---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: ????
+  Changes:
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 2025-06-30
+  Changes:
+    - Various changes to make 2.0 work
+---------------------------------------------------------------------------------------------------
+Version: 0.4.6
+Date: 2024-08-04
+  Changes:
+    - Fixed position being off by 0.01
+---------------------------------------------------------------------------------------------------
+Version: 0.4.5
+Date: 2024-08-01
+  Changes:
+    - Putting ammo in car will now default to the ammo inventory instead of cargo inventory.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.4
+Date: 2024-08-01
+  Changes:
+    - Added <half> put & take override amount settings. Allowing for differentiated behavior for right & left clicking.
+    - Added Equip & enter to registered action types.
+    - Added vehicle modifier to take & put actions that target a "Car". Requires FTG 0.5.4.
+    - Changed position values to be truncated to 2nd decimal instead of the 6th decimal.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.3
+Date: 2023-09-22
+  Changes:
+    - Fixed Chemical recipes for Cracking oil and solid fuel
+    - Fixed a crash with fast transfer
+---------------------------------------------------------------------------------------------------
+Version: 0.4.2
+Date: 2023-07-18
+  Changes:
+    - Fixed that auto build ghost setting didn't update correctly
+---------------------------------------------------------------------------------------------------
+Version: 0.4.1
+Date: 2023-06-25
+  Changes:
+    - Removed cleared recipe as an action, because it was annoying
+---------------------------------------------------------------------------------------------------
+Version: 0.4.0
+Date: 2023-06-15
+  Changes:
+    - Added Settings icon button - replacing the settings button
+    - Added Close icon button
+    - Added Icon (notebook)
+    - Changed title
+    - Changed references to EZR to FTG
+    - Changed Export button to green
+    - Added auto-select text in the export frame
+    - Changed settings frame to always spawn next to main frame
+    - Added shortcut to export
+  Bugfixes:
+    - Fixed orientation of gun turrets
+---------------------------------------------------------------------------------------------------
+Version: 0.3.2
+Date: 2023-05-01
+  Bugfixes:
+    - Fixed output underground belts being placed the wrong direction when placing ghosts
+---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 2023-03-30
+  Changes:
+    - Added changelog
+    - Added hidden settings to store the settings of the gui, so changes are applied between games
+    - Added Drop to recorded actions
+    - Added multibuild to take and put
+  Bugfixes:
+    - Fixed a problem with fast-replace crashing the game

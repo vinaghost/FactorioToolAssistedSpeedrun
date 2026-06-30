@@ -1,0 +1,11 @@
+{
+    "name": "TAS_step_planner",
+    "version": "2.1.0",
+    "title": "TAS Step Planner",
+    "author": "Theis",
+    "factorio_version": "2.1",
+	"contact": "https://github.com/vinaghost/FactorioToolAssistedSpeedrun/issues",	
+    "description": "Allows you to record player actions and export them to make tool-assisted speedruns."
+}
+
+

@@ -22,6 +22,7 @@ local on_player_created = function(event)
 	
 	local player = game.get_player(event.player_index)
 	if not player then return end
+	
 	local surface = player.surface
 	local crashed_ship_items = remote.call("freeplay", "get_ship_items")
 	local crashed_debris_items = remote.call("freeplay", "get_debris_items")
@@ -39,7 +40,6 @@ local on_player_created = function(event)
     util.remove_safe(player, crashed_ship_items)
     util.remove_safe(player, crashed_debris_items)
     player.get_main_inventory().sort_and_merge()
-	--game.auto_save("Start steel axe TAS")
 end
 
 ---Print message intended for viewers
@@ -1846,7 +1846,7 @@ local function set_quick_bar(event)
 		if set then
 			for key,val in pairs(set) do
 				local item = string.sub(val, 7, -2)-- removes "[item=" and "]"
-				if item ~= "" then player.set_quick_bar_slot((i-1)*10 + key, item) end
+				if item ~= "" then player.set_quick_bar_slot(i, key, item) end
 			end
 		end
 	end

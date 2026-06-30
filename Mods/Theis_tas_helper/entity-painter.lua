@@ -75,7 +75,7 @@ local research
 local research_ingredients
 local research_unit_energy
 local researching_speed
-local research_stack_names ={ -- somehow it is 30% faster to use this instead find_item_stack
+local research_inputs_slot ={ -- somehow it is 30% faster to use this instead find_item_stack
     ["automation-science-pack"] = 1,
     ["logistic-science-pack"] = 2,
     ["military-science-pack"] = 3,
@@ -91,10 +91,18 @@ function painter.PaintLab(node)
     local count = 9999
     for i = 1, #research_ingredients do
         local research_ingredients_name = research_ingredients[i].name
-        local stack = inventory[research_stack_names[research_ingredients_name]]--inventory.find_item_stack(research_ingredients_name)
+		local research_ingredients_slot = research_inputs_slot[research_ingredients_name]
+        local stack = inventory[research_ingredients_slot]--inventory.find_item_stack(research_ingredients_name)
+		
+		local durability = entity.get_stored_durability(research_ingredients_name).durability
         if stack and stack.valid_for_read then
-            local new_count = (stack.count - 1 + stack.durability) / research_ingredients[i].amount
+            local new_count = (stack.count + durability) / research_ingredients[i].amount
             count = new_count < count and new_count or count
+		else
+			if durability > 0 then
+				local new_count = durability
+				count = new_count < count and new_count or count
+			end
         end
 
         if count == 0 then break end
@@ -552,9 +560,10 @@ local function EntityBuilt(data)
 end
 
 ---Inits the painter by filtering and adding all entities to the storage state
+--- Need to change when we found a way to make TAS work in Space Age, now just read from navius only
 function painter.init()
     local entities = game.surfaces[1].find_entities_filtered{
-        force = game.forces["player"]
+        force = game.forces["nauvis"]
     }
     for _,entity in pairs(entities) do
         EntityBuilt({entity = entity})

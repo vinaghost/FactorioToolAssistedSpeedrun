@@ -4,6 +4,7 @@ using FactorioToolAssistedSpeedrun.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace FactorioToolAssistedSpeedrun.Views
 {
@@ -27,9 +28,11 @@ namespace FactorioToolAssistedSpeedrun.Views
             var rowHeight = _scrollViewer.ScrollableHeight / (Steps.Items.Count - 1);
             var index = Math.Max(0, Steps.SelectedIndex - 100);
             var offset = index * rowHeight;
-            _scrollViewer.ScrollToVerticalOffset(offset);
-
-            Steps.ScrollIntoView(Steps.SelectedItem);
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                _scrollViewer.ScrollToVerticalOffset(offset);
+                Steps.ScrollIntoView(Steps.SelectedItem);
+            }));
         }
 
         public static ScrollViewer? GetScrollViewer(UIElement element)

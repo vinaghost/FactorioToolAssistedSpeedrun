@@ -148,13 +148,8 @@ namespace FactorioToolAssistedSpeedrun.Services
             {
                 return;
             }
-            var center = Math.Min(StepCollection.Count - 1, line + 20);
-            SelectedStep = StepCollection[center];
-
+            SelectedStep = StepCollection[line - 1];
             ScrollToSelectedStep?.Invoke();
-
-            if (center != line - 1)
-                SelectedStep = StepCollection[line - 1];
         }
 
         public void LoadCraft()

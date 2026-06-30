@@ -56,7 +56,7 @@
                         HorizontalContentAlignment="Right"
                         VerticalContentAlignment="Center"
                         IsEnabled="{Binding XEnabled}"
-                        Text="{Binding StepService.X, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.X, UpdateSourceTrigger=LostFocus}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
@@ -71,7 +71,7 @@
                         HorizontalContentAlignment="Right"
                         VerticalContentAlignment="Center"
                         IsEnabled="{Binding YEnabled}"
-                        Text="{Binding StepService.Y, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.Y, UpdateSourceTrigger=LostFocus}" />
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
@@ -86,7 +86,7 @@
                         HorizontalContentAlignment="Right"
                         VerticalContentAlignment="Center"
                         IsEnabled="{Binding AmountEnabled}"
-                        Text="{Binding StepService.Amount, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.Amount, UpdateSourceTrigger=LostFocus}" />
                     <TextBlock
                         Grid.Row="3"
                         Grid.Column="0"
@@ -99,7 +99,7 @@
                         Height="22"
                         MinWidth="50"
                         VerticalContentAlignment="Center"
-                        Text="{Binding StepService.Comment, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StepService.Comment, UpdateSourceTrigger=LostFocus}" />
                 </Grid>
             </Border>
             <Border

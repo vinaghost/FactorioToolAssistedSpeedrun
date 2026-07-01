@@ -62,6 +62,9 @@ namespace FactorioToolAssistedSpeedrun.Models.Game
                 .Concat(prototypeData.Modules
                     .Where(i => !i.Value.Hidden && !i.Value.Parameter)
                     .Select(i => new ItemGame(i.Value)))
+                .Concat(prototypeData.Tools
+                    .Where(i => !i.Value.Hidden && !i.Value.Parameter)
+                    .Select(i => new ItemGame(i.Value)))
                 .Concat(prototypeData.Armors
                     .Where(i => !i.Value.Hidden && !i.Value.Parameter)
                     .Select(i => new ItemGame(i.Value)))

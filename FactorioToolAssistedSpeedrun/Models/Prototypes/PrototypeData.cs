@@ -28,6 +28,9 @@ namespace FactorioToolAssistedSpeedrun.Models.Prototypes
         [JsonPropertyName("module")]
         public required Dictionary<string, ItemPrototype> Modules { get; set; }
 
+        [JsonPropertyName("tool")]
+        public Dictionary<string, ItemPrototype> Tools { get; set; } = [];
+
         [JsonPropertyName("armor")]
         public required Dictionary<string, ItemPrototype> Armors { get; set; }
 

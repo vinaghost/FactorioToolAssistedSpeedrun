@@ -130,7 +130,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         public partial string Item { get; set; } = "";
 
-        partial void OnItemChanged(string? oldValue, string newValue)
+        partial void OnItemChanged(string oldValue, string newValue)
         {
             if (!_loaded || _lock) return;
             if (!Type.ContainFlag(ParameterFlag.Item))
@@ -165,7 +165,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         public partial string Orientation { get; set; } = "";
 
-        partial void OnOrientationChanged(string? oldValue, string newValue)
+        partial void OnOrientationChanged(string oldValue, string newValue)
         {
             if (!_loaded || _lock) return;
 
@@ -238,7 +238,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         public partial string Modifier { get; set; } = "";
 
-        partial void OnModifierChanged(string? oldValue, string newValue)
+        partial void OnModifierChanged(string oldValue, string newValue)
         {
             if (!_loaded || _lock) return;
             if (string.IsNullOrEmpty(newValue)) return;
@@ -287,7 +287,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         public partial string Color { get; set; } = "";
 
-        partial void OnColorChanged(string? oldValue, string newValue)
+        partial void OnColorChanged(string oldValue, string newValue)
         {
             if (!_loaded || _lock) return;
 
@@ -306,7 +306,7 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         [ObservableProperty]
         public partial string Comment { get; set; } = "";
 
-        partial void OnCommentChanged(string? oldValue, string newValue)
+        partial void OnCommentChanged(string oldValue, string newValue)
         {
             if (!_loaded || _lock) return;
 

@@ -19,80 +19,68 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
         private bool _lock = false;
 
         [ObservableProperty]
-        private int _location;
+        public partial int Location { get; set; }
 
         [ObservableProperty]
-        private StepType _type;
+        public partial StepType Type { get; set; }
 
         [ObservableProperty]
-        private string _x = "";
+        public partial string X { get; set; } = "";
 
-        partial void OnXChanged(string? oldValue, string newValue)
+        partial void OnXChanged(string oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
-            _lock = true;
-            if (Type.ContainFlag(ParameterFlag.Point))
-            {
-                if (!double.TryParse(newValue, out _))
-                {
-                    X = oldValue ?? "";
-                }
-                else
-                {
-                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, double>>();
-                    if (command is not null)
-                    {
-                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                            str => double.Parse(str),
-                            model => model.X,
-                            step => step.X));
-
-                        command.Commit(true);
-                    }
-                }
-            }
-            else
+            if (!_loaded || _lock) return;
+            if (!Type.ContainFlag(ParameterFlag.Point))
             {
                 X = "";
+                return;
             }
+
+            if (!double.TryParse(newValue, out _))
+            {
+                X = oldValue;
+                return;
+            }
+
+            _lock = true;
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, double>>();
+            command?.Setup(new(Name, Id, oldValue, newValue,
+                str => double.Parse(str),
+                model => model.X,
+                step => step.X));
+            command?.Commit(true);
 
             _lock = false;
         }
 
         [ObservableProperty]
-        private string _y = "";
+        public partial string Y { get; set; } = "";
 
-        partial void OnYChanged(string? oldValue, string newValue)
+        partial void OnYChanged(string oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
-
-            _lock = true;
-            if (Type.ContainFlag(ParameterFlag.Point))
-            {
-                if (!double.TryParse(newValue, out _))
-                {
-                    Y = oldValue ?? "";
-                }
-                else
-                {
-                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, double>>();
-                    if (command is not null)
-                    {
-                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                            str => double.Parse(str),
-                            model => model.Y,
-                            step => step.Y));
-
-                        command.Commit(true);
-                    }
-                }
-            }
-            else
+            if (!_loaded || _lock) return;
+            if (!Type.ContainFlag(ParameterFlag.Point))
             {
                 Y = "";
+                return;
             }
+
+            if (!double.TryParse(newValue, out _))
+            {
+                Y = oldValue;
+                return;
+            }
+
+            _lock = true;
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, double>>();
+            command?.Setup(new(Name, Id, oldValue, newValue,
+                str => double.Parse(str),
+                model => model.Y,
+                step => step.Y));
+            command?.Commit(true);
+
             _lock = false;
         }
 
@@ -101,315 +89,256 @@ namespace FactorioToolAssistedSpeedrun.Models.UI
 
         partial void OnAmountChanged(string? oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
+            if (!_loaded || _lock) return;
             if (newValue == "All") newValue = "0";
-
-            _lock = true;
-            if (Type.ContainFlag(ParameterFlag.Amount))
-            {
-                if (!double.TryParse(newValue, out var value))
-                {
-                    Amount = oldValue ?? "";
-                }
-                else
-                {
-                    if (value == 0)
-                    {
-                        Amount = "All";
-                    }
-                    else if (value < 0)
-                    {
-                        Amount = oldValue ?? "";
-                    }
-                    else
-                    {
-                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, int>>();
-                        if (command is not null)
-                        {
-                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                                str => int.Parse(str),
-                                model => model.Amount,
-                                step => step.Amount));
-
-                            command.Commit(true);
-                        }
-                    }
-                }
-            }
-            else
+            if (!Type.ContainFlag(ParameterFlag.Amount))
             {
                 Amount = "";
+                return;
             }
+
+            if (!double.TryParse(newValue, out var value))
+            {
+                Amount = oldValue ?? "";
+                return;
+            }
+
+            if (value == 0)
+            {
+                Amount = "All";
+                return;
+            }
+
+            if (value < 0)
+            {
+                Amount = oldValue ?? "";
+                return;
+            }
+
+            _lock = true;
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, int>>();
+            command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                str => int.Parse(str),
+                model => model.Amount,
+                step => step.Amount));
+            command?.Commit(true);
 
             _lock = false;
         }
 
         [ObservableProperty]
-        private string _item = "";
+        public partial string Item { get; set; } = "";
 
         partial void OnItemChanged(string? oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
+            if (!_loaded || _lock) return;
+            if (!Type.ContainFlag(ParameterFlag.Item))
+            {
+                Item = "";
+                return;
+            }
+
+            var isValidItem = Type == StepType.Tech
+                ? _dataService.GameData.Technologies.ContainsKey(newValue)
+                : Type == StepType.Recipe
+                    ? _dataService.GameData.Recipes.ContainsKey(newValue)
+                    : _dataService.GameData.Items.ContainsKey(newValue);
+            if (!isValidItem)
+            {
+                Item = oldValue ?? "";
+                return;
+            }
 
             _lock = true;
 
-            if (Type.ContainFlag(ParameterFlag.Item))
-            {
-                if (Type == StepType.Tech)
-                {
-                    if (!_dataService.GameData.Technologies.ContainsKey(newValue))
-                    {
-                        Item = oldValue ?? "";
-                    }
-                    else
-                    {
-                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
-                        if (command is not null)
-                        {
-                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                                str => str,
-                                model => model.Item,
-                                step => step.Item));
-
-                            command.Commit(true);
-                        }
-                    }
-                }
-                else if (Type == StepType.Recipe)
-                {
-                    if (!_dataService.GameData.Recipes.ContainsKey(newValue))
-                    {
-                        Item = oldValue ?? "";
-                    }
-                    else
-                    {
-                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
-                        if (command is not null)
-                        {
-                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                                str => str,
-                                model => model.Item,
-                                step => step.Item));
-
-                            command.Commit(true);
-                        }
-                    }
-                }
-                else
-                {
-                    if (!_dataService.GameData.Items.ContainsKey(newValue))
-                    {
-                        Item = oldValue ?? "";
-                    }
-                    else
-                    {
-                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
-                        if (command is not null)
-                        {
-                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                                str => str,
-                                model => model.Item,
-                                step => step.Item));
-
-                            command.Commit(true);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                Item = "";
-            }
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
+            command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                str => str,
+                model => model.Item,
+                step => step.Item));
+            command?.Commit(true);
 
             _lock = false;
         }
 
         [ObservableProperty]
-        private string _orientation = "";
+        public partial string Orientation { get; set; } = "";
 
         partial void OnOrientationChanged(string? oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
-            _lock = true;
+            if (!_loaded || _lock) return;
+
             if (Type.ContainFlag(ParameterFlag.Orientation))
             {
                 if (!OrientationTypeExtensions.TryGetValue(newValue, out _))
                 {
                     Orientation = oldValue ?? "";
+                    return;
                 }
-                else
-                {
-                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, OrientationType?>>();
-                    if (command is not null)
-                    {
-                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                            str => OrientationTypeExtensions.FromString(str),
-                            model => model.Orientation,
-                            step => step.Orientation));
 
-                        command.Commit(true);
-                    }
-                }
+                _lock = true;
+
+                var command = _commandStack.Push<UpdateStepPropertyCommand<string, OrientationType?>>();
+                command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                    str => OrientationTypeExtensions.FromString(str),
+                    model => model.Orientation,
+                    step => step.Orientation));
+                command?.Commit(true);
+
+                _lock = false;
+                return;
             }
-            else if (Type.ContainFlag(ParameterFlag.Inventory))
+
+            if (Type.ContainFlag(ParameterFlag.Inventory))
             {
                 if (!InventoryTypeExtensions.TryGetValue(newValue, out _))
                 {
                     Orientation = oldValue ?? "";
+                    return;
                 }
-                else
-                {
-                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, InventoryType?>>();
-                    if (command is not null)
-                    {
-                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                            str => InventoryTypeExtensions.FromString(str),
-                            model => model.Inventory,
-                            step => step.Orientation));
 
-                        command.Commit(true);
-                    }
-                }
+                _lock = true;
+
+                var command = _commandStack.Push<UpdateStepPropertyCommand<string, InventoryType?>>();
+                command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                    str => InventoryTypeExtensions.FromString(str),
+                    model => model.Inventory,
+                    step => step.Orientation));
+                command?.Commit(true);
+
+                _lock = false;
+                return;
             }
-            else if (Type.ContainFlag(ParameterFlag.Priority))
+
+            if (Type.ContainFlag(ParameterFlag.Priority))
             {
                 if (Priority.FromString(newValue) is null)
                 {
                     Orientation = oldValue ?? "";
+                    return;
                 }
-                else
-                {
-                    var command = _commandStack.Push<UpdateStepPropertyCommand<string, Priority?>>();
-                    if (command is not null)
-                    {
-                        command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                            str => Priority.FromString(str),
-                            model => model.Priority,
-                            step => step.Orientation));
 
-                        command.Commit(true);
-                    }
-                }
+                _lock = true;
+
+                var command = _commandStack.Push<UpdateStepPropertyCommand<string, Priority?>>();
+                command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                    str => Priority.FromString(str),
+                    model => model.Priority,
+                    step => step.Orientation));
+                command?.Commit(true);
+
+                _lock = false;
+                return;
             }
-            else
-            {
-                Orientation = "";
-            }
-            _lock = false;
+
+            Orientation = "";
         }
 
         [ObservableProperty]
-        private string _modifier = "";
+        public partial string Modifier { get; set; } = "";
 
         partial void OnModifierChanged(string? oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
+            if (!_loaded || _lock) return;
             if (string.IsNullOrEmpty(newValue)) return;
-            _lock = true;
-            if (Type.ContainFlag(ParameterFlag.Modifier))
-            {
-                if (!ModifierTypeExtensions.TryGetValue(newValue, out var value))
-                {
-                    Modifier = oldValue ?? "";
-                }
-                else
-                {
-                    if (Type == StepType.Mine && value != ModifierType.Split)
-                    {
-                        Modifier = oldValue ?? "";
-                    }
-                    else if (Type == StepType.Take && value != ModifierType.All)
-                    {
-                        Modifier = oldValue ?? "";
-                    }
-                    else if (Type == StepType.Wait && value != ModifierType.WalkTowards)
-                    {
-                        Modifier = oldValue ?? "";
-                    }
-                    else
-                    {
-                        var command = _commandStack.Push<UpdateStepPropertyCommand<string, ModifierType?>>();
-                        if (command is not null)
-                        {
-                            command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                                str => ModifierTypeExtensions.FromString(str),
-                                model => model.Modifier,
-                                step => step.Modifier));
-
-                            command.Commit(true);
-                        }
-                    }
-                }
-            }
-            else
+            if (!Type.ContainFlag(ParameterFlag.Modifier))
             {
                 Modifier = "";
+                return;
             }
+
+            if (!ModifierTypeExtensions.TryGetValue(newValue, out var value))
+            {
+                Modifier = oldValue ?? "";
+                return;
+            }
+
+            if (Type == StepType.Mine && value != ModifierType.Split)
+            {
+                Modifier = oldValue ?? "";
+                return;
+            }
+
+            if (Type == StepType.Take && value != ModifierType.All)
+            {
+                Modifier = oldValue ?? "";
+                return;
+            }
+
+            if (Type == StepType.Wait && value != ModifierType.WalkTowards)
+            {
+                Modifier = oldValue ?? "";
+                return;
+            }
+
+            _lock = true;
+
+            var command = _commandStack.Push<UpdateStepPropertyCommand<string, ModifierType?>>();
+            command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                str => ModifierTypeExtensions.FromString(str),
+                model => model.Modifier,
+                step => step.Modifier));
+            command?.Commit(true);
+
             _lock = false;
         }
 
         [ObservableProperty]
-        private string _color = "";
+        public partial string Color { get; set; } = "";
 
         partial void OnColorChanged(string? oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
+            if (!_loaded || _lock) return;
+
+            _lock = true;
 
             var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
-            if (command is not null)
-            {
-                command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                    str => str,
-                    model => model.Color,
-                    step => step.Color));
+            command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                str => str,
+                model => model.Color,
+                step => step.Color));
+            command?.Commit(true);
 
-                command.Commit(true);
-            }
+            _lock = false;
         }
 
         [ObservableProperty]
-        private string _comment = "";
+        public partial string Comment { get; set; } = "";
 
         partial void OnCommentChanged(string? oldValue, string newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
+            if (!_loaded || _lock) return;
+
+            _lock = true;
 
             var command = _commandStack.Push<UpdateStepPropertyCommand<string, string>>();
-            if (command is not null)
-            {
-                command.Setup(new(Name, Id, oldValue ?? "", newValue,
-                    str => str,
-                    model => model.Comment,
-                    step => step.Comment));
+            command?.Setup(new(Name, Id, oldValue ?? "", newValue,
+                str => str,
+                model => model.Comment,
+                step => step.Comment));
+            command?.Commit(true);
 
-                command.Commit(true);
-            }
+            _lock = false;
         }
 
         [ObservableProperty]
-        private bool _isSkip;
+        public partial bool IsSkip { get; set; }
 
         partial void OnIsSkipChanged(bool oldValue, bool newValue)
         {
-            if (!_loaded) return;
-            if (_lock) return;
+            if (!_loaded || _lock) return;
+
+            _lock = true;
 
             var command = _commandStack.Push<UpdateStepPropertyCommand<bool, bool>>();
-            if (command is not null)
-            {
-                command.Setup(new(Name, Id, oldValue, newValue,
-                    str => str,
-                    model => model.IsSkip,
-                    step => step.IsSkip));
+            command?.Setup(new(Name, Id, oldValue, newValue,
+                str => str,
+                model => model.IsSkip,
+                step => step.IsSkip));
+            command?.Commit(true);
 
-                command.Commit(true);
-            }
+            _lock = false;
         }
 
         public Step ToEntity()

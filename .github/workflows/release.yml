@@ -9,13 +9,13 @@ jobs:
       version: ${{ steps.previoustag.outputs.tag }}
     steps:
       - name: Checkout 
-        uses: actions/checkout@v4.1.5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 
       
       - name: Get Previous tag
         id: previoustag
-        uses: WyriHaximus/github-action-get-previous-tag@v1.4.0  
+        uses: WyriHaximus/github-action-get-previous-tag@v2
         with:
           fallback: 1.0.0
   Build:
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: FactorioTAS-${{needs.version.outputs.version}}
-          path: FactorioToolAssistedSpeedrun\bin\Release\net10.0-windows\win-x64\publish\
+          path: FactorioToolAssistedSpeedrun\bin\Release\net10.0-windows\publish\
           if-no-files-found: error
                   
   Release:

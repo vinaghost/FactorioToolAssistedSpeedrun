@@ -8,6 +8,8 @@ using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FactorioToolAssistedSpeedrun.Services
 {
@@ -75,45 +77,68 @@ namespace FactorioToolAssistedSpeedrun.Services
         public ObservableCollectionEx<StepModel> StepCollection { get; set; } = [];
 
         [ObservableProperty]
-        private StepModel? _selectedStep;
+        public partial StepModel? SelectedStep { get; set; }
 
         [ObservableProperty]
-        private int _selectedStepIndex;
+        public partial int SelectedStepIndex { get; set; }
 
-        partial void OnSelectedStepIndexChanged(int value)
+        private CancellationTokenSource? _selectedStepIndexUpdateCancellation;
+
+        async partial void OnSelectedStepIndexChanged(int value)
         {
-            UpdateSettingCommand.Execute(_dataService.ProjectDataFile, SettingConstants.SelectedRow, value.ToString()).Wait();
+            _selectedStepIndexUpdateCancellation?.Cancel();
+            _selectedStepIndexUpdateCancellation?.Dispose();
+
+            var cancellationSource = new CancellationTokenSource();
+            _selectedStepIndexUpdateCancellation = cancellationSource;
+
+            try
+            {
+                await Task.Delay(100, cancellationSource.Token);
+                await UpdateSettingCommand.Execute(_dataService.ProjectDataFile, SettingConstants.SelectedRow, value.ToString());
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            finally
+            {
+                if (ReferenceEquals(_selectedStepIndexUpdateCancellation, cancellationSource))
+                {
+                    _selectedStepIndexUpdateCancellation = null;
+                    cancellationSource.Dispose();
+                }
+            }
         }
 
         public ObservableCollectionEx<CraftingModel> CraftingCollection { get; set; } = [];
 
         [ObservableProperty]
-        private CraftingModel? _selectedCraftStep;
+        public partial CraftingModel? SelectedCraftStep { get; set; }
 
         public ObservableCollectionEx<StepModel> TemplateStepCollection { get; set; } = [];
 
         [ObservableProperty]
-        private StepModel? _selectedTemplateStep;
+        public partial StepModel? SelectedTemplateStep { get; set; }
 
         [ObservableProperty]
-        private int _selectedTemplateStepIndex;
+        public partial int SelectedTemplateStepIndex { get; set; }
 
         public ObservableCollection<string> TemplateCollection { get; set; } = [];
 
         [ObservableProperty]
-        private string? _selectedTemplate;
+        public partial string? SelectedTemplate { get; set; }
 
         [ObservableProperty]
-        private int _x;
+        public partial int X { get; set; }
 
         [ObservableProperty]
-        private int _y;
+        public partial int Y { get; set; }
 
         [ObservableProperty]
-        private int _offset;
+        public partial int Offset { get; set; }
 
         [ObservableProperty]
-        private int _multipler = 1;
+        public partial int Multipler { get; set; } = 1;
 
         partial void OnMultiplerChanged(int value)
         {
@@ -124,10 +149,10 @@ namespace FactorioToolAssistedSpeedrun.Services
         }
 
         [ObservableProperty]
-        private int _iterator;
+        public partial int Iterator { get; set; }
 
         [ObservableProperty]
-        private TemplateDirectionType _templateDirection;
+        public partial TemplateDirectionType TemplateDirection { get; set; }
 
         public ObservableCollection<TemplateDirectionType> TemplateDirections { get; set; } =
         [

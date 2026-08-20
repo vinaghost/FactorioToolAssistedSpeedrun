@@ -32,8 +32,6 @@ jobs:
         with:
           path: ${{ env.DOTNET_INSTALL_DIR }}
           key: dotnet-${{ runner.os }}-10.0.400
-          restore-keys: |
-            dotnet-${{ runner.os }}-
           
       - name: Install dotnet
         if: ${{ steps.cache-dotnet.outputs.cache-hit != 'true' }}
@@ -53,8 +51,6 @@ jobs:
         with:
           path: ${{ env.NUGET_PACKAGES }}
           key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
           
       - name: Install dependencies
         run: dotnet restore --locked-mode
@@ -82,7 +78,7 @@ jobs:
       
       - name: Archive release
         run: |
-          cd FactorioTAS; zip -r "FactorioTAS-${{needs.version.outputs.version}}.zip" FactorioTAS-${{needs.version.outputs.version}}; cp -R "FactorioTAS-${{needs.version.outputs.version}}.zip" ../; cd ..
+          cd FactorioTAS; ls; zip -r "FactorioTAS-${{needs.version.outputs.version}}.zip" FactorioTAS-${{needs.version.outputs.version}}; cp -R "FactorioTAS-${{needs.version.outputs.version}}.zip" ../; cd ..
       
       - name: Release
         uses: softprops/action-gh-release@v3

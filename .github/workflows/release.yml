@@ -78,7 +78,7 @@ jobs:
       
       - name: Archive release
         run: |
-          cd FactorioTAS; ls; zip -r "FactorioTAS-${{needs.version.outputs.version}}.zip" FactorioTAS-${{needs.version.outputs.version}}; cp -R "FactorioTAS-${{needs.version.outputs.version}}.zip" ../; cd ..
+          mv FactorioTAS FactorioTAS-${{needs.version.outputs.version}}; zip -r "FactorioTAS-${{needs.version.outputs.version}}.zip" FactorioTAS-${{needs.version.outputs.version}};
       
       - name: Release
         uses: softprops/action-gh-release@v3

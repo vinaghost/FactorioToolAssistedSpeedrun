@@ -28,34 +28,28 @@ jobs:
     steps:
       - name: Cache dotnet
         id: cache-dotnet
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.DOTNET_INSTALL_DIR }}
-          key: dotnet-${{ runner.os }}-10.0.102
+          key: dotnet-${{ runner.os }}-10.0.400
           restore-keys: |
             dotnet-${{ runner.os }}-
           
       - name: Install dotnet
         if: ${{ steps.cache-dotnet.outputs.cache-hit != 'true' }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.102
-
-      - name: Check default dotnet version
-        run: dotnet --version
+          dotnet-version: 10.0.400
 
       - name: Set installed/cached dotnet path [${{ env.DOTNET_INSTALL_DIR }}]
         run: echo "${{ env.DOTNET_INSTALL_DIR }}" | Out-File -FilePath $ENV:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Check installed/cached dotnet version
-        run: dotnet --version
-          
+                  
       - name: Checkout
-        uses: actions/checkout@v4.1.5        
+        uses: actions/checkout@v7      
       
       - name: Cache NuGet packages      
         id: cache-nuget
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.NUGET_PACKAGES }}
           key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
@@ -66,10 +60,10 @@ jobs:
         run: dotnet restore --locked-mode
       
       - name: Publish
-        run: dotnet publish FactorioToolAssistedSpeedrun -c Release --no-restore --self-contained -p:PublishSingleFile=true
+        run: dotnet publish FactorioToolAssistedSpeedrun -c Release --no-restore
         
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v7
         with:
           name: FactorioTAS-${{needs.version.outputs.version}}
           path: FactorioToolAssistedSpeedrun\bin\Release\net10.0-windows\win-x64\publish\
@@ -82,7 +76,7 @@ jobs:
     needs: [Build,Version]
     steps:        
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: FactorioTAS
       
@@ -91,7 +85,7 @@ jobs:
           cd FactorioTAS; zip -r "FactorioTAS-${{needs.version.outputs.version}}.zip" FactorioTAS-${{needs.version.outputs.version}}; cp -R "FactorioTAS-${{needs.version.outputs.version}}.zip" ../; cd ..
       
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: FactorioTAS-${{needs.version.outputs.version}}
           tag_name: ${{needs.version.outputs.version}}
@@ -103,6 +97,6 @@ jobs:
     needs: [Release,Version]
     steps:
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v5
+        uses: geekyeggo/delete-artifact@v6
         with:
           name: FactorioTAS-${{needs.version.outputs.version}}

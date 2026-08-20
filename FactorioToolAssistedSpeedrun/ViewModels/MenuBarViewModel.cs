@@ -389,7 +389,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
 
             var gameData = await JsonSerializer.DeserializeAsync<GameData>(fileContent);
 
-            Properties.Settings.Default.GameDataFile = Path.GetFileName(filename);
+            Properties.Settings.Default.GameDataFile = Path.GetFullPath(filename);
             Properties.Settings.Default.Save();
 
             _dataService.LoadGameDataFile();

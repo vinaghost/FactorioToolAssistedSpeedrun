@@ -40,7 +40,7 @@
             Grid.Row="0"
             Grid.Column="1"
             Margin="0,5,0,5"
-            Text="{Binding FindX, UpdateSourceTrigger=LostFocus}" />
+            Text="{Binding FindX, UpdateSourceTrigger=PropertyChanged}" />
 
         <!--  Find Y  -->
         <Label
@@ -53,7 +53,7 @@
             Grid.Row="1"
             Grid.Column="1"
             Margin="0,5,0,5"
-            Text="{Binding FindY, UpdateSourceTrigger=LostFocus}" />
+            Text="{Binding FindY, UpdateSourceTrigger=PropertyChanged}" />
 
         <!--  Replace X  -->
         <Label
@@ -66,7 +66,7 @@
             Grid.Row="0"
             Grid.Column="4"
             Margin="0,5,0,5"
-            Text="{Binding ReplaceX, UpdateSourceTrigger=LostFocus}" />
+            Text="{Binding ReplaceX, UpdateSourceTrigger=PropertyChanged}" />
 
         <!--  Replace Y  -->
         <Label
@@ -79,7 +79,7 @@
             Grid.Row="1"
             Grid.Column="4"
             Margin="0,5,0,5"
-            Text="{Binding ReplaceY, UpdateSourceTrigger=LostFocus}" />
+            Text="{Binding ReplaceY, UpdateSourceTrigger=PropertyChanged}" />
 
         <!--  Find Button  -->
         <Button

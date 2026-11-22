@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Services;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.ViewModels
@@ -175,37 +178,37 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         }
 
         [ObservableProperty]
-        private bool _xEnabled;
+        public partial bool XEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _yEnabled;
+        public partial bool YEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _amountEnabled;
+        public partial bool AmountEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _itemEnabled;
+        public partial bool ItemEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _inventoryEnabled;
+        public partial bool InventoryEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _inputPriorityEnabled;
+        public partial bool InputPriorityEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _outputPriorityEnabled;
+        public partial bool OutputPriorityEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _orientationEnabled;
+        public partial bool OrientationEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _takeAllEnabled;
+        public partial bool TakeAllEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _mineSplitEnabled;
+        public partial bool MineSplitEnabled { get; set; }
 
         [ObservableProperty]
-        private bool _walkTowardsEnabled;
+        public partial bool WalkTowardsEnabled { get; set; }
 
         public ObservableCollection<string> Items { get; } = [];
         public ObservableCollection<InventoryType> Inventories { get; } = [.. Enum.GetValues<InventoryType>()];

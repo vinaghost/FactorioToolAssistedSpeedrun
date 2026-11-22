@@ -1,5 +1,4 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Queries
 {
@@ -11,10 +10,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
         public List<Step> Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
-            return [.. context.Steps
-                .AsNoTracking()
-                .Where(x => x.Name == Name)
-                .OrderBy(x => x.Location)];
+            return context.GetSteps(Name);
         }
     }
 }

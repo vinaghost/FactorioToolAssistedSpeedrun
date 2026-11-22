@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace FactorioToolAssistedSpeedrun.Entities
+﻿namespace FactorioToolAssistedSpeedrun.Entities
 {
-    [PrimaryKey("Key")]
     public class Setting
     {
         public string Key { get; set; } = "";

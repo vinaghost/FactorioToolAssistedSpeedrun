@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FactorioToolAssistedSpeedrun.Commands.Features;
 using FactorioToolAssistedSpeedrun.Constants;
+using Microsoft.Data.Sqlite;
 using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Misc;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Queries;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -252,7 +252,7 @@ namespace FactorioToolAssistedSpeedrun.Services
             }
 
             using var context = new ProjectDbContext(_dataService.ProjectDataFile!);
-            context.Steps.Where(x => x.Name == templateName).ExecuteDelete();
+            context.ExecuteNonQuery("DELETE FROM Steps WHERE Name = $name", new SqliteParameter("$name", templateName));
         }
 
         private void LoadCrafting(List<Step> steps)

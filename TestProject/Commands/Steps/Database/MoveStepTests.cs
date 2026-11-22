@@ -24,8 +24,7 @@ namespace TestProject.Commands.Steps.Database
             context.MoveSteps(StepCategoryName, [Id], moveOffset);
 
             // Assert
-            context.ChangeTracker.Clear();
-            var steps = context.Steps.Where(s => s.Name == StepCategoryName).OrderBy(s => s.Location).ToList();
+            var steps = context.GetSteps(StepCategoryName);
             Assert.Equal(Amount, steps.Count);
             Assert.Equal(Enumerable.Range(1, Amount), steps.Select(x => x.Location));
             Assert.Equal(expectedIndex, steps.First(s => s.Id == Id).Location);
@@ -45,8 +44,7 @@ namespace TestProject.Commands.Steps.Database
             // Act
             context.MoveSteps(StepCategoryName, [.. stepIds], moveOffset);
             // Assert
-            context.ChangeTracker.Clear();
-            var steps = context.Steps.Where(s => s.Name == StepCategoryName).OrderBy(s => s.Location).ToList();
+            var steps = context.GetSteps(StepCategoryName);
             Assert.Equal(Amount, steps.Count);
             Assert.Equal(Enumerable.Range(1, Amount), steps.Select(x => x.Location));
             for (int i = 0; i < moveCount; i++)

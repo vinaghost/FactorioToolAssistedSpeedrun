@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.Sqlite;
 
 namespace FactorioToolAssistedSpeedrun.Queries
 {
@@ -11,11 +11,9 @@ namespace FactorioToolAssistedSpeedrun.Queries
         public int Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
-            return context.Steps
-                .AsNoTracking()
-                .Where(x => x.Name == "")
-                .Where(x => Math.Abs(x.X - X) < 0.0001 && Math.Abs(x.Y - Y) < 0.0001)
-                .Count();
+            return context.ExecuteScalar<int>(
+                "SELECT COUNT(*) FROM Steps WHERE Name = '' AND ABS(X - $x) < 0.0001 AND ABS(Y - $y) < 0.0001",
+                new SqliteParameter("$x", X), new SqliteParameter("$y", Y));
         }
     }
 }

@@ -9,54 +9,55 @@ namespace FactorioToolAssistedSpeedrun.Commands.Features
         {
             using var context = new ProjectDbContext(projectDataFile);
 
-            await Task.Run(context.Database.EnsureDeleted);
-            await Task.Run(context.Database.EnsureCreated);
+            await Task.Run(context.EnsureDeleted);
+            await Task.Run(context.EnsureCreated);
             await Task.Run(context.SetupTriggers);
 
-            context.Steps.AddRange(tasFile.StepCollection);
-            context.Settings.Add(new Setting
+            await Task.Run(() => context.RunInTransaction(() =>
             {
-                Key = SettingConstants.ScriptFolder,
-                Value = tasFile.ScriptFolder
-            });
+                context.InsertSteps(tasFile.StepCollection);
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.ScriptFolder,
+                    Value = tasFile.ScriptFolder
+                });
 
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.SelectedRow,
-                Value = tasFile.SelectedRow.ToString()
-            });
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.SelectedRow,
+                    Value = tasFile.SelectedRow.ToString()
+                });
 
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.ImportIntoRow,
-                Value = tasFile.ImportIntoRow.ToString()
-            });
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.ImportIntoRow,
+                    Value = tasFile.ImportIntoRow.ToString()
+                });
 
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.PrintMessage,
-                Value = tasFile.PrintComments ? "1" : "0"
-            });
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.PrintMessage,
+                    Value = tasFile.PrintComments ? "1" : "0"
+                });
 
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.PrintSavegame,
-                Value = tasFile.PrintSavegame ? "1" : "0"
-            });
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.PrintSavegame,
+                    Value = tasFile.PrintSavegame ? "1" : "0"
+                });
 
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.PrintTech,
-                Value = tasFile.PrintTech ? "1" : "0"
-            });
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.PrintTech,
+                    Value = tasFile.PrintTech ? "1" : "0"
+                });
 
-            context.Settings.Add(new Setting
-            {
-                Key = SettingConstants.Environment,
-                Value = tasFile.Environment.ToString()
-            });
-
-            await Task.Run(context.SaveChanges);
+                context.AddSetting(new Setting
+                {
+                    Key = SettingConstants.Environment,
+                    Value = tasFile.Environment.ToString()
+                });
+            }));
         }
     }
 }

@@ -7,11 +7,7 @@
         public List<string> Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
-            return [.. context.Steps
-                .Where(x => !string.IsNullOrEmpty(x.Name))
-                .Select(x => x.Name)
-                .Distinct()
-                .OrderBy(x => x)];
+            return context.Query("SELECT DISTINCT Name FROM Steps WHERE Name IS NOT NULL AND Name <> '' ORDER BY Name", reader => reader.GetString(0));
         }
     }
 }

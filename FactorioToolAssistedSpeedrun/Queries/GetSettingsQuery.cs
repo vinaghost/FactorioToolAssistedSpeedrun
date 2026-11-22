@@ -23,28 +23,28 @@ namespace FactorioToolAssistedSpeedrun.Queries
             using var context = new ProjectDbContext(ProjectDataFile);
 
             var printComments = false;
-            var printMessageSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintMessage);
+            var printMessageSetting = context.GetSetting(SettingConstants.PrintMessage);
             if (printMessageSetting is not null)
             {
                 printComments = printMessageSetting.Value == "1";
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.PrintMessage,
                     Value = "0"
                 });
             }
             var printSavegame = false;
-            var printSavegameSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintSavegame);
+            var printSavegameSetting = context.GetSetting(SettingConstants.PrintSavegame);
             if (printSavegameSetting is not null)
             {
                 printSavegame = printSavegameSetting.Value == "1";
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.PrintSavegame,
                     Value = "1"
@@ -52,14 +52,14 @@ namespace FactorioToolAssistedSpeedrun.Queries
             }
 
             var printTech = false;
-            var printTechSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.PrintTech);
+            var printTechSetting = context.GetSetting(SettingConstants.PrintTech);
             if (printTechSetting is not null)
             {
                 printTech = printTechSetting.Value == "1";
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.PrintTech,
                     Value = "1"
@@ -69,7 +69,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
             var debugMode = false;
             var developmentMode = false;
             var productionMode = false;
-            var environmentSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.Environment);
+            var environmentSetting = context.GetSetting(SettingConstants.Environment);
             if (environmentSetting is not null)
             {
                 switch (environmentSetting.Value)
@@ -93,7 +93,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.Environment,
                     Value = "1"
@@ -101,21 +101,19 @@ namespace FactorioToolAssistedSpeedrun.Queries
             }
 
             var scriptFolder = "";
-            var modsFolderSetting = context.Settings.FirstOrDefault(s => s.Key == SettingConstants.ScriptFolder);
+            var modsFolderSetting = context.GetSetting(SettingConstants.ScriptFolder);
             if (modsFolderSetting is not null)
             {
                 scriptFolder = modsFolderSetting.Value;
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.ScriptFolder,
                     Value = ""
                 });
             }
-
-            context.SaveChanges();
 
             return new SettingsResult
             {

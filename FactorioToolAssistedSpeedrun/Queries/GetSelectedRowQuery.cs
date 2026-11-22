@@ -10,8 +10,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
         public int Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
-            var selectedRowSetting = context.Settings
-                .FirstOrDefault(s => s.Key == SettingConstants.SelectedRow);
+            var selectedRowSetting = context.GetSetting(SettingConstants.SelectedRow);
             if (selectedRowSetting is not null &&
                 int.TryParse(selectedRowSetting.Value, out var selectedRow))
             {
@@ -19,12 +18,11 @@ namespace FactorioToolAssistedSpeedrun.Queries
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.SelectedRow,
                     Value = "0"
                 });
-                context.SaveChanges();
             }
             return 0;
         }

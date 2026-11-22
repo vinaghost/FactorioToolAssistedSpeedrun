@@ -1,6 +1,5 @@
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Commands.Steps.Database
 {
@@ -29,8 +28,7 @@ namespace TestProject.Commands.Steps.Database
             context.AddSteps(StepCategoryName, [newStep]);
 
             // Assert
-            context.ChangeTracker.Clear();
-            var steps = context.Steps.Where(s => s.Name == StepCategoryName).OrderBy(s => s.Location).ToList();
+            var steps = context.GetSteps(StepCategoryName);
             Assert.Equal(Amount + 1, steps.Count);
             Assert.Equal(expectedSteps, steps.Select(x => x.Id));
             Assert.Equal(Enumerable.Range(1, Amount + 1), steps.Select(x => x.Location));
@@ -60,8 +58,7 @@ namespace TestProject.Commands.Steps.Database
             context.AddSteps(StepCategoryName, newSteps);
 
             // Assert
-            context.ChangeTracker.Clear();
-            var steps = context.Steps.Where(s => s.Name == StepCategoryName).OrderBy(s => s.Location).ToList();
+            var steps = context.GetSteps(StepCategoryName);
             Assert.Equal(Amount + count, steps.Count);
             Assert.Equal(expectedSteps, steps.Select(x => x.Id));
             Assert.Equal(Enumerable.Range(1, Amount + count), steps.Select(x => x.Location));

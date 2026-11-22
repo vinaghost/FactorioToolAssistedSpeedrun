@@ -1,10 +1,8 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace FactorioToolAssistedSpeedrun.Entities
 {
-    [PrimaryKey(nameof(Id))]
     public class Step
     {
         public Guid Id { get; set; } = Guid.NewGuid();

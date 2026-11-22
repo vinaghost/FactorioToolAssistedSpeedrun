@@ -16,14 +16,13 @@ namespace TestProject.Commands.Steps.Database
         {
             // Arrange
             var (context, initialSteps) = _fixture.SeedSteps(StepCategoryName, Amount);
-            var stepsToDelete = context.Steps.Where(s => s.Location == deleteAt && s.Name == StepCategoryName).ToList();
+            var stepsToDelete = context.GetSteps(StepCategoryName).Where(s => s.Location == deleteAt).ToList();
 
             // Act
             context.DeleteSteps(StepCategoryName, stepsToDelete);
 
             // Assert
-            context.ChangeTracker.Clear();
-            var steps = context.Steps.Where(s => s.Name == StepCategoryName).OrderBy(s => s.Location).ToList();
+            var steps = context.GetSteps(StepCategoryName);
             Assert.Equal(Amount - 1, steps.Count);
             Assert.Equal(Enumerable.Range(1, Amount - 1), steps.Select(x => x.Location));
 
@@ -38,12 +37,11 @@ namespace TestProject.Commands.Steps.Database
         {
             // Arrange
             var (context, initialSteps) = _fixture.SeedSteps(StepCategoryName, Amount);
-            var stepsToDelete = context.Steps.Where(s => s.Location >= deleteAt && s.Location < deleteAt + deleteCount && s.Name == StepCategoryName).ToList();
+            var stepsToDelete = context.GetSteps(StepCategoryName).Where(s => s.Location >= deleteAt && s.Location < deleteAt + deleteCount).ToList();
             // Act
             context.DeleteSteps(StepCategoryName, stepsToDelete);
             // Assert
-            context.ChangeTracker.Clear();
-            var steps = context.Steps.Where(s => s.Name == StepCategoryName).OrderBy(s => s.Location).ToList();
+            var steps = context.GetSteps(StepCategoryName);
             Assert.Equal(Amount - deleteCount, steps.Count);
             Assert.Equal(Enumerable.Range(1, Amount - deleteCount), steps.Select(x => x.Location));
             foreach (var step in stepsToDelete)

@@ -103,9 +103,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 clonedSteps[i].Location = firstStepLocation + i;
             }
 
-            context.ChangeTracker.Clear();
             context.DeleteSteps(name, steps);
-            context.ChangeTracker.Clear();
             context.AddSteps(name, clonedSteps);
         }
 
@@ -130,9 +128,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseRollback(ProjectDbContext context)
         {
             var (name, steps, _, _) = Parameters;
-            context.ChangeTracker.Clear();
             context.DeleteSteps(name, steps);
-            context.ChangeTracker.Clear();
             context.AddSteps(name, steps);
         }
 

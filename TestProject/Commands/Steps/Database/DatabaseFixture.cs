@@ -1,6 +1,5 @@
 ﻿using FactorioToolAssistedSpeedrun;
 using FactorioToolAssistedSpeedrun.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Commands.Steps.Database
 {
@@ -15,15 +14,15 @@ namespace TestProject.Commands.Steps.Database
 
         public void Dispose()
         {
-            _context.Database.EnsureDeleted();
+            _context.EnsureDeleted();
             _context.Dispose();
         }
 
         private static ProjectDbContext GetInMemoryDbContext()
         {
             var context = new ProjectDbContext($"{Guid.NewGuid()}");
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            context.EnsureDeleted();
+            context.EnsureCreated();
             context.SetupTriggers();
             return context;
         }
@@ -37,19 +36,15 @@ namespace TestProject.Commands.Steps.Database
 
         private void AddSteps(string name, List<(Guid Id, int Location)> steps)
         {
-            _context.Steps.ExecuteDelete();
-            foreach (var (id, location) in steps)
+            _context.ExecuteNonQuery("DELETE FROM Steps");
+            _context.InsertSteps(steps.Select(step => new Step
             {
-                _context.Steps.Add(new Step
-                {
-                    Id = id,
-                    Name = name,
-                    Location = location,
-                    X = Random.Shared.Next(-100, 100),
-                    Y = Random.Shared.Next(-100, 100),
-                });
-            }
-            _context.SaveChanges();
+                Id = step.Id,
+                Name = name,
+                Location = step.Location,
+                X = Random.Shared.Next(-100, 100),
+                Y = Random.Shared.Next(-100, 100),
+            }));
         }
 
         private static List<(Guid Id, int Location)> GenerateSteps(int count)

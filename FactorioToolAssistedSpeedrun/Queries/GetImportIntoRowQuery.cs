@@ -10,8 +10,7 @@ namespace FactorioToolAssistedSpeedrun.Queries
         public int Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
-            var importIntoRowSetting = context.Settings
-                .FirstOrDefault(s => s.Key == SettingConstants.ImportIntoRow);
+            var importIntoRowSetting = context.GetSetting(SettingConstants.ImportIntoRow);
             if (importIntoRowSetting is not null &&
                 int.TryParse(importIntoRowSetting.Value, out var importIntoRow))
             {
@@ -19,12 +18,11 @@ namespace FactorioToolAssistedSpeedrun.Queries
             }
             else
             {
-                context.Settings.Add(new Setting
+                context.AddSetting(new Setting
                 {
                     Key = SettingConstants.ImportIntoRow,
                     Value = "0"
                 });
-                context.SaveChanges();
             }
             return 0;
         }

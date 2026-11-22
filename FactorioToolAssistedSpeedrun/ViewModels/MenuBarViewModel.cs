@@ -295,7 +295,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
                 return;
 
             using var context = new ProjectDbContext(filename);
-            await Task.Run(context.Database.EnsureCreated);
+            await Task.Run(context.EnsureCreated);
             await Task.Run(context.SetupTriggers);
 
             Properties.Settings.Default.ProjectDataFile = filename;
@@ -476,7 +476,7 @@ namespace FactorioToolAssistedSpeedrun.ViewModels
         private async Task OpenFileTask(string filename)
         {
             using var context = new ProjectDbContext(filename);
-            if (context.Settings.Any())
+            if (context.ExecuteScalar<long>("SELECT COUNT(*) FROM Settings") > 0)
             {
                 Properties.Settings.Default.ProjectDataFile = filename;
                 Properties.Settings.Default.Save();

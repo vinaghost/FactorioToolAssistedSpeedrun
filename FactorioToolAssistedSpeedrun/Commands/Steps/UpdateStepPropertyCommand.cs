@@ -1,7 +1,7 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -64,10 +64,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         {
             var (_, stepId, _, newValue, stepPropertyTransformer, stepPropertySelector, _) = Parameters;
             var stepValue = stepPropertyTransformer(newValue);
-            context.Steps
-                .Where(x => x.Id == stepId)
-                .ExecuteUpdate(setters => setters
-                    .SetProperty(stepPropertySelector, stepValue));
+            UpdateStepProperty(context, stepId, stepPropertySelector, stepValue);
         }
 
         public override void UICommit(ObservableCollection<StepModel> collection)
@@ -87,10 +84,17 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         {
             var (_, stepId, oldValue, _, stepPropertyTransformer, stepPropertySelector, _) = Parameters;
             var stepValue = stepPropertyTransformer(oldValue);
-            context.Steps
-               .Where(x => x.Id == stepId)
-               .ExecuteUpdate(setters => setters
-                   .SetProperty(stepPropertySelector, stepValue));
+            UpdateStepProperty(context, stepId, stepPropertySelector, stepValue);
+        }
+
+        private static void UpdateStepProperty(ProjectDbContext context, Guid stepId, Expression<Func<Step, TStep>> stepPropertySelector, TStep stepValue)
+        {
+            var step = new Step();
+            ExpressionHelper.GetSetter(stepPropertySelector)(step, stepValue);
+            var columnName = ((MemberExpression)stepPropertySelector.Body).Member.Name;
+            var columnValue = ProjectDbContext.ToColumnValues(step)[columnName];
+            context.ExecuteNonQuery($"UPDATE Steps SET {columnName} = $value WHERE Id = $id",
+                new SqliteParameter("$value", columnValue), new SqliteParameter("$id", stepId.ToString()));
         }
 
         public override void UIRollback(ObservableCollection<StepModel> collection)

@@ -1,6 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
@@ -9,107 +9,86 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public static void AddSteps(this ProjectDbContext context, string name, List<Step> steps)
         {
             var minLocation = steps.Min(x => x.Location);
-            context.Steps
-                .Where(x => x.Location >= minLocation && x.Name == name)
-                .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location + steps.Count));
-
-            context.Steps.AddRange(steps);
-            context.SaveChanges();
+            context.RunInTransaction(() =>
+            {
+                context.ExecuteNonQuery(
+                    "UPDATE Steps SET Location = Location + $count WHERE Location >= $minLocation AND Name = $name",
+                    new SqliteParameter("$count", steps.Count), new SqliteParameter("$minLocation", minLocation), new SqliteParameter("$name", name));
+                context.InsertSteps(steps);
+            });
         }
 
         public static void DeleteSteps(this ProjectDbContext context, string name, List<Step> steps)
         {
-            context.Steps
-                .Where(x => steps.Select(s => s.Id).Contains(x.Id) && x.Name == name)
-                .ExecuteDelete();
-
+            var idClause = ProjectDbContext.IdInClause(steps.Select(s => s.Id));
             var maxLocation = steps.Max(x => x.Location);
-            context.Steps
-                .Where(x => x.Location > maxLocation && x.Name == name)
-                .ExecuteUpdate(x => x.SetProperty(s => s.Location, s => s.Location - steps.Count));
+            context.RunInTransaction(() =>
+            {
+                context.ExecuteNonQuery($"DELETE FROM Steps WHERE Name = $name AND Id IN ({idClause})", new SqliteParameter("$name", name));
+                context.ExecuteNonQuery(
+                    "UPDATE Steps SET Location = Location - $count WHERE Location > $maxLocation AND Name = $name",
+                    new SqliteParameter("$count", steps.Count), new SqliteParameter("$maxLocation", maxLocation), new SqliteParameter("$name", name));
+            });
         }
 
         public static void MoveSteps(this ProjectDbContext context, string name, List<Guid> stepIds, int moveOffset)
         {
             if (stepIds.Count == 0) return;
-            if (!context.Steps.Any(x => x.Name == name)) return;
+            if (context.ExecuteScalar<int>("SELECT COUNT(*) FROM Steps WHERE Name = $name", new SqliteParameter("$name", name)) == 0) return;
 
-            var count = context.Steps
-                .Where(x => stepIds.Contains(x.Id))
-                .Count();
+            var idClause = ProjectDbContext.IdInClause(stepIds);
+            var count = context.ExecuteScalar<int>($"SELECT COUNT(*) FROM Steps WHERE Id IN ({idClause})");
 
             if (count == 0) return;
             if (moveOffset > 0)
             {
                 // go down
-                var lastStep = context.Steps
-                    .Where(x => x.Name == name)
-                    .OrderByDescending(x => x.Location)
-                    .First();
+                var lastStepLocation = context.ExecuteScalar<int>("SELECT MAX(Location) FROM Steps WHERE Name = $name", new SqliteParameter("$name", name));
+                var lastLocation = context.ExecuteScalar<int>($"SELECT MAX(Location) FROM Steps WHERE Id IN ({idClause})");
 
-                var lastLocation = context.Steps
-                    .Where(x => stepIds.Contains(x.Id))
-                    .OrderByDescending(x => x.Location)
-                    .Select(x => x.Location)
-                    .First();
-
-                if (lastStep.Location == lastLocation)
+                if (lastStepLocation == lastLocation)
                 {
                     return;
                 }
 
-                if (lastLocation + moveOffset > lastStep.Location)
+                if (lastLocation + moveOffset > lastStepLocation)
                 {
-                    moveOffset = lastStep.Location - lastLocation;
+                    moveOffset = lastStepLocation - lastLocation;
                 }
 
-                context.Steps
-                   .Where(x => x.Location > lastLocation && x.Location <= lastLocation + moveOffset && x.Name == name)
-                   .ExecuteUpdate(setters => setters
-                       .SetProperty(b => b.Location, b => b.Location - count));
+                context.ExecuteNonQuery(
+                    "UPDATE Steps SET Location = Location - $count WHERE Location > $lastLocation AND Location <= $maxLocation AND Name = $name",
+                    new SqliteParameter("$count", count), new SqliteParameter("$lastLocation", lastLocation), new SqliteParameter("$maxLocation", lastLocation + moveOffset), new SqliteParameter("$name", name));
             }
             else
             {
                 // go up
-                var firstStep = context.Steps
-                    .Where(x => x.Name == name)
-                    .OrderBy(x => x.Location)
-                    .First();
+                var firstStepLocation = context.ExecuteScalar<int>("SELECT MIN(Location) FROM Steps WHERE Name = $name", new SqliteParameter("$name", name));
+                var firstLocation = context.ExecuteScalar<int>($"SELECT MIN(Location) FROM Steps WHERE Id IN ({idClause})");
 
-                var firstLocation = context.Steps
-                    .Where(x => stepIds.Contains(x.Id))
-                    .OrderBy(x => x.Location)
-                    .Select(x => x.Location)
-                    .First();
-
-                if (firstStep.Location == firstLocation)
+                if (firstStepLocation == firstLocation)
                 {
                     return;
                 }
-                if (firstLocation + moveOffset < firstStep.Location)
+                if (firstLocation + moveOffset < firstStepLocation)
                 {
-                    moveOffset = firstStep.Location - firstLocation;
+                    moveOffset = firstStepLocation - firstLocation;
                 }
-                context.Steps
-                    .Where(x => x.Location < firstLocation && x.Location >= firstLocation + moveOffset && x.Name == name)
-                    .ExecuteUpdate(setters => setters
-                        .SetProperty(b => b.Location, b => b.Location + count));
+                context.ExecuteNonQuery(
+                    "UPDATE Steps SET Location = Location + $count WHERE Location < $firstLocation AND Location >= $minLocation AND Name = $name",
+                    new SqliteParameter("$count", count), new SqliteParameter("$firstLocation", firstLocation), new SqliteParameter("$minLocation", firstLocation + moveOffset), new SqliteParameter("$name", name));
             }
 
-            context.Steps
-                .Where(x => stepIds.Contains(x.Id))
-                .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.Location, b => b.Location + moveOffset));
+            context.ExecuteNonQuery(
+                $"UPDATE Steps SET Location = Location + $moveOffset WHERE Id IN ({idClause})",
+                new SqliteParameter("$moveOffset", moveOffset));
         }
 
         public static void UpdatePosition(this ProjectDbContext context, string name, double oldX, double oldY, double newX, double newY)
         {
-            context.Steps
-                .Where(x => x.Name == name)
-                .Where(x => Math.Abs(x.X - oldX) < 0.0001 && Math.Abs(x.Y - oldY) < 0.0001)
-                .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.X, b => newX)
-                    .SetProperty(b => b.Y, b => newY));
+            context.ExecuteNonQuery(
+                "UPDATE Steps SET X = $newX, Y = $newY WHERE Name = $name AND ABS(X - $oldX) < 0.0001 AND ABS(Y - $oldY) < 0.0001",
+                new SqliteParameter("$newX", newX), new SqliteParameter("$newY", newY), new SqliteParameter("$name", name), new SqliteParameter("$oldX", oldX), new SqliteParameter("$oldY", oldY));
         }
     }
 }

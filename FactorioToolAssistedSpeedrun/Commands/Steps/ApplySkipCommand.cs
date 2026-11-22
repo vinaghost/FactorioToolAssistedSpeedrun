@@ -1,6 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using System.Collections.ObjectModel;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
@@ -25,10 +25,8 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void DatabaseCommit(ProjectDbContext context, List<Guid> stepIds, string name)
         {
-            context.Steps
-                .Where(x => stepIds.Contains(x.Id) && x.Name == name)
-                .ExecuteUpdate(setters => setters
-                    .SetProperty(b => b.IsSkip, b => !b.IsSkip));
+            var idClause = ProjectDbContext.IdInClause(stepIds);
+            context.ExecuteNonQuery($"UPDATE Steps SET IsSkip = 1 - IsSkip WHERE Name = $name AND Id IN ({idClause})", new SqliteParameter("$name", name));
         }
 
         public override void UICommit(ObservableCollection<StepModel> collection)

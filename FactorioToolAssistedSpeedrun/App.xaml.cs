@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
+
 using FactorioToolAssistedSpeedrun.Commands.Steps;
 using FactorioToolAssistedSpeedrun.Services;
 using FactorioToolAssistedSpeedrun.ViewModels;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun

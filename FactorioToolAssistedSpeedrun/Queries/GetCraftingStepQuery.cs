@@ -1,6 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 
 namespace FactorioToolAssistedSpeedrun.Queries
 {
@@ -11,11 +11,8 @@ namespace FactorioToolAssistedSpeedrun.Queries
         public List<Step> Execute()
         {
             using var context = new ProjectDbContext(ProjectDataFile);
-            return [.. context.Steps
-                .AsNoTracking()
-                .Where(x => string.IsNullOrEmpty(x.Name))
-                .Where(x => x.Type == StepType.Craft)
-                .OrderBy(x => x.Location)];
+            return context.QuerySteps("WHERE (Name IS NULL OR Name = '') AND Type = $type ORDER BY Location",
+                new SqliteParameter("$type", StepTypeExtensions.ToString(StepType.Craft)));
         }
     }
 }

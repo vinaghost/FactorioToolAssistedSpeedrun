@@ -1,12 +1,13 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
+using FactorioToolAssistedSpeedrun.Services;
 using Microsoft.Data.Sqlite;
 using System.IO;
 
 namespace FactorioToolAssistedSpeedrun
 {
-    public class ProjectDbContext(string name) : IDisposable
+    public class ProjectDbContext : IDisposable
     {
         private static readonly string[] StepColumns =
         [
@@ -19,8 +20,22 @@ namespace FactorioToolAssistedSpeedrun
         private static readonly string InsertStepSql =
             $"INSERT INTO Steps ({StepSelectColumns}) VALUES ({string.Join(", ", StepColumns.Select(column => $"${column}"))})";
 
+        private readonly string _name;
         private SqliteConnection? _connection;
         private SqliteTransaction? _transaction;
+
+        public ProjectDbContext(string name) : this(name, waitForPendingWrites: true)
+        {
+        }
+
+        internal ProjectDbContext(string name, bool waitForPendingWrites)
+        {
+            _name = name;
+            if (waitForPendingWrites)
+            {
+                DatabaseWriteQueue.Flush();
+            }
+        }
 
         private SqliteConnection Connection
         {
@@ -28,7 +43,7 @@ namespace FactorioToolAssistedSpeedrun
             {
                 if (_connection is null)
                 {
-                    _connection = new SqliteConnection($"Data Source={name}");
+                    _connection = new SqliteConnection($"Data Source={_name}");
                     _connection.Open();
                 }
                 return _connection;
@@ -71,7 +86,7 @@ CREATE TABLE IF NOT EXISTS Settings (
                 SqliteConnection.ClearPool(_connection);
                 _connection = null;
             }
-            File.Delete(name);
+            File.Delete(_name);
         }
 
         public void SetupTriggers()

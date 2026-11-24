@@ -33,55 +33,31 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
 
         public static void MoveSteps(this ProjectDbContext context, string name, List<Guid> stepIds, int moveOffset)
         {
-            if (stepIds.Count == 0) return;
-            if (context.ExecuteScalar<int>("SELECT COUNT(*) FROM Steps WHERE Name = $name", new SqliteParameter("$name", name)) == 0) return;
+            if (stepIds.Count == 0 || moveOffset == 0) return;
 
-            var idClause = ProjectDbContext.IdInClause(stepIds);
-            var count = context.ExecuteScalar<int>($"SELECT COUNT(*) FROM Steps WHERE Id IN ({idClause})");
+            var steps = context.GetSteps(name);
+            var selectedIds = stepIds.ToHashSet();
+            var selectedIndices = steps
+                .Select((step, index) => (step, index))
+                .Where(x => selectedIds.Contains(x.step.Id))
+                .Select(x => x.index)
+                .ToList();
+            if (selectedIndices.Count == 0) return;
 
-            if (count == 0) return;
-            if (moveOffset > 0)
+            var newOrder = StepOrdering.Reorder(steps.Count, selectedIndices, moveOffset);
+            var locations = steps.Select(x => x.Location).ToList();
+            context.RunInTransaction(() =>
             {
-                // go down
-                var lastStepLocation = context.ExecuteScalar<int>("SELECT MAX(Location) FROM Steps WHERE Name = $name", new SqliteParameter("$name", name));
-                var lastLocation = context.ExecuteScalar<int>($"SELECT MAX(Location) FROM Steps WHERE Id IN ({idClause})");
-
-                if (lastStepLocation == lastLocation)
+                for (int position = 0; position < newOrder.Length; position++)
                 {
-                    return;
-                }
+                    var step = steps[newOrder[position]];
+                    if (step.Location == locations[position]) continue;
 
-                if (lastLocation + moveOffset > lastStepLocation)
-                {
-                    moveOffset = lastStepLocation - lastLocation;
+                    context.ExecuteNonQuery(
+                        "UPDATE Steps SET Location = $location WHERE Id = $id",
+                        new SqliteParameter("$location", locations[position]), new SqliteParameter("$id", step.Id.ToString()));
                 }
-
-                context.ExecuteNonQuery(
-                    "UPDATE Steps SET Location = Location - $count WHERE Location > $lastLocation AND Location <= $maxLocation AND Name = $name",
-                    new SqliteParameter("$count", count), new SqliteParameter("$lastLocation", lastLocation), new SqliteParameter("$maxLocation", lastLocation + moveOffset), new SqliteParameter("$name", name));
-            }
-            else
-            {
-                // go up
-                var firstStepLocation = context.ExecuteScalar<int>("SELECT MIN(Location) FROM Steps WHERE Name = $name", new SqliteParameter("$name", name));
-                var firstLocation = context.ExecuteScalar<int>($"SELECT MIN(Location) FROM Steps WHERE Id IN ({idClause})");
-
-                if (firstStepLocation == firstLocation)
-                {
-                    return;
-                }
-                if (firstLocation + moveOffset < firstStepLocation)
-                {
-                    moveOffset = firstStepLocation - firstLocation;
-                }
-                context.ExecuteNonQuery(
-                    "UPDATE Steps SET Location = Location + $count WHERE Location < $firstLocation AND Location >= $minLocation AND Name = $name",
-                    new SqliteParameter("$count", count), new SqliteParameter("$firstLocation", firstLocation), new SqliteParameter("$minLocation", firstLocation + moveOffset), new SqliteParameter("$name", name));
-            }
-
-            context.ExecuteNonQuery(
-                $"UPDATE Steps SET Location = Location + $moveOffset WHERE Id IN ({idClause})",
-                new SqliteParameter("$moveOffset", moveOffset));
+            });
         }
 
         public static void UpdatePosition(this ProjectDbContext context, string name, double oldX, double oldY, double newX, double newY)

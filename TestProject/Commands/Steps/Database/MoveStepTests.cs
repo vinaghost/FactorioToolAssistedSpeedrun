@@ -53,5 +53,45 @@ namespace TestProject.Commands.Steps.Database
                 Assert.Equal(expectedIndex + i, steps.First(s => s.Id == stepId).Location);
             }
         }
+
+        [Theory]
+        [InlineData(1, 3, 1, 2, 4)]
+        [InlineData(2, 4, -1, 1, 3)]
+        [InlineData(5, 10, 2, 7, 12)]
+        public void MoveNonContiguousSteps_KeepLocationsUnique(int firstIndex, int secondIndex, int moveOffset, int expectedFirst, int expectedSecond)
+        {
+            // Arrange
+            var (context, initialSteps) = _fixture.SeedSteps(StepCategoryName, Amount);
+            var firstId = initialSteps.First(s => s.Location == firstIndex).Id;
+            var secondId = initialSteps.First(s => s.Location == secondIndex).Id;
+
+            // Act
+            context.MoveSteps(StepCategoryName, [firstId, secondId], moveOffset);
+
+            // Assert
+            var steps = context.GetSteps(StepCategoryName);
+            Assert.Equal(Enumerable.Range(1, Amount), steps.Select(x => x.Location));
+            Assert.Equal(expectedFirst, steps.First(s => s.Id == firstId).Location);
+            Assert.Equal(expectedSecond, steps.First(s => s.Id == secondId).Location);
+        }
+
+        [Fact]
+        public void MoveNonContiguousStepsDown_ReloadedOrderMatchesMove()
+        {
+            // Arrange
+            var (context, initialSteps) = _fixture.SeedSteps(StepCategoryName, Amount);
+            var first = initialSteps.First(s => s.Location == 1).Id;
+            var second = initialSteps.First(s => s.Location == 3).Id;
+            var expectedOrder = initialSteps.OrderBy(s => s.Location).Select(s => s.Id).ToList();
+            (expectedOrder[0], expectedOrder[1]) = (expectedOrder[1], expectedOrder[0]);
+            (expectedOrder[2], expectedOrder[3]) = (expectedOrder[3], expectedOrder[2]);
+
+            // Act
+            context.MoveSteps(StepCategoryName, [first, second], 1);
+
+            // Assert
+            var steps = context.GetSteps(StepCategoryName);
+            Assert.Equal(expectedOrder, steps.Select(s => s.Id).ToList());
+        }
     }
 }

@@ -1,11 +1,14 @@
-﻿using FactorioToolAssistedSpeedrun.Entities;
-using FactorioToolAssistedSpeedrun.Enums;
-using FactorioToolAssistedSpeedrun.Models.UI;
-using FactorioToolAssistedSpeedrun.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+
+using FactorioToolAssistedSpeedrun.Entities;
+using FactorioToolAssistedSpeedrun.Enums;
+using FactorioToolAssistedSpeedrun.Models.UI;
+using FactorioToolAssistedSpeedrun.Services;
+
+using Microsoft.Data.Sqlite;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
@@ -18,7 +21,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         {
         }
 
-        public static List<Step> Sort(List<Step> steps, SortDirectionType sortDirection, SortFirstType sortFirst)
+        private static List<Step> Sort(List<Step> steps, SortDirectionType sortDirection, SortFirstType sortFirst)
         {
             if (sortFirst == SortFirstType.X)
             {
@@ -91,53 +94,88 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseCommit(ProjectDbContext context)
         {
             var (name, steps, sortDirection, sortFirst) = Parameters;
+            if (steps == null || steps.Count == 0) return;
 
-            var clonedSteps = steps.Select(step => step.Clone()).ToList();
-            var firstStepLocation = clonedSteps.Min(x => x.Location);
+            var firstStepLocation = steps.Min(x => x.Location);
+            var sortedSteps = Sort(steps, sortDirection, sortFirst);
 
-            clonedSteps = Sort(clonedSteps, sortDirection, sortFirst);
-
-            // Update the location for each cloned step starting from the first step location
-            for (int i = 0; i < clonedSteps.Count; i++)
+            context.RunInTransaction(() =>
             {
-                clonedSteps[i].Location = firstStepLocation + i;
-            }
-
-            context.DeleteSteps(name, steps);
-            context.AddSteps(name, clonedSteps);
+                for (int i = 0; i < sortedSteps.Count; i++)
+                {
+                    context.ExecuteNonQuery(
+                        "UPDATE Steps SET Location = $location WHERE Name = $name AND Id = $id",
+                        new SqliteParameter("$location", firstStepLocation + i),
+                        new SqliteParameter("$name", name),
+                        new SqliteParameter("$id", sortedSteps[i].Id));
+                }
+            });
         }
 
         public override void UICommit(ObservableCollection<StepModel> collection)
         {
             var (_, steps, sortDirection, sortFirst) = Parameters;
+            if (steps.Count == 0) return;
 
-            var clonedSteps = steps.Select(step => step.Clone()).ToList();
-            var firstStepLocation = clonedSteps.Min(x => x.Location);
+            var firstStepLocation = steps.Min(x => x.Location);
+            var sortedSteps = Sort(steps, sortDirection, sortFirst);
 
-            clonedSteps = Sort(clonedSteps, sortDirection, sortFirst);
-
-            // Update the location for each cloned step starting from the first step location
-            for (int i = 0; i < clonedSteps.Count; i++)
-            {
-                clonedSteps[i].Location = firstStepLocation + i;
-            }
-            collection.DeleteSteps(steps);
-            collection.AddSteps(clonedSteps);
+            ApplyOrderToCollection(collection, sortedSteps, firstStepLocation);
         }
 
         public override void DatabaseRollback(ProjectDbContext context)
         {
             var (name, steps, _, _) = Parameters;
-            context.DeleteSteps(name, steps);
-            context.AddSteps(name, steps);
+            if (steps == null || steps.Count == 0) return;
+
+            context.RunInTransaction(() =>
+            {
+                foreach (var step in steps)
+                {
+                    context.ExecuteNonQuery(
+                        "UPDATE Steps SET Location = $location WHERE Name = $name AND Id = $id",
+                        new SqliteParameter("$location", step.Location),
+                        new SqliteParameter("$name", name),
+                        new SqliteParameter("$id", step.Id));
+                }
+            });
         }
 
         public override void UIRollback(ObservableCollection<StepModel> collection)
         {
             var (_, steps, _, _) = Parameters;
+            if (steps.Count == 0) return;
 
-            collection.DeleteSteps(steps);
-            collection.AddSteps(steps);
+            var originalOrdered = steps.OrderBy(x => x.Location).ToList();
+            var firstStepLocation = originalOrdered[0].Location;
+
+            ApplyOrderToCollection(collection, originalOrdered, firstStepLocation);
+        }
+
+        private static void ApplyOrderToCollection(
+            ObservableCollection<StepModel> collection,
+            List<Step> orderedSteps,
+            int startLocation)
+        {
+            var modelMap = collection.ToDictionary(m => m.Id);
+
+            for (int i = 0; i < orderedSteps.Count; i++)
+            {
+                int newLocation = startLocation + i;
+                if (!modelMap.TryGetValue(orderedSteps[i].Id, out var model)) continue;
+
+                int oldLocation = model.Location;
+                if (oldLocation == newLocation) continue;
+
+                int step = oldLocation < newLocation ? 1 : -1;
+                for (int loc = oldLocation + step; loc != newLocation + step; loc += step)
+                {
+                    collection[loc - 1].Location -= step;
+                }
+
+                model.Location = newLocation;
+                collection.Move(oldLocation - 1, newLocation - 1);
+            }
         }
     }
 }

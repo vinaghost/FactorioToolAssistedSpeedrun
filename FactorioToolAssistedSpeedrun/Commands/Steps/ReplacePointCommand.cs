@@ -1,6 +1,9 @@
-﻿using FactorioToolAssistedSpeedrun.Models.UI;
+﻿using System.Collections.ObjectModel;
+
+using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
-using System.Collections.ObjectModel;
+
+using Microsoft.Data.Sqlite;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
@@ -44,6 +47,26 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             _commandStack.Lock();
             collection.UpdatePosition(newX, newY, oldX, oldY);
             _commandStack.Unlock();
+        }
+    }
+
+    public static class ReplacePointCommandExtension
+    {
+        public static void UpdatePosition(this ObservableCollection<StepModel> collection, double oldX, double oldY, double newX, double newY)
+        {
+            var item = collection
+                .FirstOrDefault(x => x.X == $"{oldX:F2}" && x.Y == $"{oldY:F2}");
+            if (item is null) return;
+
+            item.X = $"{newX:F2}";
+            item.Y = $"{newY:F2}";
+        }
+
+        public static void UpdatePosition(this ProjectDbContext context, string name, double oldX, double oldY, double newX, double newY)
+        {
+            context.ExecuteNonQuery(
+                "UPDATE Steps SET X = $newX, Y = $newY WHERE Name = $name AND ABS(X - $oldX) < 0.0001 AND ABS(Y - $oldY) < 0.0001",
+                new SqliteParameter("$newX", newX), new SqliteParameter("$newY", newY), new SqliteParameter("$name", name), new SqliteParameter("$oldX", oldX), new SqliteParameter("$oldY", oldY));
         }
     }
 }

@@ -157,12 +157,25 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             List<Step> orderedSteps,
             int startLocation)
         {
-            var modelMap = collection.ToDictionary(m => m.Id);
+            int endLocation = startLocation + orderedSteps.Count - 1;
 
             for (int i = 0; i < orderedSteps.Count; i++)
             {
                 int newLocation = startLocation + i;
-                if (!modelMap.TryGetValue(orderedSteps[i].Id, out var model)) continue;
+                Guid targetId = orderedSteps[i].Id;
+
+                // Find the matching StepModel within the target range
+                StepModel? model = null;
+                for (int loc = newLocation; loc <= endLocation; loc++)
+                {
+                    if (collection[loc - 1].Id == targetId)
+                    {
+                        model = collection[loc - 1];
+                        break;
+                    }
+                }
+
+                if (model == null) continue;
 
                 int oldLocation = model.Location;
                 if (oldLocation == newLocation) continue;

@@ -54,7 +54,6 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 int selectedCount = (int)context.ExecuteScalar<long>(
                     $"SELECT COUNT(*) FROM Steps WHERE Name = $name AND Id IN ({idClause})",
                     new SqliteParameter("$name", name));
-
                 if (selectedCount == 0) return;
 
                 int minLoc = (int)context.ExecuteScalar<long>(

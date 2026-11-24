@@ -1,7 +1,9 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.Database;
+
 using Microsoft.Data.Sqlite;
+
 using System.IO;
 
 namespace FactorioToolAssistedSpeedrun
@@ -174,7 +176,7 @@ END;
         // Guid text contains only hex digits and dashes, so inlining the values is safe.
         public static string IdInClause(IEnumerable<Guid> ids)
         {
-            return string.Join(", ", ids.Select(id => $"'{id}'"));
+            return string.Join(", ", ids.Select(id => $"'{id.ToString().ToUpperInvariant()}'"));
         }
 
         internal static Dictionary<string, object?> ToColumnValues(Step step)

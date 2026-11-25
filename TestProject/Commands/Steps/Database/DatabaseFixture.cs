@@ -27,23 +27,32 @@ namespace TestProject.Commands.Steps.Database
             return context;
         }
 
-        public (ProjectDbContext, List<(Guid Id, int Location)>) SeedSteps(string name, int count)
+        public (ProjectDbContext, List<(Guid Id, int Location)>) SeedSteps(string name, int count, Func<int, (double X, double Y)>? position = null)
         {
             var steps = GenerateSteps(count);
-            AddSteps(name, steps);
+            AddSteps(name, steps, position ?? RandomPosition);
             return (_context, steps);
         }
 
-        private void AddSteps(string name, List<(Guid Id, int Location)> steps)
+        private static (double X, double Y) RandomPosition(int location)
+        {
+            return (Random.Shared.Next(-100, 100), Random.Shared.Next(-100, 100));
+        }
+
+        private void AddSteps(string name, List<(Guid Id, int Location)> steps, Func<int, (double X, double Y)> position)
         {
             _context.ExecuteNonQuery("DELETE FROM Steps");
-            _context.InsertSteps(steps.Select(step => new Step
+            _context.InsertSteps(steps.Select(step =>
             {
-                Id = step.Id,
-                Name = name,
-                Location = step.Location,
-                X = Random.Shared.Next(-100, 100),
-                Y = Random.Shared.Next(-100, 100),
+                var (x, y) = position(step.Location);
+                return new Step
+                {
+                    Id = step.Id,
+                    Name = name,
+                    Location = step.Location,
+                    X = x,
+                    Y = y,
+                };
             }));
         }
 

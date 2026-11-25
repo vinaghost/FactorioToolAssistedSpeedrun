@@ -54,12 +54,15 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
     {
         public static void UpdatePosition(this ObservableCollection<StepModel> collection, double oldX, double oldY, double newX, double newY)
         {
-            var item = collection
-                .FirstOrDefault(x => x.X == $"{oldX:F2}" && x.Y == $"{oldY:F2}");
-            if (item is null) return;
+            var items = collection
+                .Where(x => x.X == $"{oldX:F2}" && x.Y == $"{oldY:F2}")
+                .ToList();
 
-            item.X = $"{newX:F2}";
-            item.Y = $"{newY:F2}";
+            foreach (var item in items)
+            {
+                item.X = $"{newX:F2}";
+                item.Y = $"{newY:F2}";
+            }
         }
 
         public static void UpdatePosition(this ProjectDbContext context, string name, double oldX, double oldY, double newX, double newY)

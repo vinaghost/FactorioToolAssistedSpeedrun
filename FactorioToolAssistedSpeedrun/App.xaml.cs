@@ -25,6 +25,12 @@ namespace FactorioToolAssistedSpeedrun
         public new static App Current => (App)Application.Current;
         private readonly IServiceProvider _services;
 
+        protected override void OnExit(ExitEventArgs e)
+        {
+            DatabaseWriteQueue.Shutdown();
+            base.OnExit(e);
+        }
+
         private static ServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();

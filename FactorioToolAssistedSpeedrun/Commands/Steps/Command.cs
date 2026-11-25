@@ -1,7 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
 using System.Collections.ObjectModel;
-using System.Windows;
 
 namespace FactorioToolAssistedSpeedrun.Commands.Steps
 {
@@ -34,18 +33,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             {
                 return;
             }
-            using (var context = new ProjectDbContext(_dataService.ProjectDataFile!))
-            {
-                try
-                {
-                    DatabaseCommit(context);
-                }
-                catch (Exception ex)
-                {
-                    if (ex.InnerException is not null) ex = ex.InnerException;
-                    MessageBox.Show($"An error occurred while committing to the database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            DatabaseWriteQueue.Enqueue(_dataService.ProjectDataFile!, DatabaseCommit);
 
             if (!ignoreUI)
             {
@@ -73,10 +61,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             {
                 return;
             }
-            using (var context = new ProjectDbContext(_dataService.ProjectDataFile!))
-            {
-                DatabaseRollback(context);
-            }
+            DatabaseWriteQueue.Enqueue(_dataService.ProjectDataFile!, DatabaseRollback);
 
             if (Parameters.Name == "")
             {

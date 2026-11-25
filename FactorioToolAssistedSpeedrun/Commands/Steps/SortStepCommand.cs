@@ -94,7 +94,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseCommit(ProjectDbContext context)
         {
             var (name, steps, sortDirection, sortFirst) = Parameters;
-            if (steps == null || steps.Count == 0) return;
+            if (steps.Count == 0) return;
 
             var firstStepLocation = steps.Min(x => x.Location);
             var sortedSteps = Sort(steps, sortDirection, sortFirst);
@@ -107,7 +107,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                         "UPDATE Steps SET Location = $location WHERE Name = $name AND Id = $id",
                         new SqliteParameter("$location", firstStepLocation + i),
                         new SqliteParameter("$name", name),
-                        new SqliteParameter("$id", sortedSteps[i].Id));
+                        new SqliteParameter("$id", sortedSteps[i].Id.ToString().ToUpperInvariant()));
                 }
             });
         }
@@ -126,7 +126,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
         public override void DatabaseRollback(ProjectDbContext context)
         {
             var (name, steps, _, _) = Parameters;
-            if (steps == null || steps.Count == 0) return;
+            if (steps.Count == 0) return;
 
             context.RunInTransaction(() =>
             {
@@ -136,7 +136,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                         "UPDATE Steps SET Location = $location WHERE Name = $name AND Id = $id",
                         new SqliteParameter("$location", step.Location),
                         new SqliteParameter("$name", name),
-                        new SqliteParameter("$id", step.Id));
+                        new SqliteParameter("$id", step.Id.ToString().ToUpperInvariant()));
                 }
             });
         }
@@ -164,29 +164,24 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
                 int newLocation = startLocation + i;
                 Guid targetId = orderedSteps[i].Id;
 
-                // Find the matching StepModel within the target range
-                StepModel? model = null;
+                int oldLocation = -1;
                 for (int loc = newLocation; loc <= endLocation; loc++)
                 {
                     if (collection[loc - 1].Id == targetId)
                     {
-                        model = collection[loc - 1];
+                        oldLocation = loc;
                         break;
                     }
                 }
 
-                if (model == null) continue;
+                if (oldLocation == -1 || oldLocation == newLocation) continue;
 
-                int oldLocation = model.Location;
-                if (oldLocation == newLocation) continue;
-
-                int step = oldLocation < newLocation ? 1 : -1;
-                for (int loc = oldLocation + step; loc != newLocation + step; loc += step)
+                for (int loc = oldLocation - 1; loc >= newLocation; loc--)
                 {
-                    collection[loc - 1].Location -= step;
+                    collection[loc - 1].Location = loc + 1;
                 }
 
-                model.Location = newLocation;
+                collection[oldLocation - 1].Location = newLocation;
                 collection.Move(oldLocation - 1, newLocation - 1);
             }
         }

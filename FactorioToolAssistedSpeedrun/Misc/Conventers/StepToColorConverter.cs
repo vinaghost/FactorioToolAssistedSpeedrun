@@ -1,5 +1,6 @@
 ﻿using FactorioToolAssistedSpeedrun.Enums;
 using FactorioToolAssistedSpeedrun.Models.UI;
+
 using System.Globalization;
 using System.Windows.Data;
 
@@ -18,6 +19,7 @@ namespace FactorioToolAssistedSpeedrun.Misc.Conventers
                 StepType.Build => "Cyan",
                 StepType.Stop => "Red",
                 StepType.Craft => "LightGray",
+                StepType.Walk => "Lime",
                 StepType.Speed or StepType.Pause or StepType.Save or StepType.KeepCrafting or StepType.KeepOnPath or StepType.KeepWalking or StepType.NeverIdle => "Yellow",
                 _ => "White",
             };

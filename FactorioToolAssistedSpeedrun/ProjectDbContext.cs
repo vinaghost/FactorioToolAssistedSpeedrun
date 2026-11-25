@@ -198,7 +198,7 @@ END;
         {
             return new()
             {
-                ["Id"] = step.Id.ToString(),
+                ["Id"] = step.Id.ToString().ToUpperInvariant(),
                 ["Name"] = step.Name,
                 ["Location"] = step.Location,
                 ["Type"] = StepTypeExtensions.ToString(step.Type),

@@ -1,7 +1,9 @@
 ﻿using FactorioToolAssistedSpeedrun.Entities;
 using FactorioToolAssistedSpeedrun.Models.UI;
 using FactorioToolAssistedSpeedrun.Services;
+
 using Microsoft.Data.Sqlite;
+
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -94,7 +96,7 @@ namespace FactorioToolAssistedSpeedrun.Commands.Steps
             var columnName = ((MemberExpression)stepPropertySelector.Body).Member.Name;
             var columnValue = ProjectDbContext.ToColumnValues(step)[columnName];
             context.ExecuteNonQuery($"UPDATE Steps SET {columnName} = $value WHERE Id = $id",
-                new SqliteParameter("$value", columnValue), new SqliteParameter("$id", stepId.ToString()));
+                new SqliteParameter("$value", columnValue), new SqliteParameter("$id", stepId.ToString().ToUpperInvariant()));
         }
 
         public override void UIRollback(ObservableCollection<StepModel> collection)
